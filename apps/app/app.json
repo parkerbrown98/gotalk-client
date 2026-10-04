@@ -39,6 +39,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6646fc47-a6d7-440b-a332-d4dbe86cd436"
+      }
+    },
+    "owner": "wyrdbox"
   }
 }
