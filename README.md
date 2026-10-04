@@ -1,0 +1,74 @@
+# Gotalk client
+
+Official client for [Gotalk](../gotalk-server/README.md) instances. One codebase ships to iOS, Android,
+web and desktop:
+
+| Target | How |
+|---|---|
+| iOS / Android | [Expo](https://expo.dev) (React Native, Expo Router) in [`apps/app`](apps/app) |
+| Web | The same Expo app exported as a single-page app (`react-native-web`) |
+| Desktop (Windows/macOS/Linux) | [Tauri v2](https://tauri.app) in [`apps/desktop`](apps/desktop), wrapping the web export |
+
+Like Mastodon or Matrix clients, the app is not tied to one server: users enter an instance address and
+the client discovers it via `/.well-known/gotalk-instance` and `GET /api/v1/instance`.
+
+## Layout
+
+| Path | Contents |
+|---|---|
+| `packages/tokens` | Design tokens (colors, spacing, type, radii) → typed light/dark themes and `dist/tokens.css` (`--gt-*` CSS variables for non-React surfaces such as server-rendered pages) |
+| `packages/ui` | `ThemeProvider`/`useTheme` and themed primitives (`Text`, `Button`, `TextField`, `Card`, `Stack`, `Screen`, `Badge`) built on React Native |
+| `packages/api-client` | Typed REST client generated from the server's OpenAPI document (`openapi-typescript` + `openapi-fetch`) |
+| `packages/core` | Framework-agnostic client logic: instance discovery, API compatibility checks, saved-instance store |
+| `apps/app` | Expo Router app (mobile + web) |
+| `apps/desktop` | Tauri shell |
+
+Shared packages are consumed as TypeScript source; there is no separate package build step.
+
+## Getting started
+
+Requirements: Node 22.12+, pnpm 11, and for desktop builds Rust (stable) plus the
+[Tauri prerequisites](https://tauri.app/start/prerequisites/) for your OS.
+
+```sh
+pnpm install
+pnpm web          # web app at http://localhost:8081
+pnpm dev          # Expo dev server (scan the QR code with Expo Go, or press a/i/w)
+pnpm desktop      # Tauri window backed by the Expo dev server
+```
+
+Run a local server from [`../gotalk-server`](../gotalk-server) with `GOTALK_PORT=18080 docker compose up -d`, then
+enter `localhost:18080` on the connect screen. Local and LAN hosts try `http://` before `https://`.
+Instances must allow the client's origin in `server.cors_allowed_origins` (the default is `*`).
+
+## Commands
+
+| Command | Purpose |
+|---|---|
+| `pnpm typecheck` | Type-check every package |
+| `pnpm test` | Unit tests (Vitest). Set `GOTALK_TEST_INSTANCE=localhost:18080` to also run discovery against a live server |
+| `pnpm build` | Web export to `apps/app/dist` and `packages/tokens/dist/tokens.css` |
+| `pnpm desktop:build` | Desktop installers (runs the web export first) |
+| `pnpm api:sync` | Refresh `packages/api-client/openapi.json` from a running instance and regenerate types (`GOTALK_OPENAPI_URL` overrides the default `http://localhost:18080/api/v1/openapi.json`) |
+| `pnpm api:generate` | Regenerate `src/schema.ts` from the committed spec |
+
+Inside `apps/app`, add dependencies with `npx expo install <pkg>` so versions match the Expo SDK, and
+run `npx expo-doctor` after dependency changes.
+
+## Theming
+
+Every color, spacing, and type value comes from `@gotalk/tokens`. Components read the active theme
+through `useTheme()` from `@gotalk/ui`; nothing hard-codes colors. `ThemeProvider` follows the OS
+light/dark setting by default and accepts `overrides` for per-instance branding. The desktop app is
+the web build, so it shares the theme automatically. `tokens.css` makes the same values available to
+plain HTML/CSS.
+
+## Desktop notes
+
+- The window loads the static web export. Deep routes fall back to `index.html`, so reloads work.
+- The CSP allows `connect-src` to any `https:`/`wss:` origin (plus `http:`/`ws:` for local servers),
+  because users choose their own instance. Scripts are limited to `'self'`.
+- Debug the webview on Windows by launching with
+  `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9223` and opening `http://localhost:9223`.
+
+See [`docs/client-plan.md`](../../docs/client-plan.md) for the roadmap.

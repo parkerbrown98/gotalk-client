@@ -1,0 +1,23 @@
+{
+  "name": "gotalk-client",
+  "private": true,
+  "packageManager": "pnpm@11.24.0",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @gotalk/app start",
+    "web": "pnpm --filter @gotalk/app web",
+    "desktop": "pnpm --filter @gotalk/desktop dev",
+    "desktop:build": "pnpm --filter @gotalk/desktop build",
+    "build": "turbo run build --filter=!@gotalk/desktop",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "api:sync": "pnpm --filter @gotalk/api-client sync",
+    "api:generate": "pnpm --filter @gotalk/api-client generate"
+  },
+  "devDependencies": {
+    "turbo": "^2.11.7",
+    "typescript": "~6.0.3"
+  }
+}

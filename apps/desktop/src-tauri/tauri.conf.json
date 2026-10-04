@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Gotalk",
+  "version": "0.1.0",
+  "identifier": "io.gotalk.desktop",
+  "build": {
+    "devUrl": "http://localhost:8081",
+    "frontendDist": "../../app/dist",
+    "beforeDevCommand": "pnpm --filter @gotalk/app exec expo start --port 8081",
+    "beforeBuildCommand": "pnpm --filter @gotalk/app build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Gotalk",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 380,
+        "minHeight": 520
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https: http:; font-src 'self' data:; media-src 'self' blob: https: http:; connect-src 'self' ipc: http://ipc.localhost https: http: wss: ws:",
+      "devCsp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
