@@ -49,16 +49,16 @@ export default function Connect() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <Screen>
-          <Stack gap={5}>
-            <Stack gap={2}>
-              <Text variant="title">Pick your server</Text>
+          <Stack gap="xl">
+            <Stack gap="sm">
+              <Text variant="headingXl">Pick your server</Text>
               <Text tone="muted">
                 Gotalk runs on independent instances. Enter the address of the one you want to join, like
                 forum.example.com.
               </Text>
             </Stack>
 
-            <Stack gap={3}>
+            <Stack gap="md">
               <TextField
                 label="Instance address"
                 placeholder="forum.example.com"
@@ -76,7 +76,13 @@ export default function Connect() {
                 onSubmitEditing={() => address.trim() && !pending && lookUp()}
                 error={error}
               />
-              <Button title="Look up" onPress={lookUp} loading={pending} disabled={!address.trim()} />
+              <Button
+                title="Look up"
+                variant={found ? 'tertiary' : 'primary'}
+                onPress={lookUp}
+                loading={pending}
+                disabled={!address.trim()}
+              />
             </Stack>
 
             {found ? (
@@ -95,20 +101,22 @@ export default function Connect() {
             ) : null}
 
             {saved.length > 0 ? (
-              <Stack gap={3}>
-                <Text variant="label" tone="muted">
+              <Stack gap="md">
+                <Text variant="bodySmStrong" tone="muted">
                   Saved instances
                 </Text>
                 {saved.map((i) => (
-                  <Card key={i.id} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Card compact key={i.id} style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <InstanceIcon name={i.name} iconUrl={i.iconUrl} origin={i.origin} size={36} />
-                    <Stack gap={0} style={{ flex: 1 }}>
-                      <Text variant="label">{i.name}</Text>
-                      <Text variant="caption" tone="muted">
+                    <Stack gap="none" style={{ flex: 1 }}>
+                      <Text variant="bodySmStrong" tone="onDark">
+                        {i.name}
+                      </Text>
+                      <Text variant="captionMd" tone="muted">
                         {i.origin.replace(/^https?:\/\//, '')}
                       </Text>
                     </Stack>
-                    <Button title="Open" variant="secondary" onPress={() => openSaved(i.id)} />
+                    <Button title="Open" variant="tertiary" onPress={() => openSaved(i.id)} />
                   </Card>
                 ))}
               </Stack>

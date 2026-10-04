@@ -11,7 +11,7 @@ against a complete API.
 |---|---|---|
 | Mobile + web | Expo (React Native, Expo Router), web via `react-native-web` exported as an SPA | One component tree for iOS, Android and web |
 | Desktop | Tauri v2 wrapping the web export | Small native binaries; shares the web build and its theme |
-| Themes | `@gotalk/tokens` → typed themes + CSS variables; `@gotalk/ui` primitives read `useTheme()` | One source of truth across every target, plus `tokens.css` for server-rendered pages |
+| Themes | `@gotalk/tokens` (mirrors `DESIGN.md`, dark-only) → typed theme + CSS variables; `@gotalk/ui` primitives read `useTheme()` | One source of truth across every target, plus `tokens.css` for server-rendered pages |
 | API access | `openapi-typescript` + `openapi-fetch` generated from the server's OpenAPI 3.1 document | Types stay in lockstep with the server; `pnpm api:sync` refreshes them |
 | Server state | TanStack Query | Caching, refetching and optimistic updates; the gateway will write into the same cache |
 | Client state | zustand (vanilla stores in `@gotalk/core`) | Framework-agnostic and works the same on every target |
@@ -33,7 +33,7 @@ Delivered:
 
 - Workspace with `packages/{tokens,ui,api-client,core}`, `apps/app` (Expo SDK 57) and `apps/desktop`
   (Tauri 2).
-- Design tokens with light/dark themes, a branding override (`createTheme(scheme, overrides)`), and a
+- Design tokens from `DESIGN.md` (dark-only), a branding override (`createTheme(overrides)`), and a
   generated `tokens.css`.
 - Themed UI primitives, and navigation chrome that follows the active theme.
 - Generated API client (109 operations) that sends the `Gotalk-Api-Version` header and an optional
@@ -83,7 +83,7 @@ Goal: a person can register, sign in, stay signed in, and sign out on every targ
 
 ## Phase 2 — App shell & Places
 
-- Responsive shell: a persistent sidebar (place rail + channel/board list) at the `md` breakpoint and
+- Responsive shell: a persistent sidebar (place rail + channel/board list) at the `tablet` breakpoint (768px) and
   above, which covers desktop and tablets; stack plus drawer on phones.
 - Places: discover (search, member counts), view by slug, join/leave, create, settings, invites.
 - Invite and deep links: the `gotalk://` scheme now, and universal/app links for

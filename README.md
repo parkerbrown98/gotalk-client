@@ -16,8 +16,8 @@ the client discovers it via `/.well-known/gotalk-instance` and `GET /api/v1/inst
 
 | Path | Contents |
 |---|---|
-| `packages/tokens` | Design tokens (colors, spacing, type, radii) → typed light/dark themes and `dist/tokens.css` (`--gt-*` CSS variables for non-React surfaces such as server-rendered pages) |
-| `packages/ui` | `ThemeProvider`/`useTheme` and themed primitives (`Text`, `Button`, `TextField`, `Card`, `Stack`, `Screen`, `Badge`) built on React Native |
+| `packages/tokens` | Design tokens from [DESIGN.md](DESIGN.md) (colors, spacing, radii, Inter type scale, breakpoints) → one typed dark theme and `dist/tokens.css` (`--gt-*` CSS variables for non-React surfaces such as server-rendered pages) |
+| `packages/ui` | `ThemeProvider`/`useTheme` and primitives (`Text`, `Button`, `TextField`, `Card`, `Stack`, `Screen`, `Badge`) built on React Native |
 | `packages/api-client` | Typed REST client generated from the server's OpenAPI document (`openapi-typescript` + `openapi-fetch`) |
 | `packages/core` | Framework-agnostic client logic: instance discovery, API compatibility checks, saved-instance store |
 | `apps/app` | Expo Router app (mobile + web) |
@@ -57,11 +57,16 @@ run `npx expo-doctor` after dependency changes.
 
 ## Theming
 
-Every color, spacing, and type value comes from `@gotalk/tokens`. Components read the active theme
-through `useTheme()` from `@gotalk/ui`; nothing hard-codes colors. `ThemeProvider` follows the OS
-light/dark setting by default and accepts `overrides` for per-instance branding. The desktop app is
-the web build, so it shares the theme automatically. `tokens.css` makes the same values available to
-plain HTML/CSS.
+Every color, spacing, and type value comes from `@gotalk/tokens`, which mirrors [DESIGN.md](DESIGN.md).
+The system is dark-only: there is no light theme and no shadows (depth comes from the surface ladder).
+Components read the active theme through `useTheme()` from `@gotalk/ui`; nothing hard-codes colors.
+`ThemeProvider` accepts `overrides` for per-instance branding. Text is Inter (registered in
+`apps/app/src/app/_layout.tsx`) with `ss03` enabled: via `fontVariant` on native and
+`font-feature-settings` on web. The desktop app is the web build, so it shares the theme
+automatically. `tokens.css` makes the same values available to plain HTML/CSS.
+
+When DESIGN.md changes, update `packages/tokens/src`, then `packages/ui`, then the native config
+(`apps/app/app.json`, `apps/desktop/src-tauri/tauri.conf.json`), which hold the canvas color as a literal.
 
 ## Desktop notes
 

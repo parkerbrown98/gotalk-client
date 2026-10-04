@@ -1,33 +1,52 @@
-import { ThemeProvider as GotalkThemeProvider, useTheme } from '@gotalk/ui';
+import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter';
+import { theme as baseTheme } from '@gotalk/tokens';
+import { ThemeProvider as GotalkThemeProvider, typeStyle, useTheme } from '@gotalk/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider as NavigationThemeProvider } from 'expo-router';
+import { DarkTheme, Stack, ThemeProvider as NavigationThemeProvider } from 'expo-router';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { Platform } from 'react-native';
+
+SplashScreen.preventAutoHideAsync();
+
+// The SPA export has no custom HTML shell, so paint the canvas from JS to avoid overscroll flashes.
+if (Platform.OS === 'web' && typeof document !== 'undefined') {
+  document.documentElement.style.backgroundColor = baseTheme.colors.canvas;
+  document.documentElement.style.colorScheme = 'dark';
+}
 
 const queryClient = new QueryClient();
 
 function Navigation() {
   const theme = useTheme();
   const navTheme = useMemo(() => {
-    const base = theme.scheme === 'dark' ? DarkTheme : DefaultTheme;
+    const c = theme.colors;
     return {
-      ...base,
+      ...DarkTheme,
       colors: {
-        ...base.colors,
-        primary: theme.colors.accent,
-        background: theme.colors.background,
-        card: theme.colors.surface,
-        text: theme.colors.text,
-        border: theme.colors.border,
-        notification: theme.colors.danger,
+        ...DarkTheme.colors,
+        primary: c.primary,
+        background: c.canvas,
+        card: c.canvas,
+        text: c.onDark,
+        border: c.hairline,
+        notification: c.accentRed,
       },
     };
   }, [theme]);
 
   return (
     <NavigationThemeProvider value={navTheme}>
-      <StatusBar style={theme.scheme === 'dark' ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShadowVisible: false }}>
+      <StatusBar style="light" />
+      <Stack
+        screenOptions={{
+          headerShadowVisible: true,
+          headerTitleStyle: typeStyle(theme, 'bodySmStrong'),
+          contentStyle: { backgroundColor: theme.colors.canvas },
+        }}
+      >
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="connect" options={{ title: 'Connect to an instance' }} />
         <Stack.Screen name="home" options={{ title: 'Gotalk' }} />
@@ -37,6 +56,19 @@ function Navigation() {
 }
 
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({
+    [baseTheme.fontFaces['400']]: Inter_400Regular,
+    [baseTheme.fontFaces['500']]: Inter_500Medium,
+    [baseTheme.fontFaces['600']]: Inter_600SemiBold,
+  });
+  const ready = fontsLoaded || !!fontError;
+
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync();
+  }, [ready]);
+
+  if (!ready) return null;
+
   return (
     <GotalkThemeProvider>
       <QueryClientProvider client={queryClient}>

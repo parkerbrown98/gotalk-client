@@ -1,37 +1,46 @@
 import { describe, expect, it } from 'vitest';
 
-import { createTheme, darkTheme, lightTheme, toCss, toCssVariables } from './index.ts';
+import { createTheme, theme, toCss, toCssVariables, typography } from './index.ts';
 
-describe('themes', () => {
-  it('light and dark define the same color tokens', () => {
-    expect(Object.keys(darkTheme.colors).sort()).toEqual(Object.keys(lightTheme.colors).sort());
-  });
-
+describe('theme', () => {
   it('createTheme layers overrides without mutating the base theme', () => {
-    const branded = createTheme('dark', { colors: { accent: '#ff0066' } });
-    expect(branded.colors.accent).toBe('#ff0066');
-    expect(branded.colors.text).toBe(darkTheme.colors.text);
-    expect(darkTheme.colors.accent).not.toBe('#ff0066');
+    const branded = createTheme({ colors: { primary: '#ff0066' } });
+    expect(branded.colors.primary).toBe('#ff0066');
+    expect(branded.colors.ink).toBe(theme.colors.ink);
+    expect(theme.colors.primary).toBe('#ffffff');
   });
 
   it('createTheme without overrides returns the base theme', () => {
-    expect(createTheme('light')).toBe(lightTheme);
+    expect(createTheme()).toBe(theme);
+  });
+
+  it('matches the DESIGN.md surface ladder and primary action', () => {
+    const c = theme.colors;
+    expect([c.canvas, c.surface, c.surfaceElevated, c.surfaceCard]).toEqual(['#07080a', '#0d0d0d', '#101111', '#121212']);
+    expect(c.primary).toBe('#ffffff');
+    expect(c.hairline).toBe('#242728');
+  });
+
+  it('enables ss03 on every text style', () => {
+    for (const style of Object.values(typography)) expect(style.fontFeature).toContain('"ss03"');
   });
 });
 
 describe('css', () => {
-  it('emits kebab-cased color variables and px units', () => {
-    const vars = toCssVariables(lightTheme);
-    expect(vars['--gt-color-text-muted']).toBe(lightTheme.colors.textMuted);
-    expect(vars['--gt-space-4']).toBe('16px');
+  it('emits kebab-cased variables and px units', () => {
+    const vars = toCssVariables(theme);
+    expect(vars['--gt-color-surface-elevated']).toBe('#101111');
+    expect(vars['--gt-space-lg']).toBe('16px');
     expect(vars['--gt-radius-md']).toBe('8px');
+    expect(vars['--gt-type-body-md-size']).toBe('16px');
+    expect(vars['--gt-type-body-md-line-height']).toBe('1.6');
+    expect(vars['--gt-gradient-hero-stripe']).toBe('linear-gradient(#ff5757, #a1131a)');
   });
 
-  it('renders light by default with a dark media query and an explicit override', () => {
-    const css = toCss(lightTheme, darkTheme);
+  it('renders a single dark :root block', () => {
+    const css = toCss(theme);
     expect(css).toContain(':root {');
-    expect(css).toContain('@media (prefers-color-scheme: dark)');
-    expect(css).toContain(':root[data-theme="dark"]');
-    expect(css).toContain(`--gt-color-background: ${darkTheme.colors.background};`);
+    expect(css).toContain('color-scheme: dark;');
+    expect(css).not.toContain('prefers-color-scheme');
   });
 });

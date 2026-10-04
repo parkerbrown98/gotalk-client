@@ -6,34 +6,30 @@ const kebab = (s: string) => s.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase());
 export function toCssVariables(theme: Theme): Record<string, string> {
   const vars: Record<string, string> = {};
   for (const [k, v] of Object.entries(theme.colors)) vars[`--gt-color-${kebab(k)}`] = v;
-  for (const [k, v] of Object.entries(theme.space)) vars[`--gt-space-${k}`] = `${v}px`;
-  for (const [k, v] of Object.entries(theme.radii)) vars[`--gt-radius-${k}`] = `${v}px`;
-  for (const [k, v] of Object.entries(theme.fontSizes)) vars[`--gt-font-size-${k}`] = `${v}px`;
-  for (const [k, v] of Object.entries(theme.fontWeights)) vars[`--gt-font-weight-${k}`] = v;
-  for (const [k, v] of Object.entries(theme.lineHeights)) vars[`--gt-line-height-${k}`] = String(v);
+  for (const [name, g] of Object.entries(theme.gradients)) {
+    vars[`--gt-gradient-${kebab(name)}`] = `linear-gradient(${g.start}, ${g.end})`;
+  }
+  for (const [k, v] of Object.entries(theme.space)) vars[`--gt-space-${kebab(k)}`] = `${v}px`;
+  for (const [k, v] of Object.entries(theme.radii)) vars[`--gt-radius-${kebab(k)}`] = `${v}px`;
+  for (const [k, v] of Object.entries(theme.sizes)) vars[`--gt-size-${kebab(k)}`] = `${v}px`;
+  for (const [k, v] of Object.entries(theme.breakpoints)) vars[`--gt-breakpoint-${kebab(k)}`] = `${v}px`;
   for (const [k, v] of Object.entries(theme.fontFamilies)) vars[`--gt-font-${k}`] = v;
+  vars['--gt-font-feature-settings'] = theme.fontFeatures.base;
+  for (const [name, s] of Object.entries(theme.typography)) {
+    const p = `--gt-type-${kebab(name)}`;
+    vars[`${p}-size`] = `${s.fontSize}px`;
+    vars[`${p}-weight`] = s.fontWeight;
+    vars[`${p}-line-height`] = String(s.lineHeight);
+    vars[`${p}-letter-spacing`] = `${s.letterSpacing}px`;
+    vars[`${p}-feature-settings`] = s.fontFeature;
+  }
   return vars;
 }
 
-function block(selector: string, vars: Record<string, string>, indent = ''): string {
-  const body = Object.entries(vars)
-    .map(([k, v]) => `${indent}  ${k}: ${v};`)
+/** Renders a stylesheet for non-React surfaces (e.g. server-rendered public pages). Dark only. */
+export function toCss(theme: Theme): string {
+  const body = Object.entries({ ...toCssVariables(theme), 'color-scheme': 'dark' })
+    .map(([k, v]) => `  ${k}: ${v};`)
     .join('\n');
-  return `${indent}${selector} {\n${body}\n${indent}}`;
-}
-
-/**
- * Renders a stylesheet for non-React surfaces (e.g. server-rendered public pages). Light is
- * the default; dark applies via `prefers-color-scheme` or an explicit `data-theme="dark"`.
- */
-export function toCss(light: Theme, dark: Theme): string {
-  const lightVars = { ...toCssVariables(light), 'color-scheme': 'light' };
-  const darkVars = { ...toCssVariables(dark), 'color-scheme': 'dark' };
-  return (
-    [
-      block(':root', lightVars),
-      `@media (prefers-color-scheme: dark) {\n${block(':root:not([data-theme="light"])', darkVars, '  ')}\n}`,
-      block(':root[data-theme="dark"]', darkVars),
-    ].join('\n\n') + '\n'
-  );
+  return `:root {\n${body}\n}\n`;
 }

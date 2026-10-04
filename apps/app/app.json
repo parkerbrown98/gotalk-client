@@ -6,7 +6,8 @@
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "gotalk",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#07080A",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "io.gotalk.app"
@@ -14,7 +15,7 @@
     "android": {
       "package": "io.gotalk.app",
       "adaptiveIcon": {
-        "backgroundColor": "#5B5BD6",
+        "backgroundColor": "#07080A",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -30,7 +31,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#5B5BD6",
+          "backgroundColor": "#07080A",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }

@@ -20,8 +20,8 @@ export function InstanceIcon({ name, iconUrl, origin, size = 48 }: { name: strin
   const box = { width: size, height: size, borderRadius: theme.radii.md };
   if (uri) return <Image source={{ uri }} style={box} contentFit="cover" accessibilityIgnoresInvertColors />;
   return (
-    <View style={[box, { backgroundColor: theme.colors.accent, alignItems: 'center', justifyContent: 'center' }]}>
-      <Text style={{ color: theme.colors.accentText, fontSize: size * 0.45, fontWeight: theme.fontWeights.bold }}>
+    <View style={[box, { backgroundColor: theme.colors.surfaceCard, alignItems: 'center', justifyContent: 'center' }]}>
+      <Text variant="headingSm" style={{ fontSize: size * 0.4, lineHeight: size * 0.5 }}>
         {name.trim().charAt(0).toUpperCase() || '?'}
       </Text>
     </View>
@@ -39,28 +39,28 @@ export function InstanceSummary({ instance, origin, secure }: { instance: Instan
   ].filter(Boolean) as string[];
 
   return (
-    <Stack gap={3}>
-      <Stack direction="row" gap={3} align="center">
+    <Stack gap="md">
+      <Stack direction="row" gap="md" align="center">
         <InstanceIcon name={instance.name} iconUrl={instance.icon_url} origin={origin} />
-        <Stack gap={0} style={{ flex: 1 }}>
-          <Text variant="heading">{instance.name}</Text>
-          <Text variant="caption" tone="muted">
+        <Stack gap="none" style={{ flex: 1 }}>
+          <Text variant="headingSm">{instance.name}</Text>
+          <Text variant="captionMd" tone="muted">
             {origin.replace(/^https?:\/\//, '')} · {instance.software.name} {instance.software.version}
           </Text>
         </Stack>
       </Stack>
       {instance.description ? <Text tone="muted">{instance.description}</Text> : null}
-      <Stack direction="row" gap={2} wrap>
+      <Stack direction="row" gap="sm" wrap>
         <Badge
           label={registrationLabel[instance.registration_mode] ?? instance.registration_mode}
           tone={instance.registration_mode === 'open' ? 'success' : 'neutral'}
         />
         {!secure ? <Badge label="Not encrypted (HTTP)" tone="warning" /> : null}
         {features.map((name) => (
-          <Badge key={name} label={name} tone="accent" />
+          <Badge key={name} label={name} />
         ))}
       </Stack>
-      <Text variant="caption" tone="muted">
+      <Text variant="captionMd" tone="muted">
         {instance.stats.users.toLocaleString()} {instance.stats.users === 1 ? 'member' : 'members'} ·{' '}
         {instance.stats.places.toLocaleString()} {instance.stats.places === 1 ? 'place' : 'places'}
       </Text>

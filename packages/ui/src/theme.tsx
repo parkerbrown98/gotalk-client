@@ -1,23 +1,17 @@
-import { createTheme, type ColorScheme, type Theme, type ThemeOverrides } from '@gotalk/tokens';
+import { createTheme, type Theme, type ThemeOverrides } from '@gotalk/tokens';
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import { useColorScheme } from 'react-native';
-
-export type SchemePreference = ColorScheme | 'system';
 
 const ThemeContext = createContext<Theme | null>(null);
 
 export interface ThemeProviderProps {
-  /** Defaults to following the OS. */
-  scheme?: SchemePreference;
-  /** Branding layered over the base theme (e.g. an instance's accent color). */
+  /** Branding layered over the base theme (e.g. an instance's colors). */
   overrides?: ThemeOverrides;
   children: ReactNode;
 }
 
-export function ThemeProvider({ scheme = 'system', overrides, children }: ThemeProviderProps) {
-  const system = useColorScheme();
-  const resolved: ColorScheme = scheme === 'system' ? (system === 'dark' ? 'dark' : 'light') : scheme;
-  const theme = useMemo(() => createTheme(resolved, overrides), [resolved, overrides]);
+/** The design system is dark-only, so there is no scheme preference to follow. */
+export function ThemeProvider({ overrides, children }: ThemeProviderProps) {
+  const theme = useMemo(() => createTheme(overrides), [overrides]);
   return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
 }
 

@@ -21,15 +21,15 @@ export default function Home() {
     >
       <RouterStack.Screen options={{ title: active.name }} />
       <Screen>
-        <Stack gap={5}>
+        <Stack gap="xl">
           <Card>
             {info.data ? (
               <InstanceSummary instance={info.data} origin={active.origin} secure={active.apiBaseUrl.startsWith('https://')} />
             ) : info.isError ? (
-              <Stack gap={2}>
-                <Text variant="heading">{active.name}</Text>
+              <Stack gap="sm">
+                <Text variant="headingSm">{active.name}</Text>
                 <Text tone="danger">Couldn't reach {active.origin}. {info.error.message}</Text>
-                <Button title="Retry" variant="secondary" onPress={() => info.refetch()} />
+                <Button title="Retry" variant="tertiary" onPress={() => info.refetch()} />
               </Stack>
             ) : (
               <ActivityIndicator />
@@ -37,29 +37,31 @@ export default function Home() {
           </Card>
 
           <Card>
-            <Text variant="heading">Sign in</Text>
+            <Text variant="headingSm">Sign in</Text>
             <Text tone="muted">Accounts, places, forums and chat arrive in the next phases of the client.</Text>
           </Card>
 
-          <Stack gap={3}>
+          <Stack gap="md">
             {others.length > 0 ? (
-              <Text variant="label" tone="muted">
+              <Text variant="bodySmStrong" tone="muted">
                 Other instances
               </Text>
             ) : null}
             {others.map((i) => (
-              <Card key={i.id} style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Card compact key={i.id} style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <InstanceIcon name={i.name} iconUrl={i.iconUrl} origin={i.origin} size={36} />
-                <Stack gap={0} style={{ flex: 1 }}>
-                  <Text variant="label">{i.name}</Text>
-                  <Text variant="caption" tone="muted">
+                <Stack gap="none" style={{ flex: 1 }}>
+                  <Text variant="bodySmStrong" tone="onDark">
+                    {i.name}
+                  </Text>
+                  <Text variant="captionMd" tone="muted">
                     {i.origin.replace(/^https?:\/\//, '')}
                   </Text>
                 </Stack>
-                <Button title="Switch" variant="secondary" onPress={() => instancesStore.getState().setActive(i.id)} />
+                <Button title="Switch" variant="tertiary" onPress={() => instancesStore.getState().setActive(i.id)} />
               </Card>
             ))}
-            <Button title="Add an instance" variant="secondary" onPress={() => router.push('/connect')} />
+            <Button title="Add an instance" variant="tertiary" onPress={() => router.push('/connect')} />
             <Button
               title={`Forget ${active.name}`}
               variant="danger"

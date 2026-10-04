@@ -1,33 +1,39 @@
-import { darkColors, lightColors, type ColorTokens } from './colors.ts';
-import { breakpoints, fontFamilies, fontSizes, fontWeights, lineHeights, radii, space } from './scale.ts';
-
-export type ColorScheme = 'light' | 'dark';
+import { colors, gradients, type ColorTokens } from './colors.ts';
+import { breakpoints, fontFaces, fontFamilies, fontFeatures, radii, sizes, space, typography } from './scale.ts';
 
 export interface Theme {
-  scheme: ColorScheme;
   colors: ColorTokens;
+  gradients: typeof gradients;
   space: typeof space;
   radii: typeof radii;
-  fontSizes: typeof fontSizes;
-  fontWeights: typeof fontWeights;
-  lineHeights: typeof lineHeights;
+  sizes: typeof sizes;
+  typography: typeof typography;
   fontFamilies: typeof fontFamilies;
+  fontFaces: typeof fontFaces;
+  fontFeatures: typeof fontFeatures;
   breakpoints: typeof breakpoints;
 }
 
-const shared = { space, radii, fontSizes, fontWeights, lineHeights, fontFamilies, breakpoints };
+/** The only theme. DESIGN.md defines no light variant. */
+export const theme: Theme = {
+  colors,
+  gradients,
+  space,
+  radii,
+  sizes,
+  typography,
+  fontFamilies,
+  fontFaces,
+  fontFeatures,
+  breakpoints,
+};
 
-export const lightTheme: Theme = { scheme: 'light', colors: lightColors, ...shared };
-export const darkTheme: Theme = { scheme: 'dark', colors: darkColors, ...shared };
-export const themes: Record<ColorScheme, Theme> = { light: lightTheme, dark: darkTheme };
-
-/** Per-instance branding an operator (or user) can layer over the base theme. */
+/** Per-instance branding an operator can layer over the base theme. */
 export interface ThemeOverrides {
   colors?: Partial<ColorTokens>;
 }
 
-export function createTheme(scheme: ColorScheme, overrides?: ThemeOverrides): Theme {
-  const base = themes[scheme];
-  if (!overrides?.colors) return base;
-  return { ...base, colors: { ...base.colors, ...overrides.colors } };
+export function createTheme(overrides?: ThemeOverrides): Theme {
+  if (!overrides?.colors) return theme;
+  return { ...theme, colors: { ...theme.colors, ...overrides.colors } };
 }
