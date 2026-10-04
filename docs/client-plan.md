@@ -85,7 +85,7 @@ Delivered:
     (open form, invite code for `invite_only`, an explanation for `closed`)
   - policy acceptance at sign-up (`accept_policies`), and a prompt for outstanding consent from
     `GET /users/@me/consents` after sign-in ("Not now" skips it until the next launch)
-  - policy text opens in a plain-text viewer until the shared Markdown renderer lands in Phase 3
+  - policy text renders with the shared Markdown renderer (added in Phase 3)
 - **Token storage, per instance** (`SecretStorage` in `@gotalk/core`):
   - iOS/Android: `expo-secure-store` (Keychain/Keystore, this device only)
   - desktop: the OS keychain through `secret_get/secret_set/secret_delete` commands in
@@ -150,7 +150,7 @@ Delivered:
 
 - **Responsive shell** (`apps/app/src/app/(app)`): from the `tablet` breakpoint (768px) a place rail, the
   open place's sidebar (forums, chat, voice) and the content; on phones a stack with a bottom tab bar.
-  The tab bar has Places and You; Inbox and Search join when notifications and search exist (Phase 3).
+  The tab bar has Places, Inbox, Search and You (the last two arrived in Phase 3).
 - **Places:**
   - discover with debounced search, "Open to join" filter, paging, and one white button on the best match
   - create (the address fills in from the name), view by slug, join and leave
@@ -191,23 +191,67 @@ Mockups: [App shell and places](./mockups/05-shell-places.html) and
 [Create and manage places](./mockups/09-places-manage.html) (create, settings, invites, place menu,
 delete) are the reference for these screens.
 
-## Phase 3 — Forums
+## Phase 3 — Forums ✅
+
+Goal: read, post, reply, react and search a forum on every target.
 
 Mockups: [Forums](./mockups/06-forums.html) (board topic list, flat topic view with accepted solution,
-Markdown composer with draft state). Not yet mocked: threaded mode, edit history, search results with
-filters, notification center. Mock those before starting them.
+Markdown composer with draft state) and
+[Forums: threads, search and inbox](./mockups/10-forums-more.html) (threaded topic, topic menu, edit
+history, new topic with tag and mention suggestions, place search with filters, inbox, watch levels, new
+forum, and the phone versions) are the reference for these screens.
 
-- Board tree, then topic lists with cursor pagination, unread counts, and pinned/locked state.
-- Topic view in flat and threaded modes, with post numbers, reactions, accepted solutions, and edit
-  history.
-- **Markdown:**
-  - one shared renderer for posts and chat, with sanitized links and mentions
-  - a composer with a formatting toolbar, `@mention`/tag autocomplete, and server-synced drafts
-  - WYSIWYG editing is a later decision; start with Markdown input plus live preview
-- Search with filters (author, tag, board, solved, date) and highlighted snippets.
-- Notification center with unread counts and watch/normal/mute preferences.
-- **Exit criteria:** read, post, reply, react, and search a forum on every target, with screens matching
-  the Phase 3 mockups.
+Delivered:
+
+- **Forum tree:** the sidebar (and the phone place screen) shows categories and nested forums with
+  their depth, a Search row, and New forum for people with Manage boards.
+- **Topic list** (`boards/[id]`): pinned first, unread dot and heavier title, solved, locked, archived
+  and tag badges, replies and last activity, Latest/Unanswered/Solved filters, a tag filter, "Show
+  archived" for moderators, paging, and the watch level of the forum.
+- **Topic view** (`topics/[id]`): flat and threaded boards (a Flat/Threaded switch on threaded ones),
+  post numbers, "replying to #n", reactions with a picker, accepted solutions (author or moderator),
+  edit and delete, edit history, and a topic menu (edit title and tags, pin, lock, archive, delete) that
+  shows only what the viewer may do. Reading advances the server's read position.
+- **Writing:** new topic and reply screens with a toolbar (bold, italic, link, code, quote, mention),
+  Write/Preview, `@mention` suggestions from the place's members, tag suggestions from the place's tags,
+  Ctrl/Cmd+Enter to post, and drafts saved to the server a moment after typing stops (`topic:<board>`,
+  `reply:<topic>[:<post>]`) so they follow the person between devices.
+- **Markdown** (`@gotalk/core` `parseMarkdown`, `apps/app` `Markdown`): `marked` lexes the text and the
+  result is converted to a closed tree that the renderer walks, so raw HTML is shown as text, only
+  http(s) and mailto links open, and images become links. The policy viewer uses it too.
+- **Search** (`places/[slug]/search`, phone Search tab): words, phrases and exclusions with author,
+  tag, forum, answered state, dates, opening posts only and sort, paging, and highlighted snippets.
+- **Inbox:** replies, mentions, accepted answers, reactions and new topics with read and unread, mark
+  all read, dismiss, and links into the topic. An unread count shows on the rail bell and the phone tab,
+  polled every 60 seconds until the gateway arrives.
+- **Watch levels** (watching, normal, muted) for forums and topics.
+- **Tests:** Markdown (sanitizing, mentions, links, plain text), composer helpers (formatting,
+  mention queries, validation, drafts), relative time and notification wording in `@gotalk/core`.
+
+Verified:
+
+- unit tests and typecheck across the workspace, and the web export
+- a scripted Chromium run against a local server at wide (1200px) and phone (390px) widths with an owner
+  and a member: compose with tag and mention, draft saved and restored after a reload, preview, post,
+  mention notification with unread count, reply, react, accept solution, edit with history, watch level,
+  filters, pin and lock (member sees locked), threaded nesting and flattening, search with filters, new
+  forum, mark all read and dismiss. HTML and `javascript:` links in a post stay inert.
+- not yet exercised: iOS, Android and Tauri builds, keyboard avoidance with the real on-screen
+  keyboard, and screen readers.
+
+Known gaps and decisions:
+
+- Pagination is by offset, because that is what the API offers, so the list can shift while someone
+  pages through it. Unanswered and Solved narrow the topics loaded so far, since the list endpoint has
+  no such filters.
+- The sidebar shows no per-forum unread counts: the API reports unread per topic only.
+- The watch level opens as a dialog (a sheet on phones) rather than the popover in the mockup, to share
+  one control across targets.
+- Search covers one place at a time; the instance-wide `/search` is not used yet.
+- Reactions offer a fixed set of emoji; the server accepts any Unicode emoji or shortcode.
+- Moving a topic to another forum, board overwrites and reordering forums are not in the client yet.
+- A forum's edit history shows what each earlier version said; the API has no way to restore one.
+- WYSIWYG editing stays a later decision: Markdown input with live preview is what shipped.
 
 ## Phase 4 — Real-time gateway & chat
 

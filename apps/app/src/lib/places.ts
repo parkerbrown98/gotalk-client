@@ -112,6 +112,14 @@ export function usePlaceAccess(place: Place | undefined): PlaceAccess {
   return { isMember: bits !== undefined, isOwner: !!place && !!session && place.owner_id === session.userId, can };
 }
 
+/** What the user may do inside one board; board overwrites make this differ from the place-wide permissions. */
+export function useBoardAccess(board: Board | undefined): { can: (...names: PermissionName[]) => boolean } {
+  const table = usePermissionTable();
+  const bits = board?.my_permissions;
+  const can = useCallback((...names: PermissionName[]) => hasPermission(bits, names, table), [bits, table]);
+  return { can };
+}
+
 export interface PlaceInput {
   name: string;
   slug: string;

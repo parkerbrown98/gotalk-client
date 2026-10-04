@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator } from 'react-native';
 
-import { PlainMarkdown } from '@/components/plain-markdown';
+import { Markdown } from '@/components/markdown';
 import { ScreenFrame } from '@/components/screen-frame';
 import { useApiClient } from '@/lib/api';
 import { useActiveInstance } from '@/lib/instances';
@@ -38,7 +38,7 @@ export default function PolicyScreen() {
               Version {policy.data.version} · effective {new Date(policy.data.effective_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
             </Text>
           </Stack>
-          <PlainMarkdown source={policy.data.content} />
+          <Markdown source={policy.data.content} />
         </Stack>
       ) : (
         <ActivityIndicator />

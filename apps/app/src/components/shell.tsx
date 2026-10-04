@@ -4,12 +4,27 @@ import { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { CreateBoardDialog } from '@/components/create-board-dialog';
 import { InstanceIcon } from '@/components/instance-summary';
 import { PlaceMenuPopover, usePlaceMenu } from '@/components/place-menu';
 import { useMe } from '@/lib/api';
 import { useSession } from '@/lib/auth';
+import { boardTree, useUnreadCount } from '@/lib/forums';
 import { useActiveInstance } from '@/lib/instances';
 import { useBoards, useChannels, useMyPlaces, usePlace, usePlaceAccess } from '@/lib/places';
+
+/** A small white count, like every other count in the shell. */
+function CountBadge({ count, style }: { count: number; style?: object }) {
+  const theme = useTheme();
+  if (count <= 0) return null;
+  return (
+    <View style={[{ minWidth: 18, height: 18, paddingHorizontal: 5, borderRadius: 9, backgroundColor: theme.colors.primary, alignItems: 'center', justifyContent: 'center' }, style]}>
+      <Text variant="captionSm" tone="inverse" style={{ lineHeight: 14, fontSize: 11 }}>
+        {count > 99 ? '99+' : count}
+      </Text>
+    </View>
+  );
+}
 
 /** The place a path belongs to, e.g. `/places/open-woodworkers/settings` -> `open-woodworkers`. */
 export function useRouteSlug(): string | undefined {
@@ -26,6 +41,7 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
   const active = useActiveInstance();
   const session = useSession();
   const places = useMyPlaces().data ?? [];
+  const unread = useUnreadCount().data ?? 0;
   if (!active) return null;
 
   const link = (key: string, label: string, onPress: () => void, isActive: boolean, children: React.ReactNode) => (
@@ -36,7 +52,7 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
       {children}
     </Pressable>
   );
-  const iconTile = (name: 'compass' | 'plus' | 'search', dashed: boolean, isActive: boolean) => (
+  const iconTile = (name: 'compass' | 'plus' | 'search' | 'bell', dashed: boolean, isActive: boolean, count = 0) => (
     <View
       style={{
         width: 48,
@@ -51,6 +67,7 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
       }}
     >
       <Icon name={name} size={20} color={isActive ? c.onDark : c.mute} />
+      <CountBadge count={count} style={{ position: 'absolute', right: -4, bottom: -4, borderWidth: 2, borderColor: c.canvas, boxSizing: 'content-box' }} />
     </View>
   );
 
@@ -58,6 +75,7 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
     <View style={{ width: 64, backgroundColor: c.canvas, borderRightWidth: 1, borderRightColor: c.hairline, paddingVertical: 12, alignItems: 'center' }}>
       <ScrollView contentContainerStyle={{ alignItems: 'center', gap: 10 }} showsVerticalScrollIndicator={false}>
         {link('palette', 'Jump to a place or channel', onOpenPalette, false, iconTile('search', false, false))}
+        {link('inbox', unread > 0 ? `Inbox, ${unread} unread` : 'Inbox', () => router.push('/inbox'), pathname === '/inbox', iconTile('bell', false, pathname === '/inbox', unread))}
         {places.map((p) =>
           link(p.id, p.name, () => router.push({ pathname: '/places/[slug]', params: { slug: p.slug } }), p.slug === slug, <InstanceIcon name={p.name} iconUrl={p.icon_url} origin={active.origin} size={48} />),
         )}
@@ -80,16 +98,17 @@ export function PlaceSidebar({ slug }: { slug: string }) {
   const pathname = usePathname();
   const place = usePlace(slug).data;
   const access = usePlaceAccess(place);
-  const boards = (useBoards(slug, access.isMember).data ?? []).filter((b) => b.kind === 'board');
+  const boardNodes = boardTree(useBoards(slug, access.isMember).data ?? []);
   const channels = useChannels(slug, access.isMember).data ?? [];
   const menu = usePlaceMenu(place);
   const session = useSession();
   const me = useMe().data;
   const [menuOpen, setMenuOpen] = useState(false);
+  const [newForum, setNewForum] = useState(false);
 
   const text = channels.filter((ch) => ch.kind === 'text');
   const voice = channels.filter((ch) => ch.kind === 'voice');
-  const empty = access.isMember && boards.length === 0 && text.length === 0 && voice.length === 0;
+  const empty = access.isMember && boardNodes.length === 0 && text.length === 0 && voice.length === 0;
   const section = (label: string) => (
     <Text variant="captionMd" tone="muted" style={{ paddingHorizontal: 10, paddingTop: 10, paddingBottom: 2 }}>
       {label}
@@ -112,13 +131,24 @@ export function PlaceSidebar({ slug }: { slug: string }) {
       </Pressable>
       <PlaceMenuPopover items={menu.items} visible={menuOpen} onClose={() => setMenuOpen(false)} />
       {menu.dialogs}
+      <CreateBoardDialog slug={slug} visible={newForum} onClose={() => setNewForum(false)} />
 
       <ScrollView contentContainerStyle={{ padding: 8, gap: 2 }}>
         <NavRow label="Overview" icon="home" active={pathname === `/places/${slug}`} onPress={() => router.push({ pathname: '/places/[slug]', params: { slug } })} />
-        {boards.length > 0 ? section('Forums') : null}
-        {boards.map((b) => (
-          <NavRow key={b.id} label={b.name} icon="forum" active={pathname === `/places/${slug}/boards/${b.id}`} onPress={() => router.push({ pathname: '/places/[slug]/boards/[id]', params: { slug, id: b.id } })} />
+        {access.isMember ? <NavRow label="Search" icon="search" active={pathname === `/places/${slug}/search`} onPress={() => router.push({ pathname: '/places/[slug]/search', params: { slug } })} /> : null}
+        {boardNodes.length > 0 ? section('Forums') : null}
+        {boardNodes.map(({ board: b, depth }) => (
+          <View key={b.id} style={{ marginLeft: depth * 12 }}>
+            {b.kind === 'category' ? (
+              <Text variant="captionMd" tone="muted" style={{ paddingHorizontal: 10, paddingTop: 8, paddingBottom: 2 }}>
+                {b.name}
+              </Text>
+            ) : (
+              <NavRow label={b.name} icon="forum" active={pathname === `/places/${slug}/boards/${b.id}` || pathname.startsWith(`/places/${slug}/boards/${b.id}/`)} onPress={() => router.push({ pathname: '/places/[slug]/boards/[id]', params: { slug, id: b.id } })} />
+            )}
+          </View>
         ))}
+        {access.can('MANAGE_BOARDS') ? <NavRow label="New forum" icon="plus" onPress={() => setNewForum(true)} /> : null}
         {text.length > 0 ? section('Chat') : null}
         {text.map((ch) => (
           <NavRow key={ch.id} label={ch.name} icon="hash" active={pathname === `/places/${slug}/channels/${ch.id}`} onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug, id: ch.id } })} />
@@ -157,15 +187,18 @@ export function PlaceSidebar({ slug }: { slug: string }) {
   );
 }
 
-/** Phone: the places tab and the account tab. Inbox and Search join when notifications and search exist. */
+/** Phone tabs: places, inbox, search and the account. */
 export function TabBar() {
   const theme = useTheme();
   const c = theme.colors;
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
+  const unread = useUnreadCount().data ?? 0;
   const tabs = [
-    { label: 'Places', icon: 'home', href: '/home', active: pathname !== '/you' },
-    { label: 'You', icon: 'user', href: '/you', active: pathname === '/you' },
+    { label: 'Places', icon: 'home', href: '/home', active: pathname !== '/you' && pathname !== '/inbox' && pathname !== '/search', count: 0 },
+    { label: 'Inbox', icon: 'bell', href: '/inbox', active: pathname === '/inbox', count: unread },
+    { label: 'Search', icon: 'search', href: '/search', active: pathname === '/search', count: 0 },
+    { label: 'You', icon: 'user', href: '/you', active: pathname === '/you', count: 0 },
   ] as const;
   return (
     <View
@@ -173,8 +206,11 @@ export function TabBar() {
       style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: c.hairline, backgroundColor: c.canvas, paddingTop: 8, paddingBottom: Math.max(insets.bottom, 8) }}
     >
       {tabs.map((t) => (
-        <Pressable key={t.label} accessibilityRole="tab" accessibilityState={{ selected: t.active }} onPress={() => router.navigate(t.href)} style={{ flex: 1, alignItems: 'center', gap: 4 }}>
-          <Icon name={t.icon} size={22} color={t.active ? c.onDark : c.mute} />
+        <Pressable key={t.label} accessibilityRole="tab" accessibilityLabel={t.count > 0 ? `${t.label}, ${t.count} unread` : t.label} accessibilityState={{ selected: t.active }} onPress={() => router.navigate(t.href)} style={{ flex: 1, alignItems: 'center', gap: 4 }}>
+          <View>
+            <Icon name={t.icon} size={22} color={t.active ? c.onDark : c.mute} />
+            <CountBadge count={t.count} style={{ position: 'absolute', right: -10, top: -6, height: 16, minWidth: 16 }} />
+          </View>
           <Text variant="captionSm" tone={t.active ? 'onDark' : 'muted'}>
             {t.label}
           </Text>

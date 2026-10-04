@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Forums: threads, search and inbox · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+<style>
+  .post { display: grid; grid-template-columns: 40px 1fr; gap: 16px; padding: 16px 0; }
+  .post .body-copy { color: var(--gt-color-body); font-size: 16px; line-height: 1.6; max-width: 62ch; }
+  .post .body-copy p + p { margin-top: 12px; }
+  .thread { position: relative; margin-left: 20px; padding-left: 20px; border-left: 1px solid var(--gt-color-hairline); }
+  .chip { display: inline-flex; gap: 6px; align-items: center; height: 28px; padding: 0 10px; border-radius: var(--gt-radius-full); border: 1px solid var(--gt-color-hairline); font-size: 13px; color: var(--gt-color-body); }
+  .chip.on { background: var(--gt-color-surface-elevated); border-color: var(--gt-color-hairline-strong); color: var(--gt-color-on-dark); }
+  .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--gt-color-surface-elevated); border-top: 1px solid var(--gt-color-hairline-strong); border-radius: var(--gt-radius-xl) var(--gt-radius-xl) 0 0; padding: 24px 16px 32px; display: flex; flex-direction: column; gap: 16px; }
+  .grab { width: 36px; height: 4px; border-radius: 2px; background: var(--gt-color-stone); margin: -12px auto 0; }
+  .menu { position: absolute; width: 248px; padding: 6px; background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline-strong); border-radius: var(--gt-radius-lg); display: flex; flex-direction: column; gap: 2px; z-index: 2; }
+  .menu .opt { display: flex; flex-direction: column; padding: 8px 10px; border-radius: var(--gt-radius-sm); }
+  .menu .opt.on { background: var(--gt-color-surface-card); }
+  .toolbar { display: flex; gap: 2px; padding: 6px 8px; border-bottom: 1px solid var(--gt-color-hairline); align-items: center; }
+  .toolbar span { min-width: 28px; height: 28px; display: grid; place-items: center; border-radius: var(--gt-radius-sm); font-size: 14px; color: var(--gt-color-body); padding: 0 6px; }
+  .toolbar span.on { background: var(--gt-color-surface-card); color: var(--gt-color-on-dark); }
+  .toolbar svg { width: 16px; height: 16px; }
+  mark { background: var(--gt-color-surface-card); color: var(--gt-color-on-dark); border-radius: 3px; padding: 0 2px; }
+  .result { padding: 16px 0; border-bottom: 1px solid var(--gt-color-hairline); display: flex; flex-direction: column; gap: 4px; }
+  .filters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .note-row { display: flex; gap: 12px; padding: 14px 16px; align-items: flex-start; }
+  .note-row .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gt-color-primary); margin-top: 7px; flex: none; }
+  .note-row .dot.none { background: transparent; }
+  .note-row .ico { flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--gt-color-surface-card); display: grid; place-items: center; color: var(--gt-color-body); }
+  .note-row .ico svg { width: 16px; height: 16px; }
+  .rev { padding: 12px; border: 1px solid var(--gt-color-hairline); border-radius: var(--gt-radius-md); background: var(--gt-color-surface); display: flex; flex-direction: column; gap: 6px; }
+  .rev.current { border-color: var(--gt-color-hairline-strong); }
+  .suggest { position: absolute; width: 240px; padding: 6px; background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline-strong); border-radius: var(--gt-radius-md); display: flex; flex-direction: column; gap: 2px; z-index: 2; }
+  .tagbox { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 36px; padding: 4px 8px; border: 1px solid var(--gt-color-hairline); border-radius: var(--gt-radius-md); background: var(--gt-color-surface-elevated); }
+  .tagbox .badge { gap: 6px; }
+  code { font-family: var(--gt-font-mono); font-size: 14px; padding: 1px 6px; border-radius: var(--gt-radius-xs); background: var(--gt-color-surface-card); color: var(--gt-color-on-dark); }
+</style>
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Phase 3 · Forums</nav>
+    <h1 class="t-display-lg">Forums: threads, search and inbox</h1>
+    <p>The forum screens that sit around the topic list and the flat topic view: replies in threaded boards, the edit history of a post, starting a topic, searching a place with filters, and the inbox that collects replies, mentions and accepted answers. Every action here appears only when the person's permissions allow it, and watch levels (watching, normal, muted) are set where the thing lives: the board, the topic, or the place.</p>
+  </header>
+
+  <section class="group">
+    <h2>Web and desktop</h2>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="win">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="tile blue place">H</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <aside class="sidebar"><div class="head"><span class="t-body-strong">Open Woodworkers</span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+              <div class="items"><a class="nav-row" href="#"><svg><use href="#home"/></svg>Overview</a><div class="section-label">Forums</div>
+                <a class="nav-row active" href="#"><svg><use href="#forum"/></svg>Show your work</a><a class="nav-row" href="#"><svg><use href="#forum"/></svg>Joinery</a></div></aside>
+            <div class="main">
+              <div class="topbar"><a class="flex center gap-xs t-body-sm mute" href="#"><svg class="i"><use href="#chevronLeft"/></svg>Show your work</a><span style="margin-left:auto" class="pills"><span class="pill">Flat</span><span class="pill active">Threaded</span></span><button class="btn btn-tertiary"><svg class="i"><use href="#bell"/></svg>Normal</button><button class="btn btn-tertiary" style="padding:8px 10px"><svg class="i"><use href="#more"/></svg></button></div>
+              <div style="padding:24px 40px 0;overflow:hidden;flex:1">
+                <div style="max-width:760px">
+                  <h2 class="t-heading-xl">Walnut hall table, finished this weekend</h2>
+                  <div class="flex gap-sm center t-caption-md mute" style="margin-top:4px"><span class="badge">walnut</span><span class="badge">furniture</span><span>Started by Marta K. · 6 replies</span></div>
+                  <div class="post" style="margin-top:8px"><span class="avatar blue">MK</span><div class="col gap-sm"><div class="flex gap-sm center"><span class="t-body-sm-strong">Marta K.</span><span class="t-caption-md mute">#1 · yesterday</span></div><div class="body-copy"><p>Three coats of oil and a wax finish. The drawer runners are the part I would redo.</p></div><div class="flex gap-sm"><span class="chip on">Nice 4</span><span class="chip"><svg class="i"><use href="#reply"/></svg>Reply</span></div></div></div>
+                  <div class="thread">
+                    <div class="post"><span class="avatar s32 green">JP</span><div class="col gap-xs"><div class="flex gap-sm center"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md mute">#2 · replying to #1 · 20 h</span></div><div class="body-copy" style="font-size:15px"><p>What wood are the runners? Maple holds up well against walnut sides.</p></div><div class="flex gap-sm"><span class="chip"><svg class="i"><use href="#reply"/></svg>Reply</span></div></div></div>
+                    <div class="thread">
+                      <div class="post"><span class="avatar s32 blue">MK</span><div class="col gap-xs"><div class="flex gap-sm center"><span class="t-body-sm-strong">Marta K.</span><span class="t-caption-md mute">#3 · replying to #2 · 19 h</span><a class="t-caption-md" href="#" style="text-decoration:underline">Edited</a></div><div class="body-copy" style="font-size:15px"><p>Poplar, which is why they are the part I would redo.</p></div><div class="flex gap-sm"><span class="chip"><svg class="i"><use href="#reply"/></svg>Reply</span></div></div></div>
+                    </div>
+                    <div class="post"><span class="avatar s32 red">AL</span><div class="col gap-xs"><div class="flex gap-sm center"><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md mute">#4 · replying to #1 · 8 h</span></div><div class="body-copy" style="font-size:15px"><p>The grain match across the top is lovely. Did you book-match it?</p></div><div class="flex gap-sm"><span class="chip"><svg class="i"><use href="#reply"/></svg>Reply</span></div></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="menu" style="right:16px;top:92px">
+              <a class="nav-row" href="#"><svg><use href="#settings"/></svg>Edit title and tags</a>
+              <a class="nav-row" href="#"><svg><use href="#pin"/></svg>Pin topic</a>
+              <a class="nav-row" href="#"><svg><use href="#lock"/></svg>Lock replies</a>
+              <a class="nav-row" href="#"><svg><use href="#clock"/></svg>Archive topic</a>
+              <div class="divider" style="margin:4px 0"></div>
+              <a class="nav-row" href="#" style="color:var(--gt-color-accent-red)"><svg style="color:var(--gt-color-accent-red)"><use href="#trash"/></svg>Delete topic</a>
+            </div>
+          </div>
+        </div>
+        <figcaption>Threaded topic with the topic menu open. Replies nest under what they answer, joined by a hairline instead of a card, and replying to a reply says so in its header. Moderator actions (pin, lock, archive) appear only with Manage posts; an author may still delete their own topic while it has no replies.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <div class="main"><div class="topbar"><span class="t-body-strong">Dovetails keep gapping at the baseline</span></div><div style="padding:24px 40px;opacity:.4"><div class="post"><span class="avatar blue">MK</span><div class="body-copy"><p>Try a marking gauge set to the baseline.</p></div></div></div></div>
+            <div class="scrim">
+              <div class="card dialog" style="width:560px;background:var(--gt-color-surface-elevated);border-color:var(--gt-color-hairline-strong);border-radius:var(--gt-radius-xl)">
+                <div class="flex between center"><h2 class="t-heading-md">Edit history</h2><span class="t-caption-md mute">Post #5 by Marta K.</span></div>
+                <p class="mute t-body-sm">Edited 2 times. Earlier versions are kept so a change cannot rewrite what people replied to.</p>
+                <div class="col gap-sm">
+                  <div class="rev current"><div class="flex between"><span class="t-body-sm-strong">Current</span><span class="t-caption-md mute">Marta K. · today 10:12</span></div><span class="t-body-sm" style="color:var(--gt-color-body)">Try a <code>marking gauge</code> set to the baseline, and check where the tails land before you cut the pins.</span></div>
+                  <div class="rev"><div class="flex between"><span class="t-body-sm-strong">Before the last edit</span><span class="t-caption-md mute">edited by Marta K. · today 10:08</span></div><span class="t-body-sm" style="color:var(--gt-color-body)">Try a marking gauge set to the baseline.</span></div>
+                  <div class="rev"><div class="flex between"><span class="t-body-sm-strong">Original</span><span class="t-caption-md mute">edited by Marta K. · today 09:51</span></div><span class="t-body-sm" style="color:var(--gt-color-body)">Try a gauge.</span></div>
+                </div>
+                <div class="flex" style="justify-content:flex-end"><button class="btn btn-tertiary">Close</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Edit history. Opened from the Edited label on a post; newest first, with who changed it and when. The server records the content before each edit, so each row shows what the post said until that moment.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <aside class="sidebar"><div class="head"><span class="t-body-strong">Open Woodworkers</span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+              <div class="items"><a class="nav-row" href="#"><svg><use href="#home"/></svg>Overview</a><div class="section-label">Forums</div>
+                <a class="nav-row active" href="#"><svg><use href="#forum"/></svg>Joinery</a><a class="nav-row" href="#"><svg><use href="#forum"/></svg>Finishing</a></div></aside>
+            <div class="main">
+              <div class="topbar"><a class="flex center gap-xs t-body-sm mute" href="#"><svg class="i"><use href="#chevronLeft"/></svg>Joinery</a><span class="t-body-strong">New topic</span></div>
+              <div style="padding:24px 40px;display:flex;flex-direction:column;gap:20px;max-width:800px;overflow:hidden;flex:1">
+                <div class="field"><label>Title</label><div class="input focus"><span>Chisel keeps rolling its edge on oak</span></div></div>
+                <div class="field"><label>Tags</label><div class="tagbox"><span class="badge">hand-tools</span><span class="badge">chisels</span><span class="ph t-body-sm" style="color:var(--gt-color-ash)">sharp</span></div><span class="note">Up to 5 tags. Lowercase letters, numbers and dashes.</span></div>
+                <div class="suggest" style="left:500px;top:226px"><a class="nav-row active" href="#">sharpening<span class="meta">48 topics</span></a><a class="nav-row" href="#">sharp-edges<span class="meta">6 topics</span></a></div>
+                <div class="card flush">
+                  <div class="toolbar"><span class="on">Write</span><span>Preview</span><span style="width:1px;min-width:1px;padding:0;height:16px;background:var(--gt-color-hairline);margin:0 6px"></span><span><b>B</b></span><span><i>I</i></span><span><svg><use href="#link"/></svg></span><span>&lt;/&gt;</span><span>&ldquo;</span><span><svg><use href="#at"/></svg></span><span class="t-caption-md mute" style="margin-left:auto;min-width:0">Draft saved · just now</span></div>
+                  <div style="padding:12px 16px;min-height:120px;color:var(--gt-color-on-dark);font-size:15px;position:relative">Honed on a 1000 grit stone, then stropped. It rolls after a few paring cuts. @<span style="background:var(--gt-color-surface-card);border-radius:3px">an</span><span style="display:inline-block;width:1px;height:18px;background:var(--gt-color-on-dark);vertical-align:text-bottom"></span>
+                    <div class="suggest" style="left:310px;top:44px"><a class="nav-row active" href="#"><span class="avatar s24 red">AL</span>Ana L.<span class="meta">@ana.l</span></a><a class="nav-row" href="#"><span class="avatar s24 yellow">AN</span>Andrei N.<span class="meta">@andrei</span></a></div>
+                  </div>
+                  <div class="flex between center" style="padding:8px 12px"><span class="t-caption-md mute">Markdown supported · <span class="keycap">⌘</span> <span class="keycap">⏎</span> to post</span><div class="flex gap-sm"><button class="btn btn-tertiary">Discard draft</button><button class="btn btn-primary">Post topic</button></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>New topic. Tag suggestions come from tags already used in the place; typing @ offers members whose names start with what was typed. The draft is saved to the server a moment after typing stops, so it is waiting on any device.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <aside class="sidebar"><div class="head"><span class="t-body-strong">Open Woodworkers</span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+              <div class="items"><a class="nav-row" href="#"><svg><use href="#home"/></svg>Overview</a><a class="nav-row active" href="#"><svg><use href="#search"/></svg>Search</a><div class="section-label">Forums</div><a class="nav-row" href="#"><svg><use href="#forum"/></svg>Joinery</a><a class="nav-row" href="#"><svg><use href="#forum"/></svg>Finishing</a></div></aside>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#search"/></svg><span class="t-body-strong">Search Open Woodworkers</span></div>
+              <div style="padding:20px 40px;display:flex;flex-direction:column;gap:16px;max-width:880px;overflow:hidden;flex:1">
+                <div class="input search"><svg class="i mute" style="width:18px;height:18px"><use href="#search"/></svg><span>dovetail "baseline gap" -router</span></div>
+                <div class="filters">
+                  <div class="field"><label>Author</label><div class="input"><span>jonas.p</span></div></div>
+                  <div class="field"><label>Tag</label><div class="input"><span class="ph">any</span></div></div>
+                  <div class="field"><label>Forum</label><div class="input"><span>Joinery</span><svg class="i trail" style="width:14px;height:14px"><use href="#chevronDown"/></svg></div></div>
+                  <div class="field"><label>Sort</label><div class="pills"><span class="pill active">Best match</span><span class="pill">Newest</span></div></div>
+                  <div class="field"><label>Answered</label><div class="pills"><span class="pill">Any</span><span class="pill active">Solved</span><span class="pill">Unsolved</span></div></div>
+                  <div class="field"><label>After</label><div class="input"><span>2026-09-01</span></div></div>
+                  <div class="field"><label>Before</label><div class="input"><span class="ph">any date</span></div></div>
+                  <div class="field"><label>Match</label><div class="pills"><span class="pill active">Any post</span><span class="pill">Topics only</span></div></div>
+                </div>
+                <div class="t-caption-md mute">12 results · Words, "quoted phrases", OR, and -exclusions</div>
+                <div class="col">
+                  <div class="result"><span class="t-body-sm-strong">Dovetails keep gapping at the baseline</span><span class="t-caption-md mute">Joinery · Ana L. · #2 · 2 hours ago</span><span class="t-body-sm" style="color:var(--gt-color-body)">…your <mark>baseline</mark> is probably being crushed when you chop. Chop halfway from each face, and undercut the waste so the <mark>dovetail</mark> only touches at the edge…</span><span class="flex gap-sm"><span class="badge success">Solved</span><span class="badge">dovetails</span></span></div>
+                  <div class="result"><span class="t-body-sm-strong">Sliding dovetail for a shelf: router or saw?</span><span class="t-caption-md mute">Joinery · Tomas W. · #1 · 1 hour ago</span><span class="t-body-sm" style="color:var(--gt-color-body)">I cut the <mark>dovetail</mark> by hand last time and the <mark>baseline</mark> wandered…</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Search a place. Filters map one to one onto the server's query, so nothing is filtered after the fact. Matches in snippets are lifted one surface step with brighter text instead of a color. Searching covers every forum the person can read in this place.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place">O</div><div class="tile place active" style="background:var(--gt-color-surface-elevated);color:var(--gt-color-on-dark);position:relative"><svg class="i lg"><use href="#bell"/></svg><span class="count" style="position:absolute;right:-6px;bottom:-6px;height:18px;min-width:18px;font-size:11px;border:2px solid var(--gt-color-canvas);box-sizing:content-box">5</span></div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#bell"/></svg><span class="t-body-strong">Inbox</span><span style="margin-left:auto" class="flex center gap-md"><span class="pills"><span class="pill active">All</span><span class="pill">Unread</span></span><button class="btn btn-tertiary">Mark all read</button></span></div>
+              <div style="padding:20px 40px;max-width:800px;overflow:hidden;flex:1">
+                <div class="card flush">
+                  <div class="note-row"><span class="dot"></span><span class="ico"><svg><use href="#check"/></svg></span><div class="col grow"><span class="t-body-sm"><b class="on-dark" style="font-weight:500">Ana L.</b> accepted your reply as the solution</span><span class="t-caption-md mute">Mortise and tenon proportions that actually hold · Open Woodworkers</span></div><span class="t-caption-md mute">12 min</span></div>
+                  <div class="note-row"><span class="dot"></span><span class="ico"><svg><use href="#reply"/></svg></span><div class="col grow"><span class="t-body-sm"><b class="on-dark" style="font-weight:500">Jonas P.</b> replied to Dovetails keep gapping at the baseline</span><span class="t-caption-md mute" style="color:var(--gt-color-body)">"Thanks, the marking gauge fixed it."</span><span class="t-caption-md mute">Open Woodworkers</span></div><span class="t-caption-md mute">1 h</span></div>
+                  <div class="note-row"><span class="dot"></span><span class="ico"><svg><use href="#at"/></svg></span><div class="col grow"><span class="t-body-sm"><b class="on-dark" style="font-weight:500">Tomas W.</b> mentioned you in Sliding dovetail for a shelf</span><span class="t-caption-md mute" style="color:var(--gt-color-body)">"@marta.k you cut these by hand, how long did…"</span><span class="t-caption-md mute">Open Woodworkers</span></div><span class="t-caption-md mute">3 h</span></div>
+                  <div class="note-row"><span class="dot none"></span><span class="ico"><svg><use href="#smile"/></svg></span><div class="col grow"><span class="t-body-sm"><b class="on-dark" style="font-weight:500">Ana L.</b> reacted 👍 to your post in Glue-up clamping pressure</span><span class="t-caption-md mute">Open Woodworkers</span></div><span class="t-caption-md mute">Yesterday</span></div>
+                  <div class="note-row"><span class="dot none"></span><span class="ico"><svg><use href="#forum"/></svg></span><div class="col grow"><span class="t-body-sm"><b class="on-dark" style="font-weight:500">Dov V.</b> started a topic in Show your work</span><span class="t-caption-md mute">Walnut hall table, finished this weekend</span></div><span class="t-caption-md mute">2 days</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Inbox. Unread rows carry the white dot and brighter text; opening one marks it read and goes to the post. The rail bell shows the unread count in white, like every other count in the shell. Dismiss is on each row on hover.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#forum"/></svg><span class="t-body-strong">Joinery</span><button class="btn btn-tertiary" style="margin-left:auto"><svg class="i"><use href="#bell"/></svg>Watching</button></div>
+            </div>
+            <div class="menu" style="right:24px;top:96px;width:300px">
+              <div class="opt on"><span class="t-body-sm-strong">Watching</span><span class="t-caption-md mute">Notify me about every new topic in Joinery.</span></div>
+              <div class="opt"><span class="t-body-sm-strong">Normal</span><span class="t-caption-md mute">Notify me when someone replies to me or mentions me.</span></div>
+              <div class="opt"><span class="t-body-sm-strong">Muted</span><span class="t-caption-md mute">Only notify me when someone mentions me.</span></div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Watch level, as a menu from the board, topic or place header. The same three levels apply at each level of the tree, and the most specific one wins.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <div class="main"><div class="topbar"><span class="t-body-strong">Open Woodworkers</span></div></div>
+            <div class="scrim">
+              <div class="card dialog" style="width:520px;background:var(--gt-color-surface-elevated);border-color:var(--gt-color-hairline-strong);border-radius:var(--gt-radius-xl)">
+                <h2 class="t-heading-md">New forum</h2>
+                <div class="field"><label>Name</label><div class="input focus"><span>Show your work</span></div></div>
+                <div class="field"><label>Address</label><div class="input"><span>show-your-work</span></div><span class="note">Used in links to this forum.</span></div>
+                <div class="field"><label>Description</label><div class="input"><span class="ph">What belongs here</span></div></div>
+                <div class="field"><label>Replies</label><div class="pills"><span class="pill active">Flat</span><span class="pill">Threaded</span></div></div>
+                <div class="check"><span class="box on"><svg><use href="#check"/></svg></span><span>Let the topic author mark an accepted answer</span></div>
+                <div class="flex gap-sm" style="justify-content:flex-end"><button class="btn btn-tertiary">Cancel</button><button class="btn btn-primary">Create forum</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>New forum, for people with Manage boards. A place starts with none, so the empty sidebar offers this to those who can, and says so to those who cannot.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Phone</h2>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Topic</span><span class="side end on-dark"><svg class="i"><use href="#more"/></svg></span></div>
+          <div class="body" style="gap:8px;padding-bottom:0">
+            <div class="col gap-sm"><h2 class="t-heading-md">Walnut hall table, finished this weekend</h2><div class="flex gap-sm center"><span class="badge">walnut</span><span class="t-caption-md mute">6 replies · Threaded</span></div></div>
+            <div class="post" style="grid-template-columns:32px 1fr;gap:12px;padding:10px 0"><span class="avatar s32 blue">MK</span><div class="col gap-xs"><div class="flex gap-sm center"><span class="t-body-sm-strong">Marta K.</span><span class="t-caption-md mute">#1 · 1 d</span></div><p class="t-body-sm" style="color:var(--gt-color-body)">Three coats of oil and a wax finish. The drawer runners are the part I would redo.</p><div class="flex gap-sm" style="margin-top:4px"><span class="chip on">Nice 4</span><span class="chip">Reply</span></div></div></div>
+            <div class="thread" style="margin-left:16px;padding-left:12px"><div class="post" style="grid-template-columns:28px 1fr;gap:10px;padding:8px 0"><span class="avatar s24 green" style="width:28px;height:28px">JP</span><div class="col gap-xs"><div class="flex gap-sm center"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md mute">#2 · 20 h</span></div><p class="t-body-sm" style="color:var(--gt-color-body)">What wood are the runners? Maple holds up well.</p><div class="flex gap-sm"><span class="chip">Reply</span></div></div></div>
+              <div class="thread" style="margin-left:10px;padding-left:10px"><div class="post" style="grid-template-columns:28px 1fr;gap:10px;padding:8px 0"><span class="avatar s24 blue" style="width:28px;height:28px">MK</span><div class="col gap-xs"><div class="flex gap-sm center"><span class="t-body-sm-strong">Marta K.</span><span class="t-caption-md mute">#3 · 19 h</span></div><p class="t-body-sm" style="color:var(--gt-color-body)">Poplar, which is why they are the part I would redo.</p></div></div></div></div>
+          </div>
+          <div class="hairline-t flex gap-sm center" style="padding:10px 16px 28px"><div class="input grow" style="border-radius:var(--gt-radius-full)"><span class="ph">Reply to the topic</span></div><button class="btn btn-primary" style="width:36px;padding:0;border-radius:50%"><svg class="i"><use href="#send"/></svg></button></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Threaded topic. Indentation stops deepening after three levels so lines stay readable on a phone; deeper replies keep the third level and say who they answer.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Search</span><span class="side end on-dark">Filters</span></div>
+          <div class="body flush">
+            <div style="padding:12px 16px"><div class="input search" style="border-radius:var(--gt-radius-full)"><svg class="i mute" style="width:18px;height:18px"><use href="#search"/></svg><span>dovetail baseline</span></div></div>
+            <div class="pills" style="padding:0 16px 8px"><span class="pill active">Open Woodworkers</span><span class="pill">Harbor Street</span><span class="pill">Cedar Lane</span></div>
+            <div class="t-caption-md mute" style="padding:4px 16px">12 results · Solved · Joinery</div>
+            <div class="result" style="padding:12px 16px"><span class="t-body-sm-strong">Dovetails keep gapping at the baseline</span><span class="t-caption-md mute">Joinery · Ana L. · #2 · 2 h</span><span class="t-body-sm" style="color:var(--gt-color-body)">…your <mark>baseline</mark> is probably being crushed when you chop…</span><span class="flex gap-sm"><span class="badge success">Solved</span></span></div>
+            <div class="result" style="padding:12px 16px"><span class="t-body-sm-strong">Sliding dovetail for a shelf: router or saw?</span><span class="t-caption-md mute">Joinery · Tomas W. · #1 · 1 h</span><span class="t-body-sm" style="color:var(--gt-color-body)">I cut the <mark>dovetail</mark> by hand last time and the <mark>baseline</mark> wandered…</span></div>
+          </div>
+          <div class="tabbar"><a href="#"><svg><use href="#home"/></svg>Places</a><a href="#"><svg><use href="#bell"/></svg>Inbox</a><a class="active" href="#"><svg><use href="#search"/></svg>Search</a><a href="#"><svg><use href="#user"/></svg>You</a></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Search tab. A place is chosen from the joined places above the results, since a search covers one place at a time.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side"></span><span class="t-body-sm-strong">Inbox</span><span class="side end on-dark">Read all</span></div>
+          <div class="body flush">
+            <div class="pills" style="padding:12px 16px"><span class="pill active">All</span><span class="pill">Unread</span></div>
+            <div class="note-row hairline-t"><span class="dot"></span><div class="col grow"><span class="t-body-sm"><b class="on-dark" style="font-weight:500">Ana L.</b> accepted your reply as the solution</span><span class="t-caption-md mute">Mortise and tenon proportions that actually hold</span></div><span class="t-caption-md mute">12 m</span></div>
+            <div class="note-row hairline-t"><span class="dot"></span><div class="col grow"><span class="t-body-sm"><b class="on-dark" style="font-weight:500">Jonas P.</b> replied to Dovetails keep gapping at the baseline</span><span class="t-caption-md mute" style="color:var(--gt-color-body)">"Thanks, the marking gauge fixed it."</span></div><span class="t-caption-md mute">1 h</span></div>
+            <div class="note-row hairline-t"><span class="dot"></span><div class="col grow"><span class="t-body-sm"><b class="on-dark" style="font-weight:500">Tomas W.</b> mentioned you in Sliding dovetail for a shelf</span><span class="t-caption-md mute" style="color:var(--gt-color-body)">"@marta.k you cut these by hand…"</span></div><span class="t-caption-md mute">3 h</span></div>
+            <div class="note-row hairline-t"><span class="dot none"></span><div class="col grow"><span class="t-body-sm" style="color:var(--gt-color-body)"><b class="on-dark" style="font-weight:500">Ana L.</b> reacted 👍 to your post</span><span class="t-caption-md mute">Glue-up clamping pressure</span></div><span class="t-caption-md mute">1 d</span></div>
+          </div>
+          <div class="tabbar"><a href="#"><svg><use href="#home"/></svg>Places</a><a class="active" href="#"><svg><use href="#bell"/></svg>Inbox<span class="count" style="position:absolute;margin:-4px 0 0 18px;height:16px;min-width:16px;font-size:11px">3</span></a><a href="#"><svg><use href="#search"/></svg>Search</a><a href="#"><svg><use href="#user"/></svg>You</a></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Inbox tab with an unread count on the tab. Pull to refresh; Read all marks everything read.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Topic</span><span class="side end on-dark"><svg class="i"><use href="#more"/></svg></span></div>
+          <div class="body"><div class="post" style="grid-template-columns:32px 1fr;gap:12px"><span class="avatar s32 blue">MK</span><div class="col gap-xs"><div class="flex gap-sm center"><span class="t-body-sm-strong">Marta K.</span><span class="t-caption-md mute">#5 · edited</span></div><p class="t-body-sm" style="color:var(--gt-color-body)">Try a marking gauge set to the baseline.</p></div></div></div>
+          <div class="scrim" style="align-items:flex-end"></div>
+          <div class="sheet">
+            <div class="grab"></div>
+            <h2 class="t-heading-md">Edit history</h2>
+            <div class="rev current"><div class="flex between"><span class="t-body-sm-strong">Current</span><span class="t-caption-md mute">10:12</span></div><span class="t-body-sm" style="color:var(--gt-color-body)">Try a <code>marking gauge</code> set to the baseline.</span></div>
+            <div class="rev"><div class="flex between"><span class="t-body-sm-strong">Original</span><span class="t-caption-md mute">09:51</span></div><span class="t-body-sm" style="color:var(--gt-color-body)">Try a gauge.</span></div>
+            <button class="btn btn-tertiary block">Close</button>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Edit history as a sheet.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>

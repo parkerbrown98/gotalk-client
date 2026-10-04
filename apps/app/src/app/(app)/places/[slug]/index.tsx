@@ -4,10 +4,12 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
+import { CreateBoardDialog } from '@/components/create-board-dialog';
 import { InstanceIcon } from '@/components/instance-summary';
 import { PlaceMenuSheet, usePlaceMenu } from '@/components/place-menu';
 import { ScreenFrame } from '@/components/screen-frame';
 import { classifyFailure } from '@/lib/failure';
+import { boardTree } from '@/lib/forums';
 import { useActiveInstance } from '@/lib/instances';
 import { goBack, useWide } from '@/lib/layout';
 import { useBoards, useChannels, usePlace, usePlaceAccess, usePlaceActions } from '@/lib/places';
@@ -21,7 +23,9 @@ export default function PlaceScreen() {
   const placeQuery = usePlace(slug);
   const place = placeQuery.data;
   const access = usePlaceAccess(place);
-  const boards = (useBoards(slug, access.isMember).data ?? []).filter((b) => b.kind === 'board');
+  const boardNodes = boardTree(useBoards(slug, access.isMember).data ?? []);
+  const boards = boardNodes.filter((n) => n.board.kind === 'board');
+  const [newForum, setNewForum] = useState(false);
   const channels = useChannels(slug, access.isMember).data ?? [];
   const menu = usePlaceMenu(place);
   const actions = usePlaceActions();
@@ -150,10 +154,14 @@ export default function PlaceScreen() {
           </Stack>
         ) : (
           <View>
-            {boards.length > 0 ? section('Forums') : null}
-            {boards.map((b) => (
-              <NavRow key={b.id} label={b.name} icon="forum" onPress={() => router.push({ pathname: '/places/[slug]/boards/[id]', params: { slug: place.slug, id: b.id } })} />
+            {access.isMember ? <NavRow label="Search" icon="search" onPress={() => router.push({ pathname: '/places/[slug]/search', params: { slug: place.slug } })} /> : null}
+            {boardNodes.length > 0 ? section('Forums') : null}
+            {boardNodes.map(({ board: b, depth }) => (
+              <View key={b.id} style={{ marginLeft: depth * 12 }}>
+                <NavRow label={b.name} icon="forum" onPress={() => router.push({ pathname: '/places/[slug]/boards/[id]', params: { slug: place.slug, id: b.id } })} />
+              </View>
             ))}
+            {access.can('MANAGE_BOARDS') ? <NavRow label="New forum" icon="plus" onPress={() => setNewForum(true)} /> : null}
             {text.length > 0 ? section('Chat') : null}
             {text.map((ch) => (
               <NavRow key={ch.id} label={ch.name} icon="hash" onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug: place.slug, id: ch.id } })} />
@@ -162,7 +170,7 @@ export default function PlaceScreen() {
             {voice.map((ch) => (
               <NavRow key={ch.id} label={ch.name} icon="volume" onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug: place.slug, id: ch.id } })} />
             ))}
-            {boards.length + text.length + voice.length === 0 ? (
+            {boardNodes.length + text.length + voice.length === 0 ? (
               <Text variant="bodySm" tone="muted" style={{ padding: theme.space.md }}>
                 Nothing here yet. Forums and chat channels appear as they are added.
               </Text>
@@ -172,6 +180,7 @@ export default function PlaceScreen() {
       </Stack>
       <PlaceMenuSheet items={menu.items} visible={sheet} onClose={() => setSheet(false)} />
       {menu.dialogs}
+      <CreateBoardDialog slug={place.slug} visible={newForum} onClose={() => setNewForum(false)} />
     </ScreenFrame>
   );
 }

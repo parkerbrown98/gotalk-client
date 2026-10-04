@@ -93,6 +93,15 @@ below. Whether an action is shown comes from `hasPermission` in `@gotalk/core`, 
 someone who has not added it yet: `https://<web client>/invite/<code>?instance=<origin>` on the web and
 `gotalk://invite/<code>?instance=<origin>` in apps and the desktop shell.
 
+## Forums and Markdown
+
+Forums live under `apps/app/src/app/(app)/places/[slug]` (`boards/[id]`, `topics/[id]`, `search`) and the
+inbox at `(app)/inbox`. Data hooks and mutations are in `apps/app/src/lib/forums.ts`; they use offset
+paging because that is what the API provides. Post text goes through `parseMarkdown` in `@gotalk/core`
+(`marked` lexer, converted to a closed tree) and the `Markdown` component renders that tree, so raw HTML
+is shown as text and only http(s) and mailto links open. Drafts are stored on the server under
+`topic:<board id>` and `reply:<topic id>[:<post id>]` and are removed once the post is sent.
+
 ## Desktop notes
 
 - The window loads the static web export. Deep routes fall back to `index.html`, so reloads work.

@@ -319,7 +319,7 @@ export function Notice({
   tone?: NoticeTone;
   title?: string;
   icon?: IconName;
-  children: ReactNode;
+  children?: ReactNode;
 }) {
   const theme = useTheme();
   const c = theme.colors;
