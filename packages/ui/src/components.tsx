@@ -281,3 +281,56 @@ export function Badge({ label, tone = 'neutral' }: { label: string; tone?: Badge
     </View>
   );
 }
+
+export type NoticeTone = 'info' | 'success' | 'warning' | 'danger';
+
+/** Soft tint behind body-colored text; the status color only touches the icon. */
+export function Notice({ tone = 'warning', title, children }: { tone?: NoticeTone; title?: string; children: ReactNode }) {
+  const theme = useTheme();
+  const c = theme.colors;
+  const looks: Record<NoticeTone, { bg: string; fg: string }> = {
+    info: { bg: c.accentBlueSoft, fg: c.accentBlue },
+    success: { bg: c.accentGreenSoft, fg: c.accentGreen },
+    warning: { bg: c.accentYellowSoft, fg: c.accentYellow },
+    danger: { bg: c.accentRedSoft, fg: c.accentRed },
+  };
+  const look = looks[tone];
+  return (
+    <View
+      accessibilityRole={tone === 'danger' ? 'alert' : undefined}
+      style={{
+        flexDirection: 'row',
+        gap: theme.space.md,
+        paddingHorizontal: theme.space.lg,
+        paddingVertical: theme.space.md,
+        borderRadius: theme.radii.md,
+        backgroundColor: look.bg,
+      }}
+    >
+      <View
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        style={{
+          width: 18,
+          height: 18,
+          marginTop: 2,
+          borderRadius: theme.radii.full,
+          borderWidth: 1.5,
+          borderColor: look.fg,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <RNText style={[typeStyle(theme, 'captionSm'), { color: look.fg, fontSize: 11, lineHeight: 14, letterSpacing: 0 }]}>!</RNText>
+      </View>
+      <Text variant="bodySm" style={{ flex: 1, lineHeight: 21 }}>
+        {title ? (
+          <Text variant="bodySmStrong" style={{ color: c.ink }}>
+            {title}{' '}
+          </Text>
+        ) : null}
+        {children}
+      </Text>
+    </View>
+  );
+}

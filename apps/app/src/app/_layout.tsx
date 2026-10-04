@@ -48,7 +48,7 @@ function Navigation() {
         }}
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="connect" options={{ title: 'Connect to an instance' }} />
+        <Stack.Screen name="connect" options={{ headerShown: false }} />
         <Stack.Screen name="home" options={{ title: 'Gotalk' }} />
       </Stack>
     </NavigationThemeProvider>
