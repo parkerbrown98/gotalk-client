@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Sign in · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Phase 1 · Accounts &amp; sessions</nav>
+    <h1 class="t-display-lg">Sign in</h1>
+    <p>Sign-in is scoped to the instance picked on the previous screen, so the instance stays visible throughout. Errors say what happened and what to do next; the two states people hit most are a failed login and a throttled one.</p>
+  </header>
+
+  <section class="group">
+    <h2>Web and desktop</h2>
+    <p>The left column keeps the instance in view so a person never wonders which server they are signing in to. The form column stays 380px wide.</p>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/sign-in</div></div>
+          <div class="split">
+            <aside class="about">
+              <div class="flex gap-md center"><div class="tile s64 yellow">O</div>
+                <div class="col"><span class="t-heading-md">Open Woodworkers</span><span class="t-caption-md mute">woodworkers.example.org</span></div></div>
+              <p class="mute t-body-sm">Joinery, finishing, and shop talk from people who build things slowly.</p>
+              <div class="flex gap-sm wrap"><span class="badge success">Open registration</span><span class="badge">Forums</span><span class="badge">Chat</span><span class="badge">Voice</span></div>
+              <p class="t-caption-md mute">1,284 members · 36 places</p>
+              <a class="t-body-sm" style="margin-top:auto" href="01-connect.html">Use a different instance</a>
+            </aside>
+            <div class="formcol">
+              <div class="col gap-xl">
+                <h2 class="t-heading-xl">Sign in to Open Woodworkers</h2>
+                <div class="col gap-md">
+                  <div class="field"><label>Username or email</label><div class="input focus"><span>marta.k</span></div></div>
+                  <div class="field"><label>Password</label><div class="input"><span>••••••••••••</span><svg class="i trail" style="width:18px;height:18px"><use href="#eye"/></svg></div></div>
+                </div>
+                <div class="col gap-md">
+                  <button class="btn btn-primary block">Sign in</button>
+                  <p class="t-body-sm mute" style="text-align:center">New here? <a href="03-register.html">Create an account</a></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Default</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/sign-in</div></div>
+          <div class="split">
+            <aside class="about">
+              <div class="flex gap-md center"><div class="tile s64 yellow">O</div>
+                <div class="col"><span class="t-heading-md">Open Woodworkers</span><span class="t-caption-md mute">woodworkers.example.org</span></div></div>
+              <p class="mute t-body-sm">Joinery, finishing, and shop talk from people who build things slowly.</p>
+              <a class="t-body-sm" style="margin-top:auto" href="01-connect.html">Use a different instance</a>
+            </aside>
+            <div class="formcol">
+              <div class="col gap-xl">
+                <h2 class="t-heading-xl">Sign in to Open Woodworkers</h2>
+                <div class="notice danger"><svg class="i"><use href="#clock"/></svg><span><b>Too many sign-in attempts.</b> This instance allows 5 a minute. You can try again in 42 seconds.</span></div>
+                <div class="col gap-md">
+                  <div class="field"><label>Username or email</label><div class="input"><span>marta.k</span></div></div>
+                  <div class="field"><label>Password</label><div class="input"><span>••••••••••</span><svg class="i trail" style="width:18px;height:18px"><use href="#eye"/></svg></div></div>
+                </div>
+                <button class="btn block" disabled>Try again in 42s</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Rate limited (429). The button counts down from the Retry-After header and re-enables itself.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Phone</h2>
+    <p>The instance collapses to a single line under the title. Fields keep their values after an error so a typo costs one correction, not a retype.</p>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Sign in</span><span class="side"></span></div>
+          <div class="body">
+            <div class="flex gap-md center"><div class="tile s36 yellow">O</div>
+              <div class="col"><span class="t-body-sm-strong">Open Woodworkers</span><span class="t-caption-md mute">woodworkers.example.org</span></div></div>
+            <div class="notice danger"><svg class="i"><use href="#alert"/></svg><span><b>That username or password is not right.</b> Check both and try again.</span></div>
+            <div class="col gap-md">
+              <div class="field"><label>Username or email</label><div class="input error"><span>marta.k</span></div></div>
+              <div class="field"><label>Password</label><div class="input error focus"><span>••••••••</span><svg class="i trail" style="width:18px;height:18px"><use href="#eye"/></svg></div></div>
+            </div>
+            <button class="btn btn-primary block">Sign in</button>
+            <p class="t-body-sm mute" style="text-align:center">New here? <a href="03-register.html">Create an account</a></p>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Wrong credentials</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Sign in</span><span class="side"></span></div>
+          <div class="body">
+            <div class="flex gap-md center"><div class="tile s36 yellow">O</div>
+              <div class="col"><span class="t-body-sm-strong">Open Woodworkers</span><span class="t-caption-md mute">woodworkers.example.org</span></div></div>
+            <div class="notice warning"><svg class="i"><use href="#info"/></svg><span><b>You were signed out.</b> Another device ended this session. Sign in again to keep going.</span></div>
+            <div class="col gap-md">
+              <div class="field"><label>Username or email</label><div class="input"><span>marta.k</span></div></div>
+              <div class="field"><label>Password</label><div class="input focus"><span class="ph">Password</span></div></div>
+            </div>
+            <button class="btn btn-primary block" disabled>Sign in</button>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Session revoked elsewhere. The username is kept; the password is not.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Sign in</span><span class="side"></span></div>
+          <div class="body">
+            <div class="flex gap-md center"><div class="tile s36 yellow">O</div>
+              <div class="col"><span class="t-body-sm-strong">Open Woodworkers</span><span class="t-caption-md mute">woodworkers.example.org</span></div></div>
+            <div class="notice danger"><svg class="i"><use href="#alert"/></svg><span><b>This instance changed and needs a newer app.</b> It now speaks API version 2; this app speaks 1. Update Gotalk, then sign in.</span></div>
+            <div class="col gap-md">
+              <div class="field"><label>Username or email</label><div class="input"><span>marta.k</span></div></div>
+              <div class="field"><label>Password</label><div class="input"><span>••••••••</span></div></div>
+            </div>
+            <button class="btn block" disabled>Sign in</button>
+            <button class="btn btn-tertiary block">Open the app store</button>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>API version mismatch (400). Sign-in is blocked until the app is updated.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>

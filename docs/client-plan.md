@@ -27,6 +27,25 @@ Constraints that come from the backend design:
 - **Mobile push needs a relay we operate.** Operators cannot hold the official app's APNs/FCM
   credentials (same model as Mastodon/Matrix push gateways).
 
+## Design process
+
+Design decisions flow one way: [`DESIGN.md`](../DESIGN.md) → `@gotalk/tokens` → `@gotalk/ui` →
+[mockups](./mockups/index.html) → screens in `apps/app`.
+
+- **Mockups** are static HTML in [`docs/mockups`](./mockups/index.html), one file per flow, with web/desktop
+  windows and phone frames side by side. They use the generated `tokens.css` (run `pnpm build` once), so
+  they stay tied to the real tokens. They show intent and states, including errors, empty and offline
+  cases; they are not shipped UI.
+- **Before a phase starts:** review its mockups against the phase scope. Anything in scope without a
+  frame gets one first. Each phase below lists what is covered and what is not yet mocked.
+- **While building:** implement screens from the mockups using `@gotalk/ui` primitives. If a mockup needs
+  a value or component that `DESIGN.md` lacks, change `DESIGN.md` and the tokens first, then the mockup.
+  Never add one-off colors or sizes to a mockup or a screen.
+- **Before closing a phase:** compare every screen with its mockup at phone and desktop widths. Each
+  difference is either fixed in the code or recorded by updating the mockup in the same change, so the
+  mockups keep describing what ships.
+- **When `DESIGN.md` changes:** update tokens and `ui`, rebuild `tokens.css`, and re-check the mockups.
+
 ## Phase 0 — Foundation ✅
 
 Delivered:
@@ -52,9 +71,18 @@ Delivered:
   - Tauri debug build, including cross-origin calls under the production CSP and deep-route reloads
   - `expo-doctor` clean
 
+Mockups: [Connect](./mockups/01-connect.html) shows the delivered flow (empty, found, plain HTTP,
+incompatible version, saved instances) and is the reference for the connect screen.
+
 ## Phase 1 — Accounts & sessions
 
 Goal: a person can register, sign in, stay signed in, and sign out on every target, against any instance.
+
+Mockups: [Sign in](./mockups/02-sign-in.html) (default, wrong credentials, rate limited, session revoked,
+API version mismatch), [Create an account](./mockups/03-register.html) (open, invite-only and closed
+registration, policy acceptance, outstanding consent) and
+[Account settings](./mockups/04-account-settings.html) (profile, devices, sign out, delete account).
+Not yet mocked: the password-change form.
 
 - **Auth flows:**
   - login (username or email) and registration
@@ -80,8 +108,13 @@ Goal: a person can register, sign in, stay signed in, and sign out on every targ
   - kill the app, reopen, and still be signed in
   - two web tabs refreshing at once stay signed in
   - revoking a session elsewhere signs this device out
+  - screens match the Phase 1 mockups on phone and desktop widths, including the error states
 
 ## Phase 2 — App shell & Places
+
+Mockups: [App shell and places](./mockups/05-shell-places.html) (place rail and sidebar, command palette,
+discover, phone tab bar, invite link). Not yet mocked: create place, place settings, invite management.
+Mock those before starting them.
 
 - Responsive shell: a persistent sidebar (place rail + channel/board list) at the `tablet` breakpoint (768px) and
   above, which covers desktop and tablets; stack plus drawer on phones.
@@ -91,9 +124,14 @@ Goal: a person can register, sign in, stay signed in, and sign out on every targ
 - A shared permission helper built on the `GET /permissions` bitfield, used to hide actions the user
   cannot take. The server stays authoritative.
 - Per-place and per-instance branding feeding `ThemeProvider` `overrides`.
-- **Exit criteria:** sign in, browse and join a place, and invite someone via link on every target.
+- **Exit criteria:** sign in, browse and join a place, and invite someone via link on every target, with
+  the shell matching the Phase 2 mockups at phone and desktop widths.
 
 ## Phase 3 — Forums
+
+Mockups: [Forums](./mockups/06-forums.html) (board topic list, flat topic view with accepted solution,
+Markdown composer with draft state). Not yet mocked: threaded mode, edit history, search results with
+filters, notification center. Mock those before starting them.
 
 - Board tree, then topic lists with cursor pagination, unread counts, and pinned/locked state.
 - Topic view in flat and threaded modes, with post numbers, reactions, accepted solutions, and edit
@@ -104,9 +142,14 @@ Goal: a person can register, sign in, stay signed in, and sign out on every targ
   - WYSIWYG editing is a later decision; start with Markdown input plus live preview
 - Search with filters (author, tag, board, solved, date) and highlighted snippets.
 - Notification center with unread counts and watch/normal/mute preferences.
-- **Exit criteria:** read, post, reply, react, and search a forum on every target.
+- **Exit criteria:** read, post, reply, react, and search a forum on every target, with screens matching
+  the Phase 3 mockups.
 
 ## Phase 4 — Real-time gateway & chat
+
+Mockups: [Chat and direct messages](./mockups/07-chat.html) (channel feed, thread panel, direct messages,
+reconnecting and failed sends). Not yet mocked: message edit/delete, pinned messages, presence picker.
+Mock those before starting them.
 
 - **`packages/gateway`:** a framework-agnostic WebSocket client.
   - Handles hello → identify → READY, heartbeats, and backoff reconnect.
@@ -124,8 +167,12 @@ Goal: a person can register, sign in, stay signed in, and sign out on every targ
 - **Exit criteria:**
   - two clients on different targets chat in real time
   - after a network drop, the client reconnects and backfills without duplicates
+  - pending and failed sends look and behave like the offline mockup
 
 ## Phase 5 — Voice & video
+
+Mockups: [Voice and video](./mockups/08-voice.html) (in-call stage with screen share, moderator menu,
+voice settings with push-to-talk, mini call bar, connection quality). Not yet mocked: camera layouts.
 
 - LiveKit: `livekit-client` on web/desktop, `@livekit/react-native` on mobile. Mobile needs a development
   build (`expo prebuild` / EAS) with the LiveKit config plugin, not Expo Go.
@@ -135,9 +182,12 @@ Goal: a person can register, sign in, stay signed in, and sign out on every targ
 - Screen share and camera: web/desktop first, then mobile.
 - Call-quality telemetry reporting, and moderator controls (server mute/deafen, move, disconnect).
 - **Exit criteria:** a three-way call across web, desktop, and one mobile platform, with screen share
-  from desktop.
+  from desktop, and call screens matching the Phase 5 mockups.
 
 ## Phase 6 — Moderation, admin & developer tools
+
+Mockups: none yet. Reports queue, roles editor, instance admin and developer settings need frames in
+`docs/mockups` before this phase starts.
 
 - Reports queue, audit log, warnings/timeouts/bans, and transparency pages.
 - Roles editor (ordering, permission bits) and board/channel overwrite editors.
@@ -159,7 +209,9 @@ Goal: a person can register, sign in, stay signed in, and sign out on every targ
   from their own instance.
 - **Quality:**
   - E2E tests: Playwright for web/desktop, Maestro for mobile
-  - accessibility audit (screen readers, focus order, contrast in both themes) and i18n
+  - accessibility audit (screen readers, focus order, contrast) and i18n; the mockups' flows are the
+    checklist for the screens to audit
+  - a final pass comparing every shipped screen with its mockup
   - offline cache persistence for read-only browsing, and error reporting
 
 ## Cross-cutting tracks

@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>App shell and places · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+<style>
+  .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.55); display: flex; justify-content: center; align-items: flex-start; padding-top: 88px; }
+  .palette { width: 620px; background: var(--gt-color-surface); border: 1px solid var(--gt-color-hairline-strong); border-radius: var(--gt-radius-xl); overflow: hidden; }
+  .palette .q { display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 16px; border-bottom: 1px solid var(--gt-color-hairline); font-size: 16px; color: var(--gt-color-on-dark); }
+  .palette .q svg { width: 18px; height: 18px; color: var(--gt-color-mute); }
+  .palette .rows { padding: 8px; display: flex; flex-direction: column; gap: 2px; }
+  .palette .row { display: flex; align-items: center; gap: 12px; padding: 6px 10px; min-height: 36px; border-radius: var(--gt-radius-sm); font-size: 16px; color: var(--gt-color-on-dark); }
+  .palette .row.active { background: var(--gt-color-surface-card); }
+  .palette .row svg.k { width: 16px; height: 16px; color: var(--gt-color-mute); flex: none; }
+  .palette .row .where { margin-left: auto; font-size: 13px; color: var(--gt-color-mute); }
+  .palette .foot { display: flex; align-items: center; gap: 16px; height: 40px; padding: 0 16px; border-top: 1px solid var(--gt-color-hairline); font-size: 13px; color: var(--gt-color-mute); }
+  .palette .foot span { display: inline-flex; gap: 6px; align-items: center; }
+  .palette .group-label { padding: 6px 10px 2px; font-size: 13px; color: var(--gt-color-mute); }
+  .overview { padding: 32px 40px; display: flex; flex-direction: column; gap: 24px; width: 100%; max-width: 760px; }
+  .stat { display: flex; gap: 32px; }
+  .stat div { display: flex; flex-direction: column; }
+  .stat b { font-weight: 500; font-size: 20px; color: var(--gt-color-ink); line-height: 1.4; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .vc { display: flex; align-items: center; gap: 8px; padding: 2px 10px 2px 34px; font-size: 13px; color: var(--gt-color-mute); }
+</style>
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Phase 2 · App shell &amp; places</nav>
+    <h1 class="t-display-lg">App shell and places</h1>
+    <p>A persistent place rail and channel sidebar on wide screens, a tab bar and stacked screens on phones. The command palette is the fastest way to move around on desktop: it searches places, channels, topics and people at once, and every row shows the keys that get there.</p>
+  </header>
+
+  <section class="group">
+    <h2>Desktop shell</h2>
+    <p>Three columns: place rail, the place's boards and channels, then content. Unread counts are the only white fill in the shell, so they read as the thing to act on.</p>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="win">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail">
+              <div class="tile yellow place active">O</div>
+              <div class="tile blue place">H<span class="count">3</span></div>
+              <div class="tile green place">C</div>
+              <div class="tile red place">R<span class="count">12</span></div>
+              <div class="tile place" style="background:transparent;border:1px dashed var(--gt-color-hairline-strong);color:var(--gt-color-mute)"><svg class="i lg"><use href="#plus"/></svg></div>
+              <div style="margin-top:auto" class="avatar blue">MK<span class="presence"></span></div>
+            </div>
+            <aside class="sidebar">
+              <div class="head"><span class="t-body-strong">Open Woodworkers</span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+              <div class="items">
+                <a class="nav-row active" href="#"><svg><use href="#home"/></svg>Overview</a>
+                <div class="section-label">Forums</div>
+                <a class="nav-row unread" href="#"><svg><use href="#forum"/></svg>Joinery<span class="meta"><span class="count">4</span></span></a>
+                <a class="nav-row" href="#"><svg><use href="#forum"/></svg>Finishing</a>
+                <a class="nav-row" href="#"><svg><use href="#forum"/></svg>Tools and sharpening</a>
+                <a class="nav-row" href="#"><svg><use href="#forum"/></svg>Show your work</a>
+                <div class="section-label">Chat</div>
+                <a class="nav-row unread" href="#"><svg><use href="#hash"/></svg>bench-talk<span class="meta"><span class="count">2</span></span></a>
+                <a class="nav-row" href="#"><svg><use href="#hash"/></svg>buy-sell-swap</a>
+                <a class="nav-row" href="#"><svg><use href="#hash"/></svg>help-wanted</a>
+                <div class="section-label">Voice</div>
+                <a class="nav-row" href="#"><svg><use href="#volume"/></svg>Open shop</a>
+                <div class="vc"><span class="avatar s24 green">JP</span>Jonas P.</div>
+                <div class="vc"><span class="avatar s24 red">AL</span>Ana L.</div>
+              </div>
+              <div class="foot flex center gap-sm"><span class="avatar s32 blue">MK<span class="presence"></span></span><div class="col grow"><span class="t-body-sm-strong">Marta K.</span><span class="t-caption-md mute">Online</span></div><svg class="i mute"><use href="#settings"/></svg></div>
+            </aside>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#home"/></svg><span class="t-body-strong">Overview</span><span style="margin-left:auto" class="flex center gap-sm"><span class="t-caption-md mute">Jump to</span><span class="keys"><span class="keycap">⌘</span><span class="keycap">K</span></span></span></div>
+              <div class="grow flex" style="overflow:hidden">
+                <div class="overview">
+                  <div class="flex gap-lg center"><div class="tile s64 yellow">O</div><div class="col grow"><h2 class="t-heading-xl">Open Woodworkers</h2><span class="mute t-body-sm">Joinery, finishing, and shop talk from people who build things slowly.</span></div><button class="btn btn-primary">Invite people</button></div>
+                  <div class="stat"><div><b>1,284</b><span class="t-caption-md mute">members</span></div><div><b>86</b><span class="t-caption-md mute">online</span></div><div><b>312</b><span class="t-caption-md mute">topics this month</span></div></div>
+                  <div class="col gap-md">
+                    <span class="t-body-sm-strong">Pinned</span>
+                    <div class="card compact flex" style="flex-direction:row;align-items:center"><svg class="i mute"><use href="#pin"/></svg><div class="col grow"><span class="t-body-sm-strong">Start here: rules, introductions, and shop safety</span><span class="t-caption-md mute">Pinned by Ana L. in Joinery</span></div><svg class="i mute"><use href="#chevronRight"/></svg></div>
+                  </div>
+                  <div class="col gap-md">
+                    <span class="t-body-sm-strong">Since you last visited</span>
+                    <div class="card flush">
+                      <div class="list-row"><span class="avatar s32 green">JP</span><div class="col grow"><span class="t-body-sm-strong">Dovetails keep gapping at the baseline</span><span class="t-caption-md mute">Joinery · 14 replies · Jonas P.</span></div><span class="badge success">Solved</span></div>
+                      <div class="list-row"><span class="avatar s32 red">AL</span><div class="col grow"><span class="t-body-sm-strong">Shellac over oil: how long to wait?</span><span class="t-caption-md mute">Finishing · 6 replies · Ana L.</span></div></div>
+                      <div class="list-row"><span class="avatar s32 yellow">TW</span><div class="col grow"><span class="t-body-sm-strong">Saturday open shop notes</span><span class="t-caption-md mute">bench-talk · 2 new messages</span></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="scrim">
+              <div class="palette">
+                <div class="q"><svg><use href="#search"/></svg><span>dove</span></div>
+                <div class="rows">
+                  <div class="group-label">Topics</div>
+                  <div class="row active"><svg class="k"><use href="#forum"/></svg>Dovetails keep gapping at the baseline<span class="where">Joinery</span><span class="keys"><span class="keycap">⏎</span></span></div>
+                  <div class="row"><svg class="k"><use href="#forum"/></svg>Hand-cut dovetails: pins first or tails first?<span class="where">Joinery</span></div>
+                  <div class="group-label">Channels</div>
+                  <div class="row"><svg class="k"><use href="#hash"/></svg>dovetail-club<span class="where">Cedar Lane Staff</span></div>
+                  <div class="group-label">People</div>
+                  <div class="row"><span class="avatar s24 green" style="width:20px;height:20px;font-size:10px">DV</span>Dov Vance<span class="where">Open Woodworkers</span></div>
+                </div>
+                <div class="foot"><span><span class="keys"><span class="keycap">↑</span><span class="keycap">↓</span></span>Move</span><span><span class="keycap">⏎</span>Open</span><span><span class="keycap">⌘</span><span class="keycap">⏎</span>Open in new window</span><span style="margin-left:auto"><span class="keycap">esc</span>Close</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Place overview with the command palette open (⌘K on macOS, Ctrl K elsewhere). Results are grouped by kind and span every joined place.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail">
+              <div class="tile yellow place">O</div>
+              <div class="tile blue place">H<span class="count">3</span></div>
+              <div class="tile green place">C</div>
+              <div class="tile place active" style="background:var(--gt-color-surface-elevated);color:var(--gt-color-on-dark)"><svg class="i lg"><use href="#compass"/></svg></div>
+              <div style="margin-top:auto" class="avatar blue">MK<span class="presence"></span></div>
+            </div>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#compass"/></svg><span class="t-body-strong">Discover places</span></div>
+              <div class="col gap-lg" style="padding:24px 40px;overflow:hidden">
+                <div class="input search" style="max-width:640px"><svg class="i mute" style="width:18px;height:18px"><use href="#search"/></svg><span>woodwork</span></div>
+                <div class="pills"><span class="pill active">All places</span><span class="pill">Most members</span><span class="pill">Recently active</span><span class="pill">Open to join</span></div>
+                <div class="grid-3">
+                  <div class="card compact"><div class="flex gap-md center"><div class="tile yellow">O</div><div class="col"><span class="t-heading-sm">Open Woodworkers</span><span class="t-caption-md mute">1,284 members</span></div></div><p class="mute t-body-sm">Joinery, finishing, and shop talk from people who build things slowly.</p><button class="btn btn-tertiary block">Open</button></div>
+                  <div class="card compact"><div class="flex gap-md center"><div class="tile green">W</div><div class="col"><span class="t-heading-sm">Woodturners Anonymous</span><span class="t-caption-md mute">412 members</span></div></div><p class="mute t-body-sm">Bowls, spindles, and the occasional catastrophic catch.</p><button class="btn btn-primary block">Join place</button></div>
+                  <div class="card compact"><div class="flex gap-md center"><div class="tile blue">J</div><div class="col"><span class="t-heading-sm">Japanese Joinery</span><span class="t-caption-md mute">268 members</span></div></div><p class="mute t-body-sm">Kigumi, sashimono, and the tools that cut them.</p><button class="btn btn-outline block">Request to join</button></div>
+                  <div class="card compact"><div class="flex gap-md center"><div class="tile red">G</div><div class="col"><span class="t-heading-sm">Green Woodworking</span><span class="t-caption-md mute">190 members</span></div></div><p class="mute t-body-sm">Spoons, chairs, and splitting logs with a froe.</p><button class="btn btn-tertiary block">Join place</button></div>
+                  <div class="card compact"><div class="flex gap-md center"><div class="tile">S</div><div class="col"><span class="t-heading-sm">Sharpening Station</span><span class="t-caption-md mute">977 members</span></div></div><p class="mute t-body-sm">Stones, strops, and arguing about grit.</p><button class="btn btn-tertiary block">Join place</button></div>
+                  <div class="card compact"><div class="flex gap-md center"><div class="tile yellow">B</div><div class="col"><span class="t-heading-sm">Bench Plans</span><span class="t-caption-md mute">603 members</span></div></div><p class="mute t-body-sm">Roubo, Nicholson, and the bench you built instead.</p><button class="btn btn-tertiary block">Join place</button></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Discover places. Only one card carries the white button, on the best match; the rest stay tertiary. Request to join is for places that approve members.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Phone</h2>
+    <p>The place rail becomes the first tab. Opening a place pushes its boards and channels as a full screen; the tab bar stays so notifications and search are one tap away.</p>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side"></span><span class="t-body-sm-strong">Places</span><span class="side end on-dark"><svg class="i"><use href="#plus"/></svg></span></div>
+          <div class="body flush">
+            <div class="col" style="padding:8px">
+              <div class="list-row"><div class="tile yellow">O</div><div class="col grow"><span class="t-body-sm-strong">Open Woodworkers</span><span class="t-caption-md mute">Dovetails keep gapping at the baseline</span></div><span class="count">4</span></div>
+              <div class="list-row"><div class="tile blue">H</div><div class="col grow"><span class="t-body-sm-strong">Harbor Street Cycling</span><span class="t-caption-md mute">Winter tyre pressure thread</span></div><span class="count">3</span></div>
+              <div class="list-row"><div class="tile green">C</div><div class="col grow"><span class="t-body-sm-strong">Cedar Lane Staff</span><span class="t-caption-md mute">Rota for the week of 12 Oct</span></div></div>
+              <div class="list-row"><div class="tile red">R</div><div class="col grow"><span class="t-body-sm-strong">Rust Study Group</span><span class="t-caption-md mute">Ownership notes, chapter 4</span></div><span class="count">12</span></div>
+              <div class="list-row" style="margin-top:8px"><div class="tile" style="background:transparent;border:1px dashed var(--gt-color-hairline-strong);color:var(--gt-color-mute)"><svg class="i lg"><use href="#compass"/></svg></div><span class="grow t-body-sm-strong">Discover places</span><svg class="i mute"><use href="#chevronRight"/></svg></div>
+            </div>
+          </div>
+          <div class="tabbar"><a class="active" href="#"><svg><use href="#home"/></svg>Places</a><a href="#"><svg><use href="#bell"/></svg>Inbox</a><a href="#"><svg><use href="#search"/></svg>Search</a><a href="#"><svg><use href="#user"/></svg>You</a></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Places tab</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Open Woodworkers</span><span class="side end on-dark"><svg class="i"><use href="#more"/></svg></span></div>
+          <div class="body flush">
+            <div class="col" style="padding:8px">
+              <div class="section-label">Forums</div>
+              <a class="nav-row unread" href="#" style="padding:10px"><svg><use href="#forum"/></svg>Joinery<span class="meta"><span class="count">4</span></span></a>
+              <a class="nav-row" href="#" style="padding:10px"><svg><use href="#forum"/></svg>Finishing</a>
+              <a class="nav-row" href="#" style="padding:10px"><svg><use href="#forum"/></svg>Tools and sharpening</a>
+              <a class="nav-row" href="#" style="padding:10px"><svg><use href="#forum"/></svg>Show your work</a>
+              <div class="section-label">Chat</div>
+              <a class="nav-row unread" href="#" style="padding:10px"><svg><use href="#hash"/></svg>bench-talk<span class="meta"><span class="count">2</span></span></a>
+              <a class="nav-row" href="#" style="padding:10px"><svg><use href="#hash"/></svg>buy-sell-swap</a>
+              <div class="section-label">Voice</div>
+              <a class="nav-row" href="#" style="padding:10px"><svg><use href="#volume"/></svg>Open shop<span class="meta">2 in call</span></a>
+            </div>
+          </div>
+          <div class="tabbar"><a class="active" href="#"><svg><use href="#home"/></svg>Places</a><a href="#"><svg><use href="#bell"/></svg>Inbox</a><a href="#"><svg><use href="#search"/></svg>Search</a><a href="#"><svg><use href="#user"/></svg>You</a></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Inside a place</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side"></span><span class="t-body-sm-strong">Invitation</span><span class="side"></span></div>
+          <div class="body" style="justify-content:center">
+            <div class="col gap-lg" style="align-items:flex-start">
+              <div class="tile s64 green">C</div>
+              <div class="col gap-xs"><h2 class="t-heading-xl">Marta invited you to Cedar Lane Staff</h2><p class="mute t-body-sm">cedarlane.example.org · 58 members</p></div>
+              <p class="mute t-body-sm">Cedar Lane is on a different instance from the ones saved on this phone. Signing in adds that instance to your list.</p>
+            </div>
+            <button class="btn btn-primary block">Sign in to cedarlane.example.org</button>
+            <button class="btn btn-tertiary block">Create an account</button>
+            <p class="t-caption-md mute" style="text-align:center">Invite code CL-2291-TRN is applied automatically.</p>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Invite link (gotalk://invite or https://&lt;instance&gt;/invite/&lt;code&gt;) opened by someone without an account on that instance.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>

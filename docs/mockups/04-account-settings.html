@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Account settings · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+<style>
+  .settings-nav { width: 248px; flex: none; background: var(--gt-color-surface); border-right: 1px solid var(--gt-color-hairline); padding: 16px 8px; display: flex; flex-direction: column; gap: 2px; }
+  .settings-body { flex: 1; min-width: 0; padding: 32px 40px; display: flex; flex-direction: column; gap: 24px; overflow: hidden; }
+  .settings-body .inner { width: 640px; display: flex; flex-direction: column; gap: 24px; }
+  .session { display: flex; align-items: center; gap: 16px; padding: 16px; }
+  .session .ico { flex: none; width: 36px; height: 36px; border-radius: var(--gt-radius-md); background: var(--gt-color-surface-card); display: grid; place-items: center; color: var(--gt-color-body); }
+  .session .ico svg { width: 18px; height: 18px; }
+  .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--gt-color-surface-elevated); border-top: 1px solid var(--gt-color-hairline-strong); border-radius: var(--gt-radius-xl) var(--gt-radius-xl) 0 0; padding: 24px 16px 32px; display: flex; flex-direction: column; gap: 16px; }
+  .grab { width: 36px; height: 4px; border-radius: 2px; background: var(--gt-color-stone); margin: -12px auto 0; }
+  .textarea { height: 84px; align-items: flex-start; }
+</style>
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Phase 1 · Accounts &amp; sessions</nav>
+    <h1 class="t-display-lg">Account settings</h1>
+    <p>Profile, password, devices, and deletion for the signed-in account on this instance. Active sessions are the main trust surface: every device is named, dated, and can be ended individually, and revoking the current one signs this device out.</p>
+  </header>
+
+  <section class="group">
+    <h2>Web and desktop</h2>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/sessions</div></div>
+          <div class="viewport">
+            <nav class="settings-nav">
+              <a class="nav-row" href="#" style="margin-bottom:8px"><svg><use href="#chevronLeft"/></svg>Back to Open Woodworkers</a>
+              <div class="section-label">Account</div>
+              <a class="nav-row" href="#"><svg><use href="#user"/></svg>Profile</a>
+              <a class="nav-row" href="#"><svg><use href="#lock"/></svg>Password</a>
+              <a class="nav-row active" href="#"><svg><use href="#laptop"/></svg>Devices</a>
+              <a class="nav-row" href="#"><svg><use href="#trash"/></svg>Delete account</a>
+              <div class="hairline-t" style="margin-top:auto;padding-top:8px"><a class="nav-row" href="#"><svg><use href="#logout"/></svg>Sign out</a></div>
+            </nav>
+            <div class="settings-body">
+              <div class="inner">
+                <div class="col gap-xs"><h2 class="t-heading-xl">Devices</h2><p class="mute t-body-sm">Where you are signed in to Open Woodworkers. End any session you do not recognize.</p></div>
+                <div class="card flush">
+                  <div class="session"><span class="ico"><svg><use href="#globe"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Chrome on macOS</span><span class="t-caption-md mute">Lisbon, Portugal · Active now</span></div><span class="badge">This device</span></div>
+                  <div class="session"><span class="ico"><svg><use href="#phone"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Gotalk for iPhone</span><span class="t-caption-md mute">Lisbon, Portugal · 2 hours ago</span></div><button class="btn btn-outline small">Sign out</button></div>
+                  <div class="session"><span class="ico"><svg><use href="#laptop"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Gotalk Desktop on Windows</span><span class="t-caption-md mute">Porto, Portugal · 3 days ago</span></div><button class="btn btn-outline small">Sign out</button></div>
+                  <div class="session"><span class="ico"><svg><use href="#globe"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Firefox on Linux</span><span class="t-caption-md mute">Madrid, Spain · 41 days ago</span></div><button class="btn btn-outline small">Sign out</button></div>
+                </div>
+                <div class="flex between center"><span class="t-caption-md mute">Signing out ends a session right away. That device has to sign in again.</span><button class="btn btn-danger">Sign out 3 other devices</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Devices. The current session is labelled and has no sign-out button; leaving this device is Sign out in the sidebar.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/profile</div></div>
+          <div class="viewport">
+            <nav class="settings-nav">
+              <a class="nav-row" href="#" style="margin-bottom:8px"><svg><use href="#chevronLeft"/></svg>Back to Open Woodworkers</a>
+              <div class="section-label">Account</div>
+              <a class="nav-row active" href="#"><svg><use href="#user"/></svg>Profile</a>
+              <a class="nav-row" href="#"><svg><use href="#lock"/></svg>Password</a>
+              <a class="nav-row" href="#"><svg><use href="#laptop"/></svg>Devices</a>
+              <a class="nav-row" href="#"><svg><use href="#trash"/></svg>Delete account</a>
+              <div class="hairline-t" style="margin-top:auto;padding-top:8px"><a class="nav-row" href="#"><svg><use href="#logout"/></svg>Sign out</a></div>
+            </nav>
+            <div class="settings-body">
+              <div class="inner">
+                <div class="col gap-xs"><h2 class="t-heading-xl">Profile</h2><p class="mute t-body-sm">This is what other members see on your posts and in chat.</p></div>
+                <div class="flex gap-lg center">
+                  <div class="avatar blue" style="width:64px;height:64px;font-size:22px">MK</div>
+                  <div class="col gap-xs"><button class="btn btn-tertiary" disabled>Change photo</button><span class="t-caption-md mute">Photo uploads arrive once the instance supports attachments.</span></div>
+                </div>
+                <div class="field"><label>Display name</label><div class="input focus"><span>Marta Kowalczyk</span></div></div>
+                <div class="field"><label>Username</label><div class="input"><span class="mute">marta.k</span></div><span class="note">Usernames cannot be changed.</span></div>
+                <div class="field"><label>Bio</label><div class="input textarea"><span>Hand-planes, hide glue, and a bench that is never finished.</span></div></div>
+                <div class="flex gap-sm"><button class="btn btn-primary">Save changes</button><button class="btn btn-tertiary">Discard</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Profile. Save changes is the one white action; there is no separate edit mode.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/delete</div></div>
+          <div class="viewport">
+            <nav class="settings-nav">
+              <a class="nav-row" href="#" style="margin-bottom:8px"><svg><use href="#chevronLeft"/></svg>Back to Open Woodworkers</a>
+              <div class="section-label">Account</div>
+              <a class="nav-row" href="#"><svg><use href="#user"/></svg>Profile</a>
+              <a class="nav-row" href="#"><svg><use href="#lock"/></svg>Password</a>
+              <a class="nav-row" href="#"><svg><use href="#laptop"/></svg>Devices</a>
+              <a class="nav-row active" href="#"><svg><use href="#trash"/></svg>Delete account</a>
+            </nav>
+            <div class="settings-body" style="opacity:.4"><div class="inner"><h2 class="t-heading-xl">Delete account</h2></div></div>
+            <div class="scrim">
+              <div class="card dialog" style="width:480px;background:var(--gt-color-surface-elevated);border-color:var(--gt-color-hairline-strong);border-radius:var(--gt-radius-xl)">
+                <h2 class="t-heading-md">Delete your account on Open Woodworkers?</h2>
+                <p class="mute t-body-sm">This removes your profile and signs out every device. It cannot be undone. Your account on other instances is not affected.</p>
+                <div class="field"><label>Type marta.k to confirm</label><div class="input focus"><span>marta.k</span></div></div>
+                <div class="flex gap-sm" style="justify-content:flex-end"><button class="btn btn-tertiary">Keep my account</button><button class="btn btn-danger">Delete account</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Delete account. Typing the username gates the destructive button; the dialog says what stays untouched.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Phone</h2>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Account</span><span class="side"></span></div>
+          <div class="body">
+            <div class="flex gap-md center"><div class="avatar blue" style="width:48px;height:48px;font-size:17px">MK</div><div class="col"><span class="t-heading-sm">Marta Kowalczyk</span><span class="t-caption-md mute">marta.k · woodworkers.example.org</span></div></div>
+            <div class="card flush">
+              <div class="list-row"><svg class="i mute"><use href="#user"/></svg><span class="grow t-body-sm-strong">Profile</span><svg class="i mute"><use href="#chevronRight"/></svg></div>
+              <div class="list-row"><svg class="i mute"><use href="#lock"/></svg><span class="grow t-body-sm-strong">Password</span><svg class="i mute"><use href="#chevronRight"/></svg></div>
+              <div class="list-row"><svg class="i mute"><use href="#laptop"/></svg><span class="grow t-body-sm-strong">Devices</span><span class="t-caption-md mute">4</span><svg class="i mute"><use href="#chevronRight"/></svg></div>
+            </div>
+            <div class="card flush">
+              <div class="list-row"><svg class="i mute"><use href="#logout"/></svg><span class="grow t-body-sm-strong">Sign out</span></div>
+              <div class="list-row"><svg class="i danger"><use href="#trash"/></svg><span class="grow t-body-sm-strong danger">Delete account</span></div>
+            </div>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Account menu</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Devices</span><span class="side"></span></div>
+          <div class="body">
+            <p class="mute t-body-sm">End any session you do not recognize. It signs that device out right away.</p>
+            <div class="card flush">
+              <div class="session"><span class="ico"><svg><use href="#phone"/></svg></span><div class="col grow"><span class="t-body-sm-strong">This iPhone</span><span class="t-caption-md mute">Lisbon · Active now</span></div><span class="badge">This device</span></div>
+              <div class="session"><span class="ico"><svg><use href="#globe"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Chrome on macOS</span><span class="t-caption-md mute">Lisbon · 2 hours ago</span></div><button class="btn btn-outline small">End</button></div>
+              <div class="session"><span class="ico"><svg><use href="#laptop"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Desktop on Windows</span><span class="t-caption-md mute">Porto · 3 days ago</span></div><button class="btn btn-outline small">End</button></div>
+              <div class="session"><span class="ico"><svg><use href="#globe"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Firefox on Linux</span><span class="t-caption-md mute">Madrid · 41 days ago</span></div><button class="btn btn-outline small">End</button></div>
+            </div>
+            <button class="btn btn-danger block">Sign out 3 other devices</button>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Devices</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Account</span><span class="side"></span></div>
+          <div class="body"><div class="card flush"><div class="list-row"><svg class="i mute"><use href="#user"/></svg><span class="grow t-body-sm-strong">Profile</span></div><div class="list-row"><svg class="i mute"><use href="#lock"/></svg><span class="grow t-body-sm-strong">Password</span></div></div></div>
+          <div class="scrim" style="align-items:flex-end"></div>
+          <div class="sheet">
+            <div class="grab"></div>
+            <h2 class="t-heading-md">Delete your account?</h2>
+            <p class="mute t-body-sm">This removes your profile on Open Woodworkers and signs out every device. It cannot be undone.</p>
+            <div class="field"><label>Type marta.k to confirm</label><div class="input focus"><span class="ph">marta.k</span></div></div>
+            <button class="btn btn-danger block" disabled>Delete account</button>
+            <button class="btn btn-tertiary block">Keep my account</button>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Delete confirmation as a bottom sheet. The destructive button stays disabled until the name matches.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>

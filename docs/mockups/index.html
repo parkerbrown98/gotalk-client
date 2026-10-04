@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gotalk client mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+<style>
+  .index { max-width: 880px; margin: 0 auto; padding: 64px 24px 96px; }
+  .index ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .index li a { display: grid; grid-template-columns: 1fr auto; gap: 8px 24px; padding: 20px 24px; background: var(--gt-color-surface); border: 1px solid var(--gt-color-hairline); border-radius: var(--gt-radius-lg); }
+  .index li a:hover { background: var(--gt-color-surface-elevated); }
+  .index h2 { margin-top: 48px; margin-bottom: 12px; }
+  .index .targets { display: flex; gap: 6px; align-items: center; }
+</style>
+</head>
+<body>
+<main class="index">
+  <h1 class="t-display-lg">Gotalk client mockups</h1>
+  <p class="mute measure" style="margin-top:12px">Static screens for the web, desktop and phone targets, built from the tokens in <code>packages/tokens</code> and the rules in <a href="../../DESIGN.md" style="text-decoration:underline">DESIGN.md</a>. They show intent for each phase of the <a href="../client-plan.md" style="text-decoration:underline">client plan</a>; they are not shipped UI.</p>
+  <p class="mute measure t-body-sm" style="margin-top:12px">Run <code>pnpm build</code> once so <code>packages/tokens/dist/tokens.css</code> exists, then open any file in a browser. Inter loads from Google Fonts.</p>
+
+  <h2 class="t-heading-md">Phase 0 · Foundation</h2>
+  <ul>
+    <li><a href="01-connect.html"><span class="col"><span class="t-body-strong">Connect to an instance</span><span class="mute t-body-sm">Address entry, instance preview, plain-HTTP warning, incompatible version, saved instances.</span></span><span class="targets"><span class="badge">Web</span><span class="badge">Desktop</span><span class="badge">Phone</span></span></a></li>
+  </ul>
+
+  <h2 class="t-heading-md">Phase 1 · Accounts and sessions</h2>
+  <ul>
+    <li><a href="02-sign-in.html"><span class="col"><span class="t-body-strong">Sign in</span><span class="mute t-body-sm">Default, wrong credentials, rate limited, session revoked elsewhere, API version mismatch.</span></span><span class="targets"><span class="badge">Web</span><span class="badge">Desktop</span><span class="badge">Phone</span></span></a></li>
+    <li><a href="03-register.html"><span class="col"><span class="t-body-strong">Create an account</span><span class="mute t-body-sm">Open, invite-only and closed registration; policy acceptance; outstanding consent.</span></span><span class="targets"><span class="badge">Web</span><span class="badge">Desktop</span><span class="badge">Phone</span></span></a></li>
+    <li><a href="04-account-settings.html"><span class="col"><span class="t-body-strong">Account settings</span><span class="mute t-body-sm">Profile, active devices with revoke, sign out, delete account.</span></span><span class="targets"><span class="badge">Web</span><span class="badge">Desktop</span><span class="badge">Phone</span></span></a></li>
+  </ul>
+
+  <h2 class="t-heading-md">Phase 2 · App shell and places</h2>
+  <ul>
+    <li><a href="05-shell-places.html"><span class="col"><span class="t-body-strong">App shell and places</span><span class="mute t-body-sm">Place rail and sidebar, command palette, discover, tab bar, invite link.</span></span><span class="targets"><span class="badge">Web</span><span class="badge">Desktop</span><span class="badge">Phone</span></span></a></li>
+  </ul>
+
+  <h2 class="t-heading-md">Phase 3 · Forums</h2>
+  <ul>
+    <li><a href="06-forums.html"><span class="col"><span class="t-body-strong">Forums</span><span class="mute t-body-sm">Board topic list, topic with accepted solution, Markdown composer with drafts.</span></span><span class="targets"><span class="badge">Web</span><span class="badge">Desktop</span><span class="badge">Phone</span></span></a></li>
+  </ul>
+
+  <h2 class="t-heading-md">Phase 4 · Real-time chat</h2>
+  <ul>
+    <li><a href="07-chat.html"><span class="col"><span class="t-body-strong">Chat and direct messages</span><span class="mute t-body-sm">Channel feed, threads, direct messages, reconnecting and failed sends.</span></span><span class="targets"><span class="badge">Web</span><span class="badge">Desktop</span><span class="badge">Phone</span></span></a></li>
+  </ul>
+
+  <h2 class="t-heading-md">Phase 5 · Voice and video</h2>
+  <ul>
+    <li><a href="08-voice.html"><span class="col"><span class="t-body-strong">Voice and video</span><span class="mute t-body-sm">In-call stage with screen share, moderator menu, push-to-talk settings, mini call bar.</span></span><span class="targets"><span class="badge">Web</span><span class="badge">Desktop</span><span class="badge">Phone</span></span></a></li>
+  </ul>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Voice and video · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+<style>
+  .stage { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 260px; gap: 16px; padding: 16px; }
+  .share { position: relative; background: var(--gt-color-surface); border: 1px solid var(--gt-color-hairline); border-radius: var(--gt-radius-xl); overflow: hidden; display: flex; flex-direction: column; }
+  .share .screen { flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 10px; font-family: var(--gt-font-mono); font-size: 13px; color: var(--gt-color-mute); background: var(--gt-color-canvas); }
+  .share .screen .ln { display: flex; gap: 12px; }
+  .share .screen .ln b { color: var(--gt-color-ash); font-weight: 400; width: 24px; text-align: right; }
+  .share .screen .ln span.k { color: var(--gt-color-on-dark); }
+  .share .label { position: absolute; left: 12px; bottom: 12px; display: flex; gap: 8px; align-items: center; padding: 4px 10px 4px 6px; border-radius: var(--gt-radius-full); background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline-strong); font-size: 13px; color: var(--gt-color-on-dark); }
+  .peers { display: flex; flex-direction: column; gap: 12px; }
+  .peer { position: relative; flex: 1; background: var(--gt-color-surface); border: 1px solid var(--gt-color-hairline); border-radius: var(--gt-radius-lg); display: grid; place-items: center; min-height: 0; }
+  .peer.speaking { border-color: var(--gt-color-accent-green); }
+  .peer .avatar { width: 64px; height: 64px; font-size: 22px; }
+  .peer .nm { position: absolute; left: 10px; bottom: 8px; right: 10px; display: flex; gap: 6px; align-items: center; font-size: 13px; color: var(--gt-color-on-dark); }
+  .peer .nm svg { width: 14px; height: 14px; color: var(--gt-color-mute); }
+  .peer .nm svg.off { color: var(--gt-color-accent-red); }
+  .bar { height: 72px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-top: 1px solid var(--gt-color-hairline); background: var(--gt-color-surface); }
+  .ctl { width: 44px; height: 44px; border-radius: var(--gt-radius-md); background: var(--gt-color-surface-elevated); display: grid; place-items: center; color: var(--gt-color-on-dark); border: 1px solid transparent; }
+  .ctl svg { width: 20px; height: 20px; }
+  .ctl.off { color: var(--gt-color-accent-red); }
+  .ctl.on { background: var(--gt-color-surface-card); border-color: var(--gt-color-hairline-strong); }
+  .ctl.leave { width: auto; padding: 0 16px; gap: 8px; display: flex; align-items: center; color: var(--gt-color-accent-red); font-size: 14px; font-weight: 500; }
+  .menu { position: absolute; width: 220px; background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline-strong); border-radius: var(--gt-radius-md); padding: 6px; display: flex; flex-direction: column; gap: 2px; }
+  .quality { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--gt-color-mute); }
+  .quality i { display: inline-flex; gap: 2px; align-items: flex-end; height: 12px; }
+  .quality i b { width: 3px; background: var(--gt-color-accent-green); display: block; border-radius: 1px; }
+  .seg { display: inline-flex; flex: none; padding: 2px; border-radius: var(--gt-radius-md); background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline); }
+  .seg span { padding: 4px 12px; border-radius: 6px; font-size: 14px; white-space: nowrap; color: var(--gt-color-body); }
+  .seg span.on { background: var(--gt-color-surface-card); color: var(--gt-color-on-dark); }
+  .toggle { width: 36px; height: 20px; border-radius: 10px; background: var(--gt-color-primary); position: relative; flex: none; }
+  .toggle::after { content: ''; position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--gt-color-on-primary); }
+  .toggle.off { background: var(--gt-color-surface-card); border: 1px solid var(--gt-color-hairline-strong); }
+  .toggle.off::after { right: auto; left: 2px; top: 1px; background: var(--gt-color-mute); }
+  .minibar { display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 16px; background: var(--gt-color-surface-elevated); border-top: 1px solid var(--gt-color-hairline); flex: none; }
+  .tilegrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1; min-height: 0; }
+  .tilegrid .peer { min-height: 150px; flex: none; }
+  .feed { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 16px 0 8px; }
+  .msg { display: grid; grid-template-columns: 32px 1fr; gap: 12px; }
+  .msg .meta { display: flex; gap: 8px; align-items: baseline; }
+  .msg .text { line-height: 1.5; color: var(--gt-color-body); }
+  .composer .box { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 8px 6px 12px; border-radius: var(--gt-radius-md); background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline); }
+  .composer .box svg { width: 18px; height: 18px; color: var(--gt-color-mute); flex: none; }
+</style>
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Phase 5 · Voice &amp; video</nav>
+    <h1 class="t-display-lg">Voice and video</h1>
+    <p>A voice channel is a room you can sit in while doing something else. Who is talking is the one place green appears; muted and deafened states use red on the icon only. Screen share takes the stage and participants step aside into a column.</p>
+  </header>
+
+  <section class="group">
+    <h2>Desktop</h2>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="win">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="tile blue place">H<span class="count">3</span></div><div class="tile green place">C</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <aside class="sidebar"><div class="head"><span class="t-body-strong">Open Woodworkers</span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+              <div class="items"><div class="section-label">Chat</div><a class="nav-row" href="#"><svg><use href="#hash"/></svg>bench-talk</a>
+                <div class="section-label">Voice</div><a class="nav-row active" href="#"><svg><use href="#volume"/></svg>Open shop<span class="meta">4</span></a><a class="nav-row" href="#"><svg><use href="#volume"/></svg>Quiet corner</a></div>
+              <div class="foot col gap-sm" style="padding:12px">
+                <div class="flex between center"><span class="flex center gap-sm success t-body-sm-strong"><svg class="i"><use href="#volume"/></svg>Voice connected</span><span class="quality"><i><b style="height:4px"></b><b style="height:7px"></b><b style="height:10px"></b><b style="height:12px"></b></i></span></div>
+                <span class="t-caption-md mute">Open shop · Open Woodworkers</span>
+                <div class="flex gap-sm"><span class="ctl" style="width:36px;height:36px"><svg><use href="#mic"/></svg></span><span class="ctl" style="width:36px;height:36px"><svg><use href="#headphones"/></svg></span><span class="ctl leave" style="height:36px;margin-left:auto;padding:0 12px"><svg style="width:16px;height:16px"><use href="#phoneOff"/></svg></span></div>
+              </div>
+            </aside>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#volume"/></svg><span class="t-body-strong">Open shop</span><span class="t-caption-md mute">4 in call · 00:42:18</span><span style="margin-left:auto" class="quality"><i><b style="height:4px"></b><b style="height:7px"></b><b style="height:10px"></b><b style="height:12px"></b></i>Good connection</span></div>
+              <div class="stage">
+                <div class="share">
+                  <div class="screen">
+                    <div class="ln"><b>12</b><span><span class="k">Cut list</span> / sideboard carcass</span></div>
+                    <div class="ln"><b>13</b><span>sides ........ 2 &times; 780 &times; 520 &times; 19</span></div>
+                    <div class="ln"><b>14</b><span>top .......... 1 &times; 1500 &times; 520 &times; 19</span></div>
+                    <div class="ln"><b>15</b><span>bottom ....... 1 &times; 1462 &times; 500 &times; 19</span></div>
+                    <div class="ln"><b>16</b><span>stretchers ... 2 &times; 1462 &times; 90 &times; 19</span></div>
+                    <div class="ln"><b>17</b><span class="k">dovetail pitch 1:7 &middot; baseline 4 mm</span></div>
+                  </div>
+                  <div class="label"><span class="avatar s24 green">JP</span>Jonas P. is sharing a screen</div>
+                  <div class="flex" style="position:absolute;right:12px;top:12px;gap:8px"><button class="btn btn-tertiary small">Fit to window</button><button class="btn btn-tertiary small">Full screen</button></div>
+                </div>
+                <div class="peers">
+                  <div class="peer speaking"><span class="avatar green">JP</span><span class="nm"><svg><use href="#mic"/></svg>Jonas P.</span></div>
+                  <div class="peer"><span class="avatar red">AL</span><span class="nm"><svg class="off"><use href="#micOff"/></svg>Ana L.</span></div>
+                  <div class="peer"><span class="avatar yellow">TW</span><span class="nm"><svg><use href="#mic"/></svg>Tomas W.</span></div>
+                  <div class="peer"><span class="avatar blue">MK</span><span class="nm"><svg><use href="#mic"/></svg>You</span></div>
+                </div>
+              </div>
+              <div class="bar">
+                <div class="flex center gap-sm"><span class="ctl"><svg><use href="#mic"/></svg></span><span class="ctl off"><svg><use href="#headphones"/></svg></span><span class="ctl"><svg><use href="#video"/></svg></span><span class="ctl on"><svg><use href="#monitor"/></svg></span></div>
+                <span class="t-caption-md mute flex center gap-sm">Hold <span class="keys"><span class="keycap">⌥</span><span class="keycap">Space</span></span> to talk</span>
+                <span class="ctl leave"><svg><use href="#phoneOff"/></svg>Leave</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>In a call with a shared screen. Speaking is a green hairline on the tile; muted shows as a red icon. The sidebar keeps a compact call panel so the call survives navigation.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="main" style="background:var(--gt-color-canvas)">
+              <div class="stage" style="grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;opacity:.45">
+                <div class="peer speaking"><span class="avatar green">JP</span><span class="nm">Jonas P.</span></div>
+                <div class="peer"><span class="avatar red">AL</span><span class="nm">Ana L.</span></div>
+                <div class="peer"><span class="avatar yellow">TW</span><span class="nm">Tomas W.</span></div>
+              </div>
+              <div class="menu" style="left:380px;top:250px">
+                <div class="flex gap-sm center" style="padding:6px 10px"><span class="avatar s24 red">AL</span><span class="t-body-sm-strong">Ana L.</span></div>
+                <hr class="divider" style="margin:4px 0">
+                <div class="nav-row"><svg><use href="#micOff"/></svg>Mute for everyone</div>
+                <div class="nav-row"><svg><use href="#headphones"/></svg>Deafen for everyone</div>
+                <div class="nav-row"><svg><use href="#volume"/></svg>Move to…<span class="meta"><svg><use href="#chevronRight"/></svg></span></div>
+                <hr class="divider" style="margin:4px 0">
+                <div class="nav-row" style="color:var(--gt-color-accent-red)"><svg style="color:var(--gt-color-accent-red)"><use href="#phoneOff"/></svg>Disconnect</div>
+              </div>
+            </div>
+            <div class="scrim" style="display:none"></div>
+          </div>
+        </div>
+        <figcaption>Moderator menu on a participant. Only people with the voice permission see it; the server stays authoritative.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short narrow">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport" style="align-items:center;justify-content:center">
+            <div class="card dialog" style="width:560px;background:var(--gt-color-surface-elevated);border-color:var(--gt-color-hairline-strong);border-radius:var(--gt-radius-xl);gap:20px">
+              <h2 class="t-heading-md">Voice settings</h2>
+              <div class="field"><label>Microphone</label><div class="input"><span>MacBook Pro Microphone</span><svg class="i trail"><use href="#chevronDown"/></svg></div></div>
+              <div class="field"><label>Speakers</label><div class="input"><span>External Headphones</span><svg class="i trail"><use href="#chevronDown"/></svg></div></div>
+              <div class="flex between center"><div class="col"><span class="t-body-sm-strong">Input mode</span><span class="t-caption-md mute">Push to talk works system-wide in the desktop app.</span></div><span class="seg"><span>Voice activity</span><span class="on">Push to talk</span></span></div>
+              <div class="flex between center"><div class="col"><span class="t-body-sm-strong">Push-to-talk key</span><span class="t-caption-md mute">Press a key or combination to change it.</span></div><span class="flex gap-sm center"><span class="keys"><span class="keycap">⌥</span><span class="keycap">Space</span></span><button class="btn btn-tertiary small">Change</button></span></div>
+              <div class="flex between center"><div class="col"><span class="t-body-sm-strong">Reduce background noise</span></div><span class="toggle"></span></div>
+              <div class="flex gap-sm" style="justify-content:flex-end"><button class="btn btn-tertiary">Test microphone</button><button class="btn btn-primary">Done</button></div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Voice settings on desktop. Push to talk is desktop-only; on phones the mute button is the control.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Phone</h2>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronDown"/></svg></span><span class="t-body-sm-strong">Open shop</span><span class="side end on-dark"><svg class="i"><use href="#users"/></svg></span></div>
+          <div class="body">
+            <div class="flex between center"><span class="t-caption-md mute">Open Woodworkers · 00:42:18</span><span class="quality"><i><b style="height:4px"></b><b style="height:7px"></b><b style="height:10px"></b><b style="height:12px"></b></i></span></div>
+            <div class="tilegrid" style="grid-auto-rows:min-content;align-content:start">
+              <div class="peer speaking"><span class="avatar green">JP</span><span class="nm"><svg><use href="#mic"/></svg>Jonas P.</span></div>
+              <div class="peer"><span class="avatar red">AL</span><span class="nm"><svg class="off"><use href="#micOff"/></svg>Ana L.</span></div>
+              <div class="peer"><span class="avatar yellow">TW</span><span class="nm"><svg><use href="#mic"/></svg>Tomas W.</span></div>
+              <div class="peer"><span class="avatar blue">MK</span><span class="nm"><svg><use href="#mic"/></svg>You</span></div>
+            </div>
+          </div>
+          <div class="flex between center" style="padding:12px 20px 32px;border-top:1px solid var(--gt-color-hairline)"><span class="ctl"><svg><use href="#mic"/></svg></span><span class="ctl"><svg><use href="#headphones"/></svg></span><span class="ctl"><svg><use href="#video"/></svg></span><span class="ctl"><svg><use href="#more"/></svg></span><span class="ctl leave" style="width:44px;padding:0;justify-content:center"><svg><use href="#phoneOff"/></svg></span></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>In a call</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">bench-talk</span><span class="side end on-dark"><svg class="i"><use href="#users"/></svg></span></div>
+          <div class="feed" style="padding-top:8px">
+            <div class="msg" style="padding:4px 16px"><span class="avatar s32 green">JP</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:23</span></div><div class="text" style="font-size:15px">Doors at 9. Coffee is on me.</div></div></div>
+            <div class="msg" style="padding:4px 16px;margin-top:6px"><span class="avatar s32 red">AL</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md ash">10:52</span></div><div class="text" style="font-size:15px">@Marta did you want the cherry in 4/4 or thicker?</div></div></div>
+          </div>
+          <div class="minibar"><span class="avatar s32 green" style="box-shadow:0 0 0 1px var(--gt-color-accent-green);border-color:transparent">JP</span><div class="col grow"><span class="t-body-sm-strong">Open shop</span><span class="t-caption-md mute">4 in call · Jonas P. is talking</span></div><span class="ctl" style="width:36px;height:36px"><svg style="width:18px;height:18px"><use href="#mic"/></svg></span><span class="ctl leave" style="width:36px;height:36px;padding:0;justify-content:center"><svg style="width:18px;height:18px"><use href="#phoneOff"/></svg></span></div>
+          <div class="composer" style="padding:8px 12px 28px"><div class="box"><svg><use href="#plus"/></svg><span class="grow t-body-md ash">Message #bench-talk</span><svg><use href="#smile"/></svg></div></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Browsing while in a call. The mini bar sits above the composer and shows who is speaking.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>

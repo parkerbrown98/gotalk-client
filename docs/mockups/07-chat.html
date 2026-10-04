@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Chat and messages · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+<style>
+  .feed { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 16px 0 8px; }
+  .msg { display: grid; grid-template-columns: 36px 1fr; gap: 12px; padding: 4px 20px; position: relative; }
+  .msg:hover, .msg.hl { background: var(--gt-color-surface); }
+  .msg.cont { padding-top: 0; padding-bottom: 0; }
+  .msg .gutter { width: 36px; font-size: 11px; color: var(--gt-color-ash); text-align: right; padding-top: 4px; }
+  .msg .meta { display: flex; gap: 8px; align-items: baseline; }
+  .msg .text { font-size: 15px; line-height: 1.5; color: var(--gt-color-body); max-width: 70ch; }
+  .msg .quote { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--gt-color-mute); margin-bottom: 2px; }
+  .msg .quote::before { content: ''; width: 18px; height: 10px; border-left: 2px solid var(--gt-color-hairline-strong); border-top: 2px solid var(--gt-color-hairline-strong); border-top-left-radius: 6px; margin-top: 6px; }
+  .msg .thread { display: inline-flex; gap: 8px; align-items: center; margin-top: 4px; font-size: 13px; color: var(--gt-color-on-dark); }
+  .msg .thread svg { width: 14px; height: 14px; color: var(--gt-color-mute); }
+  .newline { display: flex; align-items: center; gap: 12px; padding: 8px 20px; }
+  .newline i { flex: 1; height: 1px; background: var(--gt-color-hairline-strong); }
+  .newline span { font-size: 12px; font-weight: 500; letter-spacing: .4px; padding: 0 8px; height: 20px; display: inline-grid; place-items: center; border-radius: var(--gt-radius-xs); background: var(--gt-color-primary); color: var(--gt-color-on-primary); }
+  .daydiv { display: flex; align-items: center; gap: 12px; padding: 8px 20px; font-size: 13px; color: var(--gt-color-mute); }
+  .daydiv i { flex: 1; height: 1px; background: var(--gt-color-hairline); }
+  .chip { display: inline-flex; gap: 6px; align-items: center; height: 24px; padding: 0 8px; border-radius: var(--gt-radius-full); border: 1px solid var(--gt-color-hairline); font-size: 13px; color: var(--gt-color-body); margin-top: 4px; margin-right: 4px; }
+  .chip.on { background: var(--gt-color-surface-elevated); border-color: var(--gt-color-hairline-strong); color: var(--gt-color-on-dark); }
+  .composer { padding: 0 20px 16px; }
+  .composer .box { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 8px 6px 12px; border-radius: var(--gt-radius-md); background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline); }
+  .composer .box.focus { border-color: var(--gt-color-hairline-strong); }
+  .composer .box svg { width: 18px; height: 18px; color: var(--gt-color-mute); flex: none; }
+  .typing { height: 20px; padding: 0 20px; font-size: 13px; color: var(--gt-color-mute); display: flex; align-items: center; gap: 6px; }
+  .typing i { display: inline-flex; gap: 3px; }
+  .typing i b { width: 4px; height: 4px; border-radius: 50%; background: var(--gt-color-mute); display: block; }
+  .thread-panel { width: 380px; flex: none; border-left: 1px solid var(--gt-color-hairline); background: var(--gt-color-surface); display: flex; flex-direction: column; }
+  .pinned { display: flex; gap: 8px; align-items: center; padding: 8px 20px; font-size: 13px; color: var(--gt-color-mute); border-bottom: 1px solid var(--gt-color-hairline); }
+  .banner { display: flex; gap: 8px; align-items: center; justify-content: center; height: 32px; font-size: 13px; background: var(--gt-color-accent-yellow-soft); color: var(--gt-color-body); }
+  .banner svg { width: 14px; height: 14px; color: var(--gt-color-accent-yellow); }
+</style>
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Phase 4 · Real-time chat</nav>
+    <h1 class="t-display-lg">Chat and direct messages</h1>
+    <p>Channels are dense and quiet: names and times in the gutter, a single white marker for where new messages start, and threads that keep side conversations out of the main feed. Connection trouble shows as one line at the top, never as a blocking screen.</p>
+  </header>
+
+  <section class="group">
+    <h2>Desktop</h2>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="win">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="tile blue place">H<span class="count">3</span></div><div class="tile green place">C</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <aside class="sidebar"><div class="head"><span class="t-body-strong">Open Woodworkers</span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+              <div class="items"><div class="section-label">Forums</div><a class="nav-row" href="#"><svg><use href="#forum"/></svg>Joinery</a><a class="nav-row" href="#"><svg><use href="#forum"/></svg>Finishing</a>
+                <div class="section-label">Chat</div><a class="nav-row active" href="#"><svg><use href="#hash"/></svg>bench-talk</a><a class="nav-row" href="#"><svg><use href="#hash"/></svg>buy-sell-swap</a><a class="nav-row unread" href="#"><svg><use href="#hash"/></svg>help-wanted<span class="meta"><span class="count">1</span></span></a>
+                <div class="section-label">Direct messages</div><a class="nav-row" href="#"><span class="avatar s24 red">AL<span class="presence"></span></span>Ana L.</a><a class="nav-row unread" href="#"><span class="avatar s24 green">JP<span class="presence idle"></span></span>Jonas P.<span class="meta"><span class="count">2</span></span></a><a class="nav-row" href="#"><span class="avatar s24 yellow">TW<span class="presence off"></span></span>Tomas W.</a></div></aside>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#hash"/></svg><span class="t-body-strong">bench-talk</span><span class="t-caption-md mute">Saturday plans, offcuts, and shop gossip</span><span style="margin-left:auto" class="flex center gap-md mute"><svg class="i"><use href="#pin"/></svg><svg class="i"><use href="#users"/></svg><svg class="i"><use href="#search"/></svg></span></div>
+              <div class="pinned"><svg class="i"><use href="#pin"/></svg><span class="grow">Open shop is Sundays, doors at 9. Bring your own PPE.</span><a href="#" class="t-caption-md" style="text-decoration:underline">1 pinned</a></div>
+              <div class="viewport" style="flex:1;min-height:0">
+                <div class="col grow" style="min-width:0">
+                  <div class="feed">
+                    <div class="daydiv"><i></i>Saturday 3 October<i></i></div>
+                    <div class="msg"><span class="avatar green">JP</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:12</span></div><div class="text">Anyone up for open shop tomorrow? I'm bringing the new #7 and I need witnesses.</div></div></div>
+                    <div class="msg" style="margin-top:8px"><span class="avatar red">AL</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md ash">10:14</span></div><div class="text">I'm in. Bringing a bag of cherry offcuts if anyone wants them for small boxes.</div><div><span class="chip on">Yes please 3</span><span class="chip">+1 2</span></div></div></div>
+                    <div class="msg cont"><span class="gutter">10:14</span><div class="text">Fair warning, some of them have knots.</div></div>
+                    <div class="msg" style="margin-top:8px"><span class="avatar yellow">TW</span><div class="col"><div class="quote"><span>Ana L.</span><span class="ash">I'm in. Bringing a bag of cherry offcuts…</span></div><div class="meta"><span class="t-body-sm-strong">Tomas W.</span><span class="t-caption-md ash">10:21</span></div><div class="text">Count me in for the offcuts. What time do doors open?</div></div></div>
+                    <div class="msg hl" style="margin-top:8px"><span class="avatar green">JP</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:23</span></div><div class="text">Doors at 9. Coffee is on me.</div><a class="thread" href="#"><svg><use href="#thread"/></svg>3 replies<span class="mute">Last reply 10:40</span></a></div></div>
+                    <div class="newline"><i></i><span>New</span><i></i></div>
+                    <div class="msg"><span class="avatar red">AL</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md ash">10:52</span></div><div class="text">@Marta did you want the cherry in 4/4 or thicker? I can plane some down tonight.</div></div></div>
+                  </div>
+                  <div class="typing"><i><b></b><b></b><b></b></i>Jonas P. is typing</div>
+                  <div class="composer"><div class="box focus"><svg><use href="#plus"/></svg><span class="grow t-body-md ash">Message #bench-talk</span><svg><use href="#smile"/></svg><button class="btn btn-primary" style="height:30px;padding:0 12px">Send</button></div></div>
+                </div>
+                <aside class="members">
+                  <div class="section-label">Online · 6</div>
+                  <div class="nav-row"><span class="avatar s24 red">AL<span class="presence"></span></span>Ana L.<span class="meta">Moderator</span></div>
+                  <div class="nav-row"><span class="avatar s24 green">JP<span class="presence"></span></span>Jonas P.</div>
+                  <div class="nav-row"><span class="avatar s24 blue">MK<span class="presence"></span></span>Marta K.</div>
+                  <div class="nav-row"><span class="avatar s24 yellow">TW<span class="presence idle"></span></span>Tomas W.<span class="meta">Away</span></div>
+                  <div class="section-label" style="margin-top:8px">Offline · 1,278</div>
+                  <div class="nav-row" style="color:var(--gt-color-mute)"><span class="avatar s24">DV<span class="presence off"></span></span>Dov Vance</div>
+                  <div class="nav-row" style="color:var(--gt-color-mute)"><span class="avatar s24">SB<span class="presence off"></span></span>Sana B.</div>
+                </aside>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Channel. The white New marker is the only high-contrast element in the feed; reactions you added are lifted one surface step.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="tile blue place">H<span class="count">3</span></div><div class="tile green place">C</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <aside class="sidebar"><div class="head"><span class="t-body-strong">Open Woodworkers</span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+              <div class="items"><div class="section-label">Chat</div><a class="nav-row active" href="#"><svg><use href="#hash"/></svg>bench-talk</a><a class="nav-row" href="#"><svg><use href="#hash"/></svg>buy-sell-swap</a><a class="nav-row" href="#"><svg><use href="#hash"/></svg>help-wanted</a></div></aside>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#hash"/></svg><span class="t-body-strong">bench-talk</span></div>
+              <div class="viewport" style="flex:1;min-height:0">
+                <div class="col grow" style="min-width:0">
+                  <div class="feed">
+                    <div class="msg"><span class="avatar green">JP</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:12</span></div><div class="text">Anyone up for open shop tomorrow? I'm bringing the new #7 and I need witnesses.</div></div></div>
+                    <div class="msg" style="margin-top:8px"><span class="avatar red">AL</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md ash">10:14</span></div><div class="text">I'm in. Bringing a bag of cherry offcuts if anyone wants them for small boxes.</div></div></div>
+                    <div class="msg" style="margin-top:8px"><span class="avatar yellow">TW</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Tomas W.</span><span class="t-caption-md ash">10:21</span></div><div class="text">Count me in for the offcuts. What time do doors open?</div></div></div>
+                    <div class="msg hl" style="margin-top:8px"><span class="avatar green">JP</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:23</span></div><div class="text">Doors at 9. Coffee is on me.</div><a class="thread" href="#"><svg><use href="#thread"/></svg>3 replies</a></div></div>
+                    <div class="msg" style="margin-top:8px"><span class="avatar red">AL</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md ash">10:52</span></div><div class="text">@Marta did you want the cherry in 4/4 or thicker?</div></div></div>
+                  </div>
+                  <div class="composer"><div class="box"><svg><use href="#plus"/></svg><span class="grow t-body-md ash">Message #bench-talk</span><svg><use href="#smile"/></svg></div></div>
+                </div>
+                <aside class="thread-panel">
+                  <div class="flex between center hairline-b" style="height:52px;padding:0 16px"><span class="t-body-strong">Thread</span><svg class="i mute"><use href="#x"/></svg></div>
+                  <div class="col" style="flex:1;overflow:hidden">
+                    <div class="msg" style="padding:16px"><span class="avatar green">JP</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:23</span></div><div class="text">Doors at 9. Coffee is on me.</div></div></div>
+                    <div class="daydiv" style="padding:4px 16px"><span>3 replies</span><i></i></div>
+                    <div class="msg" style="padding:8px 16px"><span class="avatar yellow">TW</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Tomas W.</span><span class="t-caption-md ash">10:28</span></div><div class="text">Decaf for me, please.</div></div></div>
+                    <div class="msg" style="padding:8px 16px"><span class="avatar red">AL</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md ash">10:31</span></div><div class="text">I'll bring the oat milk.</div></div></div>
+                    <div class="msg" style="padding:8px 16px"><span class="avatar green">JP</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:40</span></div><div class="text">Decaf it is. Done.</div></div></div>
+                  </div>
+                  <div class="composer" style="padding:0 16px 16px"><div class="box focus"><span class="grow t-body-md ash">Reply in thread</span><button class="btn btn-primary" style="height:30px;padding:0 12px">Send</button></div></div>
+                </aside>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Thread panel. It replaces the member list and keeps the parent message pinned at the top.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Phone</h2>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">bench-talk</span><span class="side end on-dark"><svg class="i"><use href="#users"/></svg></span></div>
+          <div class="feed" style="padding-top:8px">
+            <div class="msg" style="padding:4px 16px"><span class="avatar s32 green">JP</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:12</span></div><div class="text">Anyone up for open shop tomorrow? I'm bringing the new #7.</div></div></div>
+            <div class="msg" style="padding:4px 16px;margin-top:6px"><span class="avatar s32 red">AL</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md ash">10:14</span></div><div class="text">I'm in. Bringing cherry offcuts for small boxes.</div><div><span class="chip on">Yes please 3</span></div></div></div>
+            <div class="msg" style="padding:4px 16px;margin-top:6px"><span class="avatar s32 yellow">TW</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Tomas W.</span><span class="t-caption-md ash">10:21</span></div><div class="text">Count me in. What time do doors open?</div></div></div>
+            <div class="msg" style="padding:4px 16px;margin-top:6px"><span class="avatar s32 green">JP</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:23</span></div><div class="text">Doors at 9. Coffee is on me.</div><a class="thread" href="#"><svg><use href="#thread"/></svg>3 replies</a></div></div>
+            <div class="newline" style="padding:8px 16px"><i></i><span>New</span><i></i></div>
+            <div class="msg" style="padding:4px 16px"><span class="avatar s32 red">AL</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md ash">10:52</span></div><div class="text">@Marta did you want the cherry in 4/4 or thicker? I can plane some down tonight.</div></div></div>
+          </div>
+          <div class="typing" style="padding:0 16px"><i><b></b><b></b><b></b></i>Jonas P. is typing</div>
+          <div class="composer" style="padding:0 12px 28px"><div class="box focus"><svg><use href="#plus"/></svg><span class="grow t-body-md ash">Message #bench-talk</span><svg><use href="#smile"/></svg></div></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Channel</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side"></span><span class="t-body-sm-strong">Messages</span><span class="side end on-dark"><svg class="i"><use href="#plus"/></svg></span></div>
+          <div class="body flush">
+            <div style="padding:12px 16px"><div class="input search" style="height:36px"><svg class="i mute"><use href="#search"/></svg><span class="ph t-body-md">Find a conversation</span></div></div>
+            <div class="list-row"><span class="avatar" style="width:44px;height:44px">JP<span class="presence idle"></span></span><div class="col grow"><div class="flex between"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:58</span></div><span class="t-body-sm" style="color:var(--gt-color-on-dark)">Sent you the photos of the #7</span></div><span class="count">2</span></div>
+            <div class="list-row"><span class="avatar" style="width:44px;height:44px">AL<span class="presence"></span></span><div class="col grow"><div class="flex between"><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md ash">Yesterday</span></div><span class="t-body-sm mute">Thanks, I'll add it to the pinned topic.</span></div></div>
+            <div class="list-row"><span class="avatar" style="width:44px;height:44px;font-size:13px">3<span class="presence" style="display:none"></span></span><div class="col grow"><div class="flex between"><span class="t-body-sm-strong">Ana, Tomas, Jonas</span><span class="t-caption-md ash">Mon</span></div><span class="t-body-sm mute">Tomas: Decaf for me, please.</span></div></div>
+            <div class="list-row"><span class="avatar" style="width:44px;height:44px">TW<span class="presence off"></span></span><div class="col grow"><div class="flex between"><span class="t-body-sm-strong">Tomas W.</span><span class="t-caption-md ash">Sep 28</span></div><span class="t-body-sm mute">You: Router bit sizes are in the shop notes.</span></div></div>
+          </div>
+          <div class="tabbar"><a href="#"><svg><use href="#home"/></svg>Places</a><a class="active" href="#"><svg><use href="#forum"/></svg>Messages</a><a href="#"><svg><use href="#search"/></svg>Search</a><a href="#"><svg><use href="#user"/></svg>You</a></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Direct and group messages. Unread conversations carry the only white count.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">No signal</span></div>
+          <div class="banner"><svg><use href="#wifi"/></svg>Reconnecting. Messages will catch up when you are back.</div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">bench-talk</span><span class="side"></span></div>
+          <div class="feed" style="padding-top:8px">
+            <div class="msg" style="padding:4px 16px"><span class="avatar s32 green">JP</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:23</span></div><div class="text">Doors at 9. Coffee is on me.</div></div></div>
+            <div class="msg" style="padding:4px 16px;margin-top:6px"><span class="avatar s32 blue">MK</span><div class="col"><div class="meta"><span class="t-body-sm-strong">You</span><span class="t-caption-md ash">10:55</span></div><div class="text">Thick please, I want to resaw some.</div><span class="t-caption-md ash flex center gap-xs" style="margin-top:2px"><svg class="i" style="width:12px;height:12px"><use href="#clock"/></svg>Sending</span></div></div>
+            <div class="msg" style="padding:4px 16px;margin-top:6px"><span class="avatar s32 blue">MK</span><div class="col"><div class="meta"><span class="t-body-sm-strong">You</span><span class="t-caption-md ash">10:56</span></div><div class="text">Also, is the planer free?</div><span class="t-caption-md flex center gap-sm" style="margin-top:2px"><span class="danger">Not sent.</span><a href="#" style="text-decoration:underline">Retry</a><a href="#" class="mute" style="text-decoration:underline">Delete</a></span></div></div>
+          </div>
+          <div class="composer" style="padding:0 12px 28px"><div class="box"><svg><use href="#plus"/></svg><span class="grow t-body-md ash">Message #bench-talk</span><svg><use href="#smile"/></svg></div></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Offline. Pending and failed sends stay in the feed with a clear next step; nothing blocks reading.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>

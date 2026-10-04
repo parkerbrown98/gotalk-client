@@ -22,6 +22,7 @@ the client discovers it via `/.well-known/gotalk-instance` and `GET /api/v1/inst
 | `packages/core` | Framework-agnostic client logic: instance discovery, API compatibility checks, saved-instance store |
 | `apps/app` | Expo Router app (mobile + web) |
 | `apps/desktop` | Tauri shell |
+| `docs/mockups` | Static HTML mockups of each flow for web, desktop and phone, built from the tokens (see the [design process](docs/client-plan.md#design-process)). Open `docs/mockups/index.html` after `pnpm build` |
 
 Shared packages are consumed as TypeScript source; there is no separate package build step.
 

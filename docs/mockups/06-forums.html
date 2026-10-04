@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Forums · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+<style>
+  .topic-row { display: grid; grid-template-columns: 1fr 72px 120px; gap: 16px; align-items: center; padding: 12px 24px; border-bottom: 1px solid var(--gt-color-hairline); }
+  .topic-row.head { padding-top: 8px; padding-bottom: 8px; font-size: 13px; letter-spacing: .1px; color: var(--gt-color-mute); }
+  .topic-row .t { display: flex; gap: 12px; align-items: center; min-width: 0; }
+  .topic-row .t .col { min-width: 0; }
+  .topic-row .t .title { color: var(--gt-color-on-dark); font-weight: 500; font-size: 15px; line-height: 1.4; }
+  .topic-row.read .t .title { font-weight: 400; color: var(--gt-color-body); }
+  .topic-row .num { text-align: right; font-size: 14px; color: var(--gt-color-body); }
+  .unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gt-color-primary); flex: none; }
+  .unread-dot.none { background: transparent; }
+  .post { display: grid; grid-template-columns: 40px 1fr; gap: 16px; padding: 20px 0; }
+  .post + .post { border-top: 1px solid var(--gt-color-hairline); }
+  .post .body-copy { color: var(--gt-color-body); font-size: 16px; line-height: 1.6; max-width: 62ch; }
+  .post .body-copy p + p { margin-top: 12px; }
+  .post.accepted { background: var(--gt-color-accent-green-soft); margin: 0 -16px; padding: 20px 16px; border-radius: var(--gt-radius-md); border-top-color: transparent; }
+  .post.accepted + .post { border-top-color: transparent; }
+  .chip { display: inline-flex; gap: 6px; align-items: center; height: 28px; padding: 0 10px; border-radius: var(--gt-radius-full); border: 1px solid var(--gt-color-hairline); font-size: 13px; color: var(--gt-color-body); }
+  .chip.on { background: var(--gt-color-surface-elevated); border-color: var(--gt-color-hairline-strong); color: var(--gt-color-on-dark); }
+  .toolbar { display: flex; gap: 2px; padding: 6px 8px; border-bottom: 1px solid var(--gt-color-hairline); align-items: center; }
+  .toolbar span { min-width: 28px; height: 28px; display: grid; place-items: center; border-radius: var(--gt-radius-sm); font-size: 14px; color: var(--gt-color-body); padding: 0 6px; }
+  .toolbar span.on { background: var(--gt-color-surface-card); color: var(--gt-color-on-dark); }
+  .toolbar svg { width: 16px; height: 16px; }
+  code { font-family: var(--gt-font-mono); font-size: 14px; padding: 1px 6px; border-radius: var(--gt-radius-xs); background: var(--gt-color-surface-card); color: var(--gt-color-on-dark); }
+  .keyboard { background: var(--gt-color-surface-elevated); border-top: 1px solid var(--gt-color-hairline); height: 280px; flex: none; padding: 8px; display: grid; grid-template-rows: repeat(4, 1fr); gap: 8px; }
+  .keyboard i { display: block; background: var(--gt-color-surface-card); border-radius: 6px; }
+  .keyboard div { display: flex; gap: 6px; }
+  .keyboard div i { flex: 1; }
+</style>
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Phase 3 · Forums</nav>
+    <h1 class="t-display-lg">Forums</h1>
+    <p>Boards hold topics; topics hold a conversation that can end in an accepted answer. Unread state is a white dot and a heavier title, solved topics say so in green, and the composer drafts to the server so a half-written reply follows you between devices.</p>
+  </header>
+
+  <section class="group">
+    <h2>Desktop</h2>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="win">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="tile blue place">H<span class="count">3</span></div><div class="tile green place">C</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <aside class="sidebar"><div class="head"><span class="t-body-strong">Open Woodworkers</span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+              <div class="items"><a class="nav-row" href="#"><svg><use href="#home"/></svg>Overview</a><div class="section-label">Forums</div>
+                <a class="nav-row active" href="#"><svg><use href="#forum"/></svg>Joinery<span class="meta"><span class="count">4</span></span></a><a class="nav-row" href="#"><svg><use href="#forum"/></svg>Finishing</a><a class="nav-row" href="#"><svg><use href="#forum"/></svg>Tools and sharpening</a><a class="nav-row" href="#"><svg><use href="#forum"/></svg>Show your work</a>
+                <div class="section-label">Chat</div><a class="nav-row" href="#"><svg><use href="#hash"/></svg>bench-talk</a><a class="nav-row" href="#"><svg><use href="#hash"/></svg>help-wanted</a></div></aside>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#forum"/></svg><span class="t-body-strong">Joinery</span><span class="t-caption-md mute">Cuts, fits, and the glue between them</span>
+                <div class="input" style="margin-left:auto;width:220px;height:30px"><svg class="i mute"><use href="#search"/></svg><span class="ph t-body-sm">Search Joinery</span></div><button class="btn btn-primary">New topic</button></div>
+              <div class="flex between center" style="padding:12px 24px"><div class="pills"><span class="pill active">Latest</span><span class="pill">Top</span><span class="pill">Unanswered</span><span class="pill">Solved</span></div><span class="t-caption-md mute">Watching · <a href="#" style="text-decoration:underline">change</a></span></div>
+              <div class="topic-row head hairline-t"><span>Topic</span><span style="text-align:right">Replies</span><span style="text-align:right">Last activity</span></div>
+              <div class="topic-row read"><div class="t"><span class="unread-dot none"></span><svg class="i mute"><use href="#pin"/></svg><div class="col"><span class="title">Start here: rules, introductions, and shop safety</span><span class="t-caption-md mute">Ana L. · Pinned</span></div></div><span class="num">38</span><span class="num mute">3 days ago</span></div>
+              <div class="topic-row"><div class="t"><span class="unread-dot"></span><span class="avatar s32 green">JP</span><div class="col"><span class="title">Dovetails keep gapping at the baseline</span><span class="flex gap-sm center t-caption-md mute">Jonas P. <span class="badge">hand-tools</span><span class="badge">dovetails</span></span></div></div><span class="num">14</span><span class="num mute">12 min ago</span></div>
+              <div class="topic-row"><div class="t"><span class="unread-dot"></span><span class="avatar s32 yellow">TW</span><div class="col"><span class="title">Sliding dovetail for a shelf: router or saw?</span><span class="flex gap-sm center t-caption-md mute">Tomas W. <span class="badge">routers</span></span></div></div><span class="num">3</span><span class="num mute">1 hour ago</span></div>
+              <div class="topic-row read"><div class="t"><span class="unread-dot none"></span><span class="avatar s32 red">AL</span><div class="col"><span class="title">Mortise and tenon proportions that actually hold</span><span class="flex gap-sm center t-caption-md mute">Ana L. <span class="badge success">Solved</span><span class="badge">design</span></span></div></div><span class="num">27</span><span class="num mute">Yesterday</span></div>
+              <div class="topic-row read"><div class="t"><span class="unread-dot none"></span><span class="avatar s32 blue">MK</span><div class="col"><span class="title">Glue-up clamping pressure: how much is too much?</span><span class="flex gap-sm center t-caption-md mute">You <span class="badge">glue</span></span></div></div><span class="num">9</span><span class="num mute">2 days ago</span></div>
+              <div class="topic-row read"><div class="t"><span class="unread-dot none"></span><span class="avatar s32 green">DV</span><div class="col"><span class="title">Half-blind or through for a drawer front?</span><span class="flex gap-sm center t-caption-md mute">Dov V. <span class="badge locked">Locked</span></span></div></div><span class="num">52</span><span class="num mute">6 days ago</span></div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Board topic list. Pinned topics lead, unread topics have a white dot and a heavier title, and the watch level sits where it can be changed.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="tile blue place">H<span class="count">3</span></div><div class="tile green place">C</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <aside class="sidebar"><div class="head"><span class="t-body-strong">Open Woodworkers</span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+              <div class="items"><a class="nav-row" href="#"><svg><use href="#home"/></svg>Overview</a><div class="section-label">Forums</div>
+                <a class="nav-row active" href="#"><svg><use href="#forum"/></svg>Joinery</a><a class="nav-row" href="#"><svg><use href="#forum"/></svg>Finishing</a><a class="nav-row" href="#"><svg><use href="#forum"/></svg>Tools and sharpening</a><a class="nav-row" href="#"><svg><use href="#forum"/></svg>Show your work</a></div></aside>
+            <div class="main">
+              <div class="topbar"><a class="flex center gap-xs t-body-sm mute" href="#"><svg class="i"><use href="#chevronLeft"/></svg>Joinery</a><span style="margin-left:auto" class="pills"><span class="pill active">Flat</span><span class="pill">Threaded</span></span><button class="btn btn-tertiary"><svg class="i"><use href="#bell"/></svg>Watching</button></div>
+              <div style="padding:24px 40px 0;overflow:hidden;flex:1">
+                <div style="max-width:760px">
+                  <div class="flex gap-md center" style="flex-wrap:wrap"><h2 class="t-heading-xl">Dovetails keep gapping at the baseline</h2><span class="badge success">Solved</span></div>
+                  <div class="flex gap-sm center t-caption-md mute" style="margin-top:4px"><span class="badge">hand-tools</span><span class="badge">dovetails</span><span>Started by Jonas P. · 14 replies · 2.1k views</span></div>
+
+                  <div class="post" style="margin-top:12px"><span class="avatar green">JP</span><div class="col gap-sm"><div class="flex gap-sm center"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md mute">#1 · 3 hours ago</span></div>
+                    <div class="body-copy"><p>My pins fit tight at the face but open a hairline gap near the baseline. I mark with a knife, saw on the waste side, and pare to the line. Tails come off a 1:7 template.</p><p>What am I missing?</p></div>
+                    <div class="flex gap-sm"><span class="chip on">Helpful 5</span><span class="chip">Thanks 2</span><span class="chip"><svg class="i"><use href="#smile"/></svg></span><span class="chip"><svg class="i"><use href="#reply"/></svg>Reply</span></div></div></div>
+
+                  <div class="post accepted"><span class="avatar red">AL</span><div class="col gap-sm"><div class="flex gap-sm center"><span class="t-body-sm-strong">Ana L.</span><span class="badge">Moderator</span><span class="t-caption-md mute">#2 · 2 hours ago</span><span class="badge success" style="margin-left:auto"><span class="flex center gap-xs"><svg class="i" style="width:12px;height:12px"><use href="#check"/></svg>Accepted solution</span></span></div>
+                    <div class="body-copy"><p>Your baseline is probably being crushed when you chop. Chop halfway from each face, and undercut the waste slightly past the line so the pin only touches at the very edge.</p><p>Sharpen the chisel before the final pare; a dull edge pushes the wood away instead of cutting it.</p></div>
+                    <div class="flex gap-sm"><span class="chip">Helpful 11</span><span class="chip"><svg class="i"><use href="#reply"/></svg>Reply</span></div></div></div>
+                </div>
+              </div>
+              <div class="hairline-t" style="padding:12px 40px 16px;background:var(--gt-color-canvas)">
+                <div style="max-width:760px" class="card flush" >
+                  <div class="toolbar"><span class="on">Write</span><span>Preview</span><span style="width:1px;min-width:1px;padding:0;height:16px;background:var(--gt-color-hairline);margin:0 6px"></span><span><b>B</b></span><span><i>I</i></span><span><svg><use href="#link"/></svg></span><span>&lt;/&gt;</span><span>&ldquo;</span><span><svg><use href="#at"/></svg></span><span class="t-caption-md mute" style="margin-left:auto;min-width:0">Draft saved · 4 s ago</span></div>
+                  <div style="padding:12px 16px;min-height:76px;color:var(--gt-color-on-dark);font-size:15px">Try a <code>marking gauge</code> set to the baseline, and check where the tails land before you cut the pins.<span style="display:inline-block;width:1px;height:18px;background:var(--gt-color-on-dark);vertical-align:text-bottom;margin-left:2px"></span></div>
+                  <div class="flex between center" style="padding:8px 12px"><span class="t-caption-md mute">Markdown supported · <span class="keycap">⌘</span> <span class="keycap">⏎</span> to post</span><button class="btn btn-primary">Post reply</button></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Topic, flat mode. The accepted solution is tinted green and tagged once; the composer keeps Markdown visible with a draft indicator.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Phone</h2>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Joinery</span><span class="side end on-dark"><svg class="i"><use href="#search"/></svg></span></div>
+          <div class="body flush">
+            <div class="pills" style="padding:12px 16px"><span class="pill active">Latest</span><span class="pill">Top</span><span class="pill">Unanswered</span></div>
+            <div class="list-row hairline-t" style="align-items:flex-start"><span class="unread-dot" style="margin-top:8px"></span><div class="col grow"><span class="t-body-sm-strong">Dovetails keep gapping at the baseline</span><span class="t-caption-md mute">Jonas P. · 14 replies · 12 min</span><span class="flex gap-sm" style="margin-top:6px"><span class="badge success">Solved</span><span class="badge">dovetails</span></span></div></div>
+            <div class="list-row hairline-t" style="align-items:flex-start"><span class="unread-dot" style="margin-top:8px"></span><div class="col grow"><span class="t-body-sm-strong">Sliding dovetail for a shelf: router or saw?</span><span class="t-caption-md mute">Tomas W. · 3 replies · 1 hr</span></div></div>
+            <div class="list-row hairline-t" style="align-items:flex-start"><span class="unread-dot none" style="margin-top:8px"></span><div class="col grow"><span class="t-body-sm" style="color:var(--gt-color-body)">Mortise and tenon proportions that actually hold</span><span class="t-caption-md mute">Ana L. · 27 replies · Yesterday</span><span class="flex gap-sm" style="margin-top:6px"><span class="badge success">Solved</span></span></div></div>
+            <div class="list-row hairline-t" style="align-items:flex-start"><span class="unread-dot none" style="margin-top:8px"></span><div class="col grow"><span class="t-body-sm" style="color:var(--gt-color-body)">Glue-up clamping pressure: how much is too much?</span><span class="t-caption-md mute">You · 9 replies · 2 days</span></div></div>
+          </div>
+          <div style="position:absolute;right:16px;bottom:88px"><button class="btn btn-primary" style="height:44px;border-radius:var(--gt-radius-full);padding:0 20px"><svg class="i"><use href="#plus"/></svg>New topic</button></div>
+          <div class="tabbar"><a class="active" href="#"><svg><use href="#home"/></svg>Places</a><a href="#"><svg><use href="#bell"/></svg>Inbox</a><a href="#"><svg><use href="#search"/></svg>Search</a><a href="#"><svg><use href="#user"/></svg>You</a></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Board</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Topic</span><span class="side end on-dark"><svg class="i"><use href="#more"/></svg></span></div>
+          <div class="body" style="gap:12px;padding-bottom:0">
+            <div class="col gap-sm"><h2 class="t-heading-md">Dovetails keep gapping at the baseline</h2><div class="flex gap-sm center"><span class="badge success">Solved</span><span class="t-caption-md mute">14 replies</span></div></div>
+            <div class="post" style="grid-template-columns:32px 1fr;gap:12px;padding:12px 0"><span class="avatar s32 green">JP</span><div class="col gap-xs"><div class="flex gap-sm center"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md mute">#1 · 3 h</span></div><p class="t-body-sm" style="color:var(--gt-color-body)">My pins fit tight at the face but open a hairline gap near the baseline. What am I missing?</p><div class="flex gap-sm" style="margin-top:4px"><span class="chip on">Helpful 5</span><span class="chip">Reply</span></div></div></div>
+            <div class="post accepted" style="grid-template-columns:32px 1fr;gap:12px;margin:0 -16px;padding:12px 16px"><span class="avatar s32 red">AL</span><div class="col gap-xs"><div class="flex gap-sm center"><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md mute">#2 · 2 h</span></div><span class="badge success" style="align-self:flex-start">Accepted solution</span><p class="t-body-sm" style="color:var(--gt-color-body)">Your baseline is probably being crushed when you chop. Chop halfway from each face and undercut the waste slightly past the line.</p><div class="flex gap-sm" style="margin-top:4px"><span class="chip">Helpful 11</span><span class="chip">Reply</span></div></div></div>
+          </div>
+          <div class="hairline-t flex gap-sm center" style="padding:10px 16px 28px"><div class="input grow" style="border-radius:var(--gt-radius-full)"><span class="ph">Reply to Jonas P.</span></div><button class="btn btn-primary" style="width:36px;padding:0;border-radius:50%"><svg class="i"><use href="#send"/></svg></button></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Topic</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark">Cancel</span><span class="t-body-sm-strong">Reply</span><span class="side end on-dark" style="font-weight:500">Post</span></div>
+          <div class="body" style="gap:12px">
+            <div class="flex gap-sm center t-caption-md mute"><svg class="i"><use href="#reply"/></svg>Replying to Jonas P. in Dovetails keep gapping…</div>
+            <div class="t-body-md on-dark">Try a <code>marking gauge</code> set to the baseline, and check where the tails land before you cut the pins.<span style="display:inline-block;width:1px;height:18px;background:var(--gt-color-on-dark);vertical-align:text-bottom;margin-left:2px"></span></div>
+          </div>
+          <div class="toolbar hairline-t" style="padding:6px 12px;border-bottom:0"><span><b>B</b></span><span><i>I</i></span><span><svg><use href="#link"/></svg></span><span>&lt;/&gt;</span><span>&ldquo;</span><span><svg><use href="#at"/></svg></span><span style="margin-left:auto;min-width:0" class="t-caption-md mute">Draft saved</span></div>
+          <div class="keyboard"><div><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div><i style="flex:1.4"></i><i></i><i></i><i></i><i></i><i></i><i></i><i style="flex:1.4"></i></div><div><i style="flex:1.5"></i><i style="flex:5"></i><i style="flex:1.5"></i></div></div>
+        </div>
+        <figcaption>Composer. The Markdown toolbar rides above the keyboard, with the draft indicator on the same row.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>

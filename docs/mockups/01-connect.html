@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Connect to an instance · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Phase 0</nav>
+    <h1 class="t-display-lg">Connect to an instance</h1>
+    <p>The first screen on every target. People enter the address of the server they want to join; the client looks it up, shows what it found, and only then lets them continue. This is the one screen that carries the hero stripe.</p>
+  </header>
+
+  <section class="group">
+    <h2>Web and desktop</h2>
+    <p>The desktop shell loads the same web export, so both share this layout. The form stays in a 480px column so line lengths stay short on wide windows.</p>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/connect</div></div>
+          <div class="viewport col">
+            <div class="stripes"><i></i><i></i><i></i></div>
+            <div class="grow flex" style="justify-content:center;padding:48px 24px">
+              <div class="col gap-xl" style="width:480px">
+                <div class="col gap-sm">
+                  <h2 class="t-heading-xl">Pick your server</h2>
+                  <p class="mute">Gotalk runs on independent instances. Enter the address of the one you want to join, like forum.example.com.</p>
+                </div>
+                <div class="col gap-md">
+                  <div class="field"><label>Instance address</label><div class="input focus"><span class="ph">forum.example.com</span></div></div>
+                  <button class="btn btn-primary block" disabled>Look up</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Empty. The look-up button stays disabled until there is an address.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/connect</div></div>
+          <div class="viewport" style="justify-content:center;padding:48px 24px">
+            <div class="col gap-xl" style="width:480px">
+              <div class="col gap-sm">
+                <h2 class="t-heading-xl">Pick your server</h2>
+                <p class="mute">Gotalk runs on independent instances. Enter the address of the one you want to join, like forum.example.com.</p>
+              </div>
+              <div class="col gap-md">
+                <div class="field"><label>Instance address</label><div class="input"><span>woodworkers.example.org</span></div></div>
+                <button class="btn btn-tertiary block">Look up</button>
+              </div>
+              <div class="card">
+                <div class="flex gap-md center">
+                  <div class="tile yellow">O</div>
+                  <div class="col grow"><span class="t-heading-sm">Open Woodworkers</span><span class="t-caption-md mute">woodworkers.example.org · Gotalk 0.9.2</span></div>
+                </div>
+                <p class="mute t-body-sm">Joinery, finishing, and shop talk from people who build things slowly.</p>
+                <div class="flex gap-sm wrap"><span class="badge success">Open registration</span><span class="badge">Forums</span><span class="badge">Chat</span><span class="badge">Voice</span><span class="badge">Search</span></div>
+                <p class="t-caption-md mute">1,284 members · 36 places</p>
+                <button class="btn btn-primary block">Continue to Open Woodworkers</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Found. The preview confirms it is a Gotalk server before anything is saved.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Phone</h2>
+    <p>Same flow in one column. The status chips are the only color on the screen, and only when something needs attention.</p>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="stripes small"><i></i><i></i><i></i></div>
+          <div class="appbar"><span class="side"></span><span class="t-body-sm-strong">Connect to an instance</span><span class="side"></span></div>
+          <div class="body">
+            <div class="col gap-sm">
+              <h2 class="t-heading-xl">Pick your server</h2>
+              <p class="mute t-body-sm">Gotalk runs on independent instances. Enter the address of the one you want to join, like forum.example.com.</p>
+            </div>
+            <div class="col gap-md">
+              <div class="field"><label>Instance address</label><div class="input focus"><span class="ph">forum.example.com</span></div></div>
+              <button class="btn btn-primary block" disabled>Look up</button>
+            </div>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>First run</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side"></span><span class="t-body-sm-strong">Connect to an instance</span><span class="side"></span></div>
+          <div class="body">
+            <div class="col gap-md">
+              <div class="field"><label>Instance address</label><div class="input"><span>localhost:18080</span></div></div>
+              <button class="btn btn-tertiary block">Look up</button>
+            </div>
+            <div class="card compact">
+              <div class="flex gap-md center">
+                <div class="tile s36 green">G</div>
+                <div class="col grow"><span class="t-heading-sm">Gotalk dev</span><span class="t-caption-md mute">localhost:18080 · Gotalk 0.9.2</span></div>
+              </div>
+              <div class="flex gap-sm wrap"><span class="badge warning">Not encrypted (HTTP)</span><span class="badge">Forums</span><span class="badge">Chat</span></div>
+              <div class="notice warning"><svg class="i"><use href="#alert"/></svg><span>Traffic to this instance can be read on the network. Only continue if it is your own server.</span></div>
+              <button class="btn btn-primary block">Continue to Gotalk dev</button>
+            </div>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Plain HTTP. Local and LAN hosts are allowed, with a warning.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side"></span><span class="t-body-sm-strong">Connect to an instance</span><span class="side"></span></div>
+          <div class="body">
+            <div class="col gap-md">
+              <div class="field"><label>Instance address</label><div class="input"><span>old.harbor.st</span></div></div>
+              <button class="btn btn-tertiary block">Look up</button>
+            </div>
+            <div class="card compact">
+              <div class="flex gap-md center">
+                <div class="tile s36 blue">H</div>
+                <div class="col grow"><span class="t-heading-sm">Harbor Street Cycling</span><span class="t-caption-md mute">old.harbor.st · Gotalk 0.4.0</span></div>
+              </div>
+              <div class="notice danger"><svg class="i"><use href="#alert"/></svg><span><b>This instance is too old for the app.</b> It speaks API version 0, and this app needs version 1. Ask the administrator to update, or use a different instance.</span></div>
+              <button class="btn block" disabled>Continue to Harbor Street Cycling</button>
+            </div>
+            <div class="col gap-md">
+              <span class="t-body-sm-strong mute" style="color:var(--gt-color-mute)">Saved instances</span>
+              <div class="card compact flex gap-md center" style="flex-direction:row">
+                <div class="tile s36 yellow">O</div>
+                <div class="col grow"><span class="t-body-sm-strong">Open Woodworkers</span><span class="t-caption-md mute">woodworkers.example.org</span></div>
+                <button class="btn btn-tertiary">Open</button>
+              </div>
+            </div>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Incompatible version. Continue stays disabled, and saved instances remain reachable.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>
