@@ -52,4 +52,26 @@ describe('createGotalkClient', () => {
     expect((caught as ApiError).status).toBe(404);
     expect((caught as ApiError).message).toBe('place not found');
   });
+
+  it('exposes Retry-After, version mismatches and field errors as first-class states', async () => {
+    const limited = new Response(JSON.stringify({ status: 429, detail: 'rate limit exceeded; retry after 42s' }), {
+      status: 429,
+      headers: { 'Content-Type': 'application/problem+json', 'Retry-After': '42' },
+    });
+    let err: ApiError | undefined;
+    try {
+      unwrap({ error: { status: 429 }, response: limited });
+    } catch (e) {
+      err = e as ApiError;
+    }
+    expect(err?.isRateLimited).toBe(true);
+    expect(err?.retryAfter).toBe(42);
+
+    const mismatch = new ApiError(400, { detail: 'API version "v9" is not supported by this instance; supported versions: v1' });
+    expect(mismatch.isVersionMismatch).toBe(true);
+    expect(new ApiError(400, { detail: 'username is invalid' }).isVersionMismatch).toBe(false);
+
+    const invalid = new ApiError(422, { errors: [{ location: 'body.email', message: 'email address is invalid' }] });
+    expect(invalid.fieldErrors).toEqual({ email: 'email address is invalid' });
+  });
 });

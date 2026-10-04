@@ -74,41 +74,73 @@ Delivered:
 Mockups: [Connect](./mockups/01-connect.html) shows the delivered flow (empty, found, plain HTTP,
 incompatible version, saved instances) and is the reference for the connect screen.
 
-## Phase 1 — Accounts & sessions
+## Phase 1 — Accounts & sessions ✅
 
 Goal: a person can register, sign in, stay signed in, and sign out on every target, against any instance.
+
+Delivered:
+
+- **Auth flows:**
+  - sign in with username or email, and sign up that follows the instance's `registration_mode`
+    (open form, invite code for `invite_only`, an explanation for `closed`)
+  - policy acceptance at sign-up (`accept_policies`), and a prompt for outstanding consent from
+    `GET /users/@me/consents` after sign-in ("Not now" skips it until the next launch)
+  - policy text opens in a plain-text viewer until the shared Markdown renderer lands in Phase 3
+- **Token storage, per instance** (`SecretStorage` in `@gotalk/core`):
+  - iOS/Android: `expo-secure-store` (Keychain/Keystore, this device only)
+  - desktop: the OS keychain through `secret_get/secret_set/secret_delete` commands in
+    `apps/desktop/src-tauri` (the `keyring` crate), limited to `gotalk.session.*` keys
+  - web: refresh token in `localStorage`, access token in memory only. Any script on the page can read
+    `localStorage`, so a cross-site scripting bug exposes the session; the strict CSP in the desktop shell
+    and the absence of third-party scripts are the mitigations. An HttpOnly cookie mode is on the backend
+    asks list.
+  - only the refresh token is persisted; after a restart the first request refreshes
+- **Refresh handling** (`createAuthManager`):
+  - single-flight per instance; on the web also serialized across tabs with Web Locks, re-reading the
+    stored token inside the lock; `BroadcastChannel` carries sign-in, sign-out and revocation between tabs
+  - one retry of a 401 after refreshing; a refresh rejected with 401 ends the session, while being
+    offline or throttled never signs anyone out
+  - `Retry-After` pauses refreshing for that instance instead of hammering it
+- **Account settings:** profile (display name, pronouns, bio), password change, devices (named from the
+  session's user agent, with IP address and last use) with per-device and "all other devices" sign-out,
+  sign out, and delete account (the server asks for the password)
+- **First-class error states:** `429` with a countdown from `Retry-After`, `400` API-version mismatch,
+  wrong credentials, unreachable instance, and server messages mapped onto form fields
+- **Phone and wide layouts** from the Phase 1 mockups: instance column beside the form, settings sidebar,
+  dialogs on wide screens and bottom sheets on phones
+- **Tests:** unit tests in `@gotalk/core` covering sign-in, restart, single-flight refresh, 401 replay,
+  revocation, offline and throttled refresh, simulated token-reuse detection, and two tabs refreshing at
+  once with and without a shared lock
+
+Verified:
+
+- web export against a local instance, in Chromium at wide and phone widths: sign up, reload and stay
+  signed in, edit profile, change password, devices, sign out and back in, wrong password, delete account
+- two tabs of one browser refreshing at once after the access token expired, both staying signed in
+- a session ended from a second browser signing that device out, with the explanation and username kept
+- the outstanding-consent prompt and policy viewer at both widths, with the instance's policy endpoints
+  mocked because the local instance publishes none
+- the rate-limited state (hit by accident against the instance's 10-per-minute auth limit): the notice,
+  countdown, and a refresh that was throttled without signing anyone out
+- not yet exercised: iOS and Android devices, the Tauri keychain commands at runtime (`cargo check` only),
+  Windows and Linux keychains, and the API-version-mismatch screen against a real instance (it is covered
+  by `ApiError` unit tests only)
+
+Known gaps and decisions:
+
+- A session ended from another device is noticed on the next request, window focus, or the 60-second poll
+  of `GET /users/@me`, until the gateway (Phase 4) pushes it.
+- The server records an IP address and user agent per session but no location, so devices show the
+  former.
+- Sign-in has no "forgot password" flow because the backend has none yet.
+- Phone builds identify themselves as `Gotalk/<version> (<os>)`; browsers and the desktop shell show as
+  their browser.
 
 Mockups: [Sign in](./mockups/02-sign-in.html) (default, wrong credentials, rate limited, session revoked,
 API version mismatch), [Create an account](./mockups/03-register.html) (open, invite-only and closed
 registration, policy acceptance, outstanding consent) and
-[Account settings](./mockups/04-account-settings.html) (profile, devices, sign out, delete account).
-Not yet mocked: the password-change form.
-
-- **Auth flows:**
-  - login (username or email) and registration
-  - registration respects `registration_mode`: open, invite code for `invite_only`, explanation for `closed`
-  - policy acceptance at sign-up (`accept_policies`), with outstanding-consent prompts from
-    `GET /users/@me/consents`
-- **Token storage per instance:**
-  - `expo-secure-store` on iOS/Android
-  - the OS keychain on desktop (Tauri keyring/Stronghold plugin, behind a small storage interface in
-    `core`)
-  - on web: access token in memory, refresh token in storage, with the XSS trade-off documented
-- **Refresh handling:**
-  - Refresh tokens are single-use and reuse revokes the session, so refresh must be single-flight.
-  - On web it must also be coordinated across tabs (Web Locks / `BroadcastChannel`); otherwise two
-    concurrent refreshes log the user out.
-  - Retry once on 401 after refreshing.
-- **Account settings:** profile edit, password change, active sessions list/revoke, sign out, delete
-  account.
-- **Error handling:** treat `400` with an API-version mismatch and `429` (`Retry-After`, `X-RateLimit-*`)
-  as first-class states.
-- **Exit criteria:**
-  - sign in on all three targets
-  - kill the app, reopen, and still be signed in
-  - two web tabs refreshing at once stay signed in
-  - revoking a session elsewhere signs this device out
-  - screens match the Phase 1 mockups on phone and desktop widths, including the error states
+[Account settings](./mockups/04-account-settings.html) (profile, password change, devices, sign out,
+delete account) are the reference for these screens.
 
 ## Phase 2 — App shell & Places
 

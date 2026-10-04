@@ -1,13 +1,13 @@
 import { DiscoveryError, discoverInstance, type DiscoveredInstance } from '@gotalk/core';
-import { Button, Card, Notice, Screen, Stack, Text, TextField, useTheme } from '@gotalk/ui';
+import { Button, Card, Notice, Stack, Text, TextField } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ScreenFrame } from '@/components/screen-frame';
 import { HeroStripes } from '@/components/hero-stripes';
 import { InstanceIcon, InstanceSummary } from '@/components/instance-summary';
 import { instancesStore, useInstances } from '@/lib/instances';
+import { useWide } from '@/lib/layout';
 
 function describeError(e: unknown): string {
   if (e instanceof DiscoveryError) return e.message;
@@ -15,10 +15,7 @@ function describeError(e: unknown): string {
 }
 
 export default function Connect() {
-  const theme = useTheme();
-  const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
-  const wide = width >= theme.breakpoints.tablet;
+  const wide = useWide();
 
   const [address, setAddress] = useState('');
   const [pending, setPending] = useState(false);
@@ -56,42 +53,12 @@ export default function Connect() {
   const gap = wide ? 'xl' : 'lg';
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: theme.colors.canvas, paddingTop: insets.top }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    <ScreenFrame
+      title="Connect to an instance"
+      onBack={router.canGoBack() ? () => router.back() : undefined}
+      banner={firstRun ? <HeroStripes compact={!wide} /> : undefined}
+      maxWidth={wide ? 528 : 640}
     >
-      {firstRun ? <HeroStripes compact={!wide} /> : null}
-      {Platform.OS !== 'web' ? (
-        <View
-          style={{
-            height: 48,
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingHorizontal: theme.space.lg,
-            borderBottomWidth: 1,
-            borderBottomColor: theme.colors.hairline,
-          }}
-        >
-          <View style={{ width: 56 }}>
-            {router.canGoBack() ? (
-              <Pressable accessibilityRole="button" accessibilityLabel="Back" hitSlop={8} onPress={() => router.back()}>
-                <Text variant="bodySm" tone="onDark">
-                  Back
-                </Text>
-              </Pressable>
-            ) : null}
-          </View>
-          <Text variant="bodySmStrong" tone="onDark" accessibilityRole="header" style={{ flex: 1, textAlign: 'center' }}>
-            Connect to an instance
-          </Text>
-          <View style={{ width: 56 }} />
-        </View>
-      ) : null}
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-        <Screen
-          maxWidth={wide ? 528 : 640}
-          style={wide ? { paddingVertical: 48, paddingHorizontal: theme.space.xl } : { padding: theme.space.lg }}
-        >
           <Stack gap={gap}>
             <Stack gap="sm">
               <Text variant="headingXl" accessibilityRole="header">
@@ -180,8 +147,6 @@ export default function Connect() {
               </Stack>
             ) : null}
           </Stack>
-        </Screen>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </ScreenFrame>
   );
 }

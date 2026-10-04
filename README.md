@@ -69,6 +69,22 @@ automatically. `tokens.css` makes the same values available to plain HTML/CSS.
 When DESIGN.md changes, update `packages/tokens/src`, then `packages/ui`, then the native config
 (`apps/app/app.json`, `apps/desktop/src-tauri/tauri.conf.json`), which hold the canvas color as a literal.
 
+## Accounts and token storage
+
+Each saved instance has its own session. `createAuthManager` in `@gotalk/core` signs in, refreshes
+(single-flight, one retry on 401) and signs out; `apps/app/src/lib/auth.ts` picks the storage per target:
+
+| Target | Refresh token | Access token |
+|---|---|---|
+| iOS / Android | `expo-secure-store` (Keychain / Keystore, this device only) | memory |
+| Desktop (Tauri) | OS keychain via the `secret_*` commands in `apps/desktop/src-tauri` | memory |
+| Web | `localStorage` | memory |
+
+On the web, any script running on the page can read `localStorage`, so a cross-site scripting bug would
+expose the session. Keep third-party scripts out of the web build and serve it with a strict
+Content-Security-Policy. Refresh tokens are single-use and reuse revokes the session, so tabs take a Web
+Lock before refreshing and re-read the stored token inside it.
+
 ## Desktop notes
 
 - The window loads the static web export. Deep routes fall back to `index.html`, so reloads work.

@@ -49,10 +49,10 @@
               <div class="inner">
                 <div class="col gap-xs"><h2 class="t-heading-xl">Devices</h2><p class="mute t-body-sm">Where you are signed in to Open Woodworkers. End any session you do not recognize.</p></div>
                 <div class="card flush">
-                  <div class="session"><span class="ico"><svg><use href="#globe"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Chrome on macOS</span><span class="t-caption-md mute">Lisbon, Portugal · Active now</span></div><span class="badge">This device</span></div>
-                  <div class="session"><span class="ico"><svg><use href="#phone"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Gotalk for iPhone</span><span class="t-caption-md mute">Lisbon, Portugal · 2 hours ago</span></div><button class="btn btn-outline small">Sign out</button></div>
-                  <div class="session"><span class="ico"><svg><use href="#laptop"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Gotalk Desktop on Windows</span><span class="t-caption-md mute">Porto, Portugal · 3 days ago</span></div><button class="btn btn-outline small">Sign out</button></div>
-                  <div class="session"><span class="ico"><svg><use href="#globe"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Firefox on Linux</span><span class="t-caption-md mute">Madrid, Spain · 41 days ago</span></div><button class="btn btn-outline small">Sign out</button></div>
+                  <div class="session"><span class="ico"><svg><use href="#globe"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Chrome on macOS</span><span class="t-caption-md mute">203.0.113.24 · Active now</span></div><span class="badge">This device</span></div>
+                  <div class="session"><span class="ico"><svg><use href="#phone"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Gotalk for iPhone</span><span class="t-caption-md mute">203.0.113.24 · 2 hours ago</span></div><button class="btn btn-outline small">Sign out</button></div>
+                  <div class="session"><span class="ico"><svg><use href="#laptop"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Gotalk Desktop on Windows</span><span class="t-caption-md mute">198.51.100.7 · 3 days ago</span></div><button class="btn btn-outline small">Sign out</button></div>
+                  <div class="session"><span class="ico"><svg><use href="#globe"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Firefox on Linux</span><span class="t-caption-md mute">192.0.2.88 · 41 days ago</span></div><button class="btn btn-outline small">Sign out</button></div>
                 </div>
                 <div class="flex between center"><span class="t-caption-md mute">Signing out ends a session right away. That device has to sign in again.</span><button class="btn btn-danger">Sign out 3 other devices</button></div>
               </div>
@@ -84,6 +84,7 @@
                 </div>
                 <div class="field"><label>Display name</label><div class="input focus"><span>Marta Kowalczyk</span></div></div>
                 <div class="field"><label>Username</label><div class="input"><span class="mute">marta.k</span></div><span class="note">Usernames cannot be changed.</span></div>
+                <div class="field"><label>Pronouns</label><div class="input"><span>she/her</span></div></div>
                 <div class="field"><label>Bio</label><div class="input textarea"><span>Hand-planes, hide glue, and a bench that is never finished.</span></div></div>
                 <div class="flex gap-sm"><button class="btn btn-primary">Save changes</button><button class="btn btn-tertiary">Discard</button></div>
               </div>
@@ -91,6 +92,33 @@
           </div>
         </div>
         <figcaption>Profile. Save changes is the one white action; there is no separate edit mode.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/password</div></div>
+          <div class="viewport">
+            <nav class="settings-nav">
+              <a class="nav-row" href="#" style="margin-bottom:8px"><svg><use href="#chevronLeft"/></svg>Back to Open Woodworkers</a>
+              <div class="section-label">Account</div>
+              <a class="nav-row" href="#"><svg><use href="#user"/></svg>Profile</a>
+              <a class="nav-row active" href="#"><svg><use href="#lock"/></svg>Password</a>
+              <a class="nav-row" href="#"><svg><use href="#laptop"/></svg>Devices</a>
+              <a class="nav-row" href="#"><svg><use href="#trash"/></svg>Delete account</a>
+              <div class="hairline-t" style="margin-top:auto;padding-top:8px"><a class="nav-row" href="#"><svg><use href="#logout"/></svg>Sign out</a></div>
+            </nav>
+            <div class="settings-body">
+              <div class="inner" style="width:420px">
+                <div class="col gap-xs"><h2 class="t-heading-xl">Password</h2><p class="mute t-body-sm">Changing it signs out your other devices and revokes your personal access tokens. This device stays signed in.</p></div>
+                <div class="field"><label>Current password</label><div class="input focus"><span>••••••••••••</span><span class="trail t-caption-md">Show</span></div></div>
+                <div class="field"><label>New password</label><div class="input"><span>••••••••••••••••</span><span class="trail t-caption-md">Show</span></div><span class="note">At least 10 characters.</span></div>
+                <div class="field"><label>Confirm new password</label><div class="input"><span>••••••••••••••••</span></div></div>
+                <div class="flex gap-sm"><button class="btn btn-primary">Change password</button><button class="btn btn-tertiary">Discard</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Password. The consequences are stated before the form, so nobody is surprised when other devices are signed out.</figcaption>
       </figure>
 
       <figure class="frame">
@@ -110,13 +138,13 @@
               <div class="card dialog" style="width:480px;background:var(--gt-color-surface-elevated);border-color:var(--gt-color-hairline-strong);border-radius:var(--gt-radius-xl)">
                 <h2 class="t-heading-md">Delete your account on Open Woodworkers?</h2>
                 <p class="mute t-body-sm">This removes your profile and signs out every device. It cannot be undone. Your account on other instances is not affected.</p>
-                <div class="field"><label>Type marta.k to confirm</label><div class="input focus"><span>marta.k</span></div></div>
+                <div class="field"><label>Password</label><div class="input focus"><span>••••••••••</span></div><span class="note">Enter your password to confirm.</span></div>
                 <div class="flex gap-sm" style="justify-content:flex-end"><button class="btn btn-tertiary">Keep my account</button><button class="btn btn-danger">Delete account</button></div>
               </div>
             </div>
           </div>
         </div>
-        <figcaption>Delete account. Typing the username gates the destructive button; the dialog says what stays untouched.</figcaption>
+        <figcaption>Delete account. Entering the password gates the destructive button; the dialog says what stays untouched.</figcaption>
       </figure>
 
     </div>
@@ -154,16 +182,52 @@
           <div class="body">
             <p class="mute t-body-sm">End any session you do not recognize. It signs that device out right away.</p>
             <div class="card flush">
-              <div class="session"><span class="ico"><svg><use href="#phone"/></svg></span><div class="col grow"><span class="t-body-sm-strong">This iPhone</span><span class="t-caption-md mute">Lisbon · Active now</span></div><span class="badge">This device</span></div>
-              <div class="session"><span class="ico"><svg><use href="#globe"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Chrome on macOS</span><span class="t-caption-md mute">Lisbon · 2 hours ago</span></div><button class="btn btn-outline small">End</button></div>
-              <div class="session"><span class="ico"><svg><use href="#laptop"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Desktop on Windows</span><span class="t-caption-md mute">Porto · 3 days ago</span></div><button class="btn btn-outline small">End</button></div>
-              <div class="session"><span class="ico"><svg><use href="#globe"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Firefox on Linux</span><span class="t-caption-md mute">Madrid · 41 days ago</span></div><button class="btn btn-outline small">End</button></div>
+              <div class="session"><span class="ico"><svg><use href="#phone"/></svg></span><div class="col grow"><span class="t-body-sm-strong">This iPhone</span><span class="t-caption-md mute">203.0.113.24 · Active now</span></div><span class="badge">This device</span></div>
+              <div class="session"><span class="ico"><svg><use href="#globe"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Chrome on macOS</span><span class="t-caption-md mute">203.0.113.24 · 2 hours ago</span></div><button class="btn btn-outline small">End</button></div>
+              <div class="session"><span class="ico"><svg><use href="#laptop"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Desktop on Windows</span><span class="t-caption-md mute">198.51.100.7 · 3 days ago</span></div><button class="btn btn-outline small">End</button></div>
+              <div class="session"><span class="ico"><svg><use href="#globe"/></svg></span><div class="col grow"><span class="t-body-sm-strong">Firefox on Linux</span><span class="t-caption-md mute">192.0.2.88 · 41 days ago</span></div><button class="btn btn-outline small">End</button></div>
             </div>
             <button class="btn btn-danger block">Sign out 3 other devices</button>
           </div>
           <div class="home-bar"></div>
         </div>
         <figcaption>Devices</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Password</span><span class="side"></span></div>
+          <div class="body">
+            <p class="mute t-body-sm">Changing it signs out your other devices and revokes your personal access tokens. This device stays signed in.</p>
+            <div class="col gap-md">
+              <div class="field"><label>Current password</label><div class="input error"><span>••••••••••</span><span class="trail t-caption-md">Show</span></div><span class="note error">That is not your current password.</span></div>
+              <div class="field"><label>New password</label><div class="input error focus"><span>•••••••</span><span class="trail t-caption-md">Show</span></div><span class="note error">Use at least 10 characters.</span></div>
+              <div class="field"><label>Confirm new password</label><div class="input"><span class="ph">Repeat the new password</span></div></div>
+            </div>
+            <button class="btn block" disabled>Change password</button>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Password with errors. Each message sits on its field; the button stays disabled until the form can succeed.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Password</span><span class="side"></span></div>
+          <div class="body">
+            <div class="notice success"><svg class="i"><use href="#check"/></svg><span><b>Password changed.</b> Your other devices were signed out.</span></div>
+            <div class="col gap-md">
+              <div class="field"><label>Current password</label><div class="input"><span class="ph">Current password</span></div></div>
+              <div class="field"><label>New password</label><div class="input"><span class="ph">At least 10 characters</span></div></div>
+              <div class="field"><label>Confirm new password</label><div class="input"><span class="ph">Repeat the new password</span></div></div>
+            </div>
+            <button class="btn block" disabled>Change password</button>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Changed. The form empties so the old values are not left on screen.</figcaption>
       </figure>
 
       <figure class="frame">
@@ -176,13 +240,13 @@
             <div class="grab"></div>
             <h2 class="t-heading-md">Delete your account?</h2>
             <p class="mute t-body-sm">This removes your profile on Open Woodworkers and signs out every device. It cannot be undone.</p>
-            <div class="field"><label>Type marta.k to confirm</label><div class="input focus"><span class="ph">marta.k</span></div></div>
+            <div class="field"><label>Password</label><div class="input focus"><span class="ph">Your password</span></div><span class="note">Enter your password to confirm.</span></div>
             <button class="btn btn-danger block" disabled>Delete account</button>
             <button class="btn btn-tertiary block">Keep my account</button>
           </div>
           <div class="home-bar"></div>
         </div>
-        <figcaption>Delete confirmation as a bottom sheet. The destructive button stays disabled until the name matches.</figcaption>
+        <figcaption>Delete confirmation as a bottom sheet. The destructive button stays disabled until a password is entered.</figcaption>
       </figure>
 
     </div>

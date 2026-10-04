@@ -9,6 +9,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo } from 'react';
 import { Platform } from 'react-native';
 
+import { shouldRetry } from '@/lib/api';
+import { authManager, useAuthHydrated } from '@/lib/auth';
+import { useInstancesHydrated } from '@/lib/instances';
+
 SplashScreen.preventAutoHideAsync();
 
 // The SPA export has no custom HTML shell, so paint the canvas from JS to avoid overscroll flashes.
@@ -17,7 +21,15 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
   document.documentElement.style.colorScheme = 'dark';
 }
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: shouldRetry } } });
+
+// A session that ends takes that instance's account data with it; instance metadata is public and stays.
+authManager.store.subscribe((state, previous) => {
+  for (const id of Object.keys(previous.sessions)) {
+    if (state.sessions[id]) continue;
+    queryClient.removeQueries({ predicate: (q) => q.queryKey[0] !== 'instance' && q.queryKey[1] === id });
+  }
+});
 
 function Navigation() {
   const theme = useTheme();
@@ -49,6 +61,11 @@ function Navigation() {
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="connect" options={{ headerShown: false }} />
+        <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+        <Stack.Screen name="register" options={{ headerShown: false }} />
+        <Stack.Screen name="consent" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="policy/[kind]" options={{ headerShown: false }} />
+        <Stack.Screen name="settings" options={{ headerShown: false }} />
         <Stack.Screen name="home" options={{ title: 'Gotalk' }} />
       </Stack>
     </NavigationThemeProvider>
@@ -62,12 +79,16 @@ export default function RootLayout() {
     [baseTheme.fontFaces['600']]: Inter_600SemiBold,
   });
   const ready = fontsLoaded || !!fontError;
+  // Route guards read the saved instance and session, so nothing renders until both have loaded.
+  const instancesReady = useInstancesHydrated();
+  const authReady = useAuthHydrated();
+  const stored = instancesReady && authReady;
 
   useEffect(() => {
-    if (ready) SplashScreen.hideAsync();
-  }, [ready]);
+    if (ready && stored) SplashScreen.hideAsync();
+  }, [ready, stored]);
 
-  if (!ready) return null;
+  if (!ready || !stored) return null;
 
   return (
     <GotalkThemeProvider>
