@@ -10,6 +10,7 @@ import { PasswordField } from '@/components/password-field';
 import { authManager, useAuthTarget, useRevokedNotice, useSession } from '@/lib/auth';
 import { useCountdown } from '@/lib/countdown';
 import { resetTo } from '@/lib/layout';
+import { inviteHref, pendingInvite } from '@/lib/pending-invite';
 import { classifyFailure, type FailureKind } from '@/lib/failure';
 import { useActiveInstance } from '@/lib/instances';
 
@@ -27,7 +28,8 @@ export default function SignIn() {
   const cooldown = useCountdown(failure?.kind === 'rate_limited' ? failure.retryAfter : null, attempt);
 
   if (!active || !target) return <Redirect href="/connect" />;
-  if (session) return <Redirect href="/home" />;
+  // With an invite waiting, submitting carries on to it instead of home.
+  if (session && !pendingInvite.get()) return <Redirect href="/home" />;
 
   const versionBlocked = failure?.kind === 'version';
   const rateLimited = failure?.kind === 'rate_limited' && cooldown > 0;
@@ -39,7 +41,9 @@ export default function SignIn() {
     setFailure(null);
     try {
       await authManager.signIn(target, { login: login.trim(), password });
-      resetTo('/home');
+      const invite = pendingInvite.get();
+      pendingInvite.clear();
+      resetTo(invite ? inviteHref(invite) : '/home');
     } catch (e) {
       setFailure(classifyFailure(e));
       setAttempt((n) => n + 1);

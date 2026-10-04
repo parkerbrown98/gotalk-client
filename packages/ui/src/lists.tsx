@@ -209,3 +209,125 @@ export function Dialog({ visible, onClose, children }: DialogProps) {
     </Modal>
   );
 }
+
+/** Keyboard shortcut hint. Solid fill: the keycap gradient in DESIGN.md needs a gradient primitive React Native does not have. */
+export function Keycap({ children }: { children: string }) {
+  const theme = useTheme();
+  return (
+    <View
+      style={{
+        height: theme.sizes.keycapHeight,
+        minWidth: 20,
+        paddingHorizontal: 6,
+        borderRadius: theme.radii.xs,
+        borderWidth: 1,
+        borderColor: theme.colors.hairline,
+        backgroundColor: theme.colors.surfaceCard,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Text variant="captionMd" style={{ lineHeight: 16 }}>
+        {children}
+      </Text>
+    </View>
+  );
+}
+
+export interface PillTabsProps<T extends string> {
+  options: ReadonlyArray<{ value: T; label: string }>;
+  value: T;
+  onChange: (value: T) => void;
+}
+
+/** A row of pill-shaped choices; the active one lifts one surface step. */
+export function PillTabs<T extends string>({ options, value, onChange }: PillTabsProps<T>) {
+  const theme = useTheme();
+  return (
+    <View accessibilityRole="tablist" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.space.xs }}>
+      {options.map((o) => {
+        const active = o.value === value;
+        return (
+          <Pressable
+            key={o.value}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: active }}
+            onPress={() => onChange(o.value)}
+            style={{
+              paddingHorizontal: 10,
+              paddingVertical: 4,
+              borderRadius: theme.radii.full,
+              backgroundColor: active ? theme.colors.surfaceElevated : 'transparent',
+            }}
+          >
+            <Text variant="bodySm" tone={active ? 'onDark' : 'default'}>
+              {o.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+export interface RadioOptionsProps<T extends string> {
+  options: ReadonlyArray<{ value: T; label: string; description?: string }>;
+  value: T;
+  onChange: (value: T) => void;
+}
+
+/** Stacked radio cards, each with a label and a one-line description. */
+export function RadioOptions<T extends string>({ options, value, onChange }: RadioOptionsProps<T>) {
+  const theme = useTheme();
+  const c = theme.colors;
+  return (
+    <View accessibilityRole="radiogroup" style={{ gap: theme.space.sm }}>
+      {options.map((o) => {
+        const on = o.value === value;
+        return (
+          <Pressable
+            key={o.value}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: on }}
+            onPress={() => onChange(o.value)}
+            style={{
+              flexDirection: 'row',
+              gap: theme.space.md,
+              alignItems: 'flex-start',
+              padding: theme.space.md,
+              borderRadius: theme.radii.md,
+              borderWidth: 1,
+              borderColor: on ? c.hairlineStrong : c.hairline,
+              backgroundColor: on ? c.surfaceCard : c.surfaceElevated,
+            }}
+          >
+            <View
+              style={{
+                width: 16,
+                height: 16,
+                marginTop: 3,
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: on ? c.primary : c.hairlineStrong,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {on ? <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.primary }} /> : null}
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text variant="bodySmStrong" tone="onDark">
+                {o.label}
+              </Text>
+              {o.description ? (
+                <Text variant="captionMd" tone="muted">
+                  {o.description}
+                </Text>
+              ) : null}
+            </View>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}

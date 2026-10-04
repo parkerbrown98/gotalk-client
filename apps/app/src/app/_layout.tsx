@@ -66,7 +66,8 @@ function Navigation() {
         <Stack.Screen name="consent" options={{ headerShown: false, animation: 'fade' }} />
         <Stack.Screen name="policy/[kind]" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
-        <Stack.Screen name="home" options={{ title: 'Gotalk' }} />
+        <Stack.Screen name="(app)" options={{ headerShown: false }} />
+        <Stack.Screen name="invite/[code]" options={{ headerShown: false }} />
       </Stack>
     </NavigationThemeProvider>
   );

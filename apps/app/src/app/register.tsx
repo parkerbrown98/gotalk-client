@@ -13,6 +13,7 @@ import { useCountdown } from '@/lib/countdown';
 import { classifyFailure, fieldFor, type FailureKind } from '@/lib/failure';
 import { useActiveInstance } from '@/lib/instances';
 import { resetTo, useWide } from '@/lib/layout';
+import { inviteHref, pendingInvite } from '@/lib/pending-invite';
 
 const USERNAME = /^[A-Za-z0-9_.-]{3,32}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -28,7 +29,7 @@ export default function Register() {
   const info = useInstanceInfo();
   const policies = usePolicies();
 
-  const [inviteCode, setInviteCode] = useState('');
+  const [inviteCode, setInviteCode] = useState(() => pendingInvite.get()?.code ?? '');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,7 +42,8 @@ export default function Register() {
   const cooldown = useCountdown(failure?.kind === 'rate_limited' ? failure.retryAfter : null, attempt);
 
   if (!active || !target) return <Redirect href="/connect" />;
-  if (session) return <Redirect href="/home" />;
+  // With an invite waiting, submitting carries on to it instead of home.
+  if (session && !pendingInvite.get()) return <Redirect href="/home" />;
 
   const host = active.origin.replace(/^https?:\/\//, '');
   const mode = info.data?.registration_mode;
@@ -110,7 +112,10 @@ export default function Register() {
         ...(inviteOnly ? { invite_code: inviteCode.trim() } : {}),
         accept_policies: needsConsent && accepted,
       });
-      resetTo('/home');
+      // An invite-only sign-up already joined the place with its code; otherwise carry on to the invite.
+      const invite = pendingInvite.get();
+      pendingInvite.clear();
+      resetTo(invite && !inviteOnly ? inviteHref(invite) : '/home');
     } catch (e) {
       const f = classifyFailure(e);
       setFailure(f);

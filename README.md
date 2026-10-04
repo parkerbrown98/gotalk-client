@@ -85,6 +85,14 @@ expose the session. Keep third-party scripts out of the web build and serve it w
 Content-Security-Policy. Refresh tokens are single-use and reuse revokes the session, so tabs take a Web
 Lock before refreshing and re-read the stored token inside it.
 
+## Places and invite links
+
+Signed-in screens live in `apps/app/src/app/(app)`: a place rail and sidebar from 768px up, a tab bar
+below. Whether an action is shown comes from `hasPermission` in `@gotalk/core`, which reads the server's
+`my_permissions` bitfield; the server still decides. Invite links carry their instance so they work for
+someone who has not added it yet: `https://<web client>/invite/<code>?instance=<origin>` on the web and
+`gotalk://invite/<code>?instance=<origin>` in apps and the desktop shell.
+
 ## Desktop notes
 
 - The window loads the static web export. Deep routes fall back to `index.html`, so reloads work.

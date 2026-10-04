@@ -142,22 +142,54 @@ registration, policy acceptance, outstanding consent) and
 [Account settings](./mockups/04-account-settings.html) (profile, password change, devices, sign out,
 delete account) are the reference for these screens.
 
-## Phase 2 — App shell & Places
+## Phase 2 — App shell & Places ✅
 
-Mockups: [App shell and places](./mockups/05-shell-places.html) (place rail and sidebar, command palette,
-discover, phone tab bar, invite link). Not yet mocked: create place, place settings, invite management.
-Mock those before starting them.
+Goal: sign in, browse and join a place, and invite someone via link on every target.
 
-- Responsive shell: a persistent sidebar (place rail + channel/board list) at the `tablet` breakpoint (768px) and
-  above, which covers desktop and tablets; stack plus drawer on phones.
-- Places: discover (search, member counts), view by slug, join/leave, create, settings, invites.
-- Invite and deep links: the `gotalk://` scheme now, and universal/app links for
-  `https://<instance>/invite/<code>` later.
-- A shared permission helper built on the `GET /permissions` bitfield, used to hide actions the user
-  cannot take. The server stays authoritative.
-- Per-place and per-instance branding feeding `ThemeProvider` `overrides`.
-- **Exit criteria:** sign in, browse and join a place, and invite someone via link on every target, with
-  the shell matching the Phase 2 mockups at phone and desktop widths.
+Delivered:
+
+- **Responsive shell** (`apps/app/src/app/(app)`): from the `tablet` breakpoint (768px) a place rail, the
+  open place's sidebar (forums, chat, voice) and the content; on phones a stack with a bottom tab bar.
+  The tab bar has Places and You; Inbox and Search join when notifications and search exist (Phase 3).
+- **Places:**
+  - discover with debounced search, "Open to join" filter, paging, and one white button on the best match
+  - create (the address fills in from the name), view by slug, join and leave
+  - settings for name, address, description and visibility; the owner can delete the place
+  - invite-only places are listed but joinable only through an invite; private ones are hidden
+  - the sidebar lists existing forums and channels, which open placeholder screens until Phases 3 to 5
+- **Invites:**
+  - create links (expiry and use limits), copy or share them, list them, revoke them
+  - `/invite/<code>?instance=<origin>` on the web and `gotalk://invite/<code>?instance=<origin>` in apps;
+    it previews the place before sign-in, adds an unfamiliar instance after confirmation, and carries on
+    through sign-in or sign-up to joining
+- **Permissions:** `hasPermission` in `@gotalk/core` reads the `my_permissions` bitfield with BigInt (bits
+  go past 32) against the instance's `GET /permissions` table, with a built-in fallback. It decides which
+  menu items, settings tabs and buttons appear; the server stays authoritative.
+- **Command palette** (Cmd/Ctrl+K on web and desktop): places, the open place's channels, and a few screens.
+- **Tests:** unit tests for permissions, addresses and invite links in `@gotalk/core`.
+
+Verified:
+
+- web export against a local instance, in Chromium at wide and phone widths, with an owner, a member and a
+  newcomer: create a place, create and revoke invites, discover and join, leave, see only permitted
+  actions, join through an invite link after signing up, join an invite-only place through its invite, and
+  jump with the palette
+- not yet exercised: iOS, Android and Tauri builds, `gotalk://` links on a device, and share sheets
+
+Known gaps and decisions:
+
+- **Branding:** the API offers place icons and banners but no colors, and DESIGN.md has one white primary
+  action, so `ThemeProvider` `overrides` stay unused. Place icons show where places are listed; banners are
+  not shown. Per-instance accent colors remain a backend ask.
+- Universal and app links for `https://<instance>/invite/<code>` need the server to host the page and
+  association files; invite links today open the hosted web client or the `gotalk://` scheme.
+- Request-to-join does not exist in the API, so the mockup's "Request to join" became "Invite only".
+- The overview shows member, forum and channel counts only: unread counts, pinned items and activity
+  summaries need forums and chat.
+
+Mockups: [App shell and places](./mockups/05-shell-places.html) and
+[Create and manage places](./mockups/09-places-manage.html) (create, settings, invites, place menu,
+delete) are the reference for these screens.
 
 ## Phase 3 — Forums
 

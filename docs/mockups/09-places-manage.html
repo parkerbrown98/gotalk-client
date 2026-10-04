@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Create and manage places · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+<style>
+  .form-main { flex: 1; min-width: 0; padding: 32px 40px; display: flex; flex-direction: column; gap: 24px; overflow: hidden; }
+  .form-main .inner { width: 480px; display: flex; flex-direction: column; gap: 24px; }
+  .form-main .inner.wide { width: 640px; }
+  .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--gt-color-surface-elevated); border-top: 1px solid var(--gt-color-hairline-strong); border-radius: var(--gt-radius-xl) var(--gt-radius-xl) 0 0; padding: 24px 16px 32px; display: flex; flex-direction: column; gap: 16px; }
+  .grab { width: 36px; height: 4px; border-radius: 2px; background: var(--gt-color-stone); margin: -12px auto 0; }
+  .opts { display: flex; flex-direction: column; gap: 8px; }
+  .opt { display: flex; gap: 12px; align-items: flex-start; padding: 12px; border: 1px solid var(--gt-color-hairline); border-radius: var(--gt-radius-md); background: var(--gt-color-surface-elevated); }
+  .opt.on { border-color: var(--gt-color-hairline-strong); background: var(--gt-color-surface-card); }
+  .opt .dot { flex: none; width: 16px; height: 16px; margin-top: 3px; border-radius: 50%; border: 1px solid var(--gt-color-hairline-strong); display: grid; place-items: center; }
+  .opt.on .dot { border-color: var(--gt-color-primary); }
+  .opt.on .dot::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--gt-color-primary); }
+  .invite { display: flex; align-items: center; gap: 16px; padding: 12px 16px; }
+  .invite code { font-size: 14px; }
+  .linkbox { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; border-radius: var(--gt-radius-md); border: 1px solid var(--gt-color-hairline); background: var(--gt-color-surface); }
+  .linkbox span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; color: var(--gt-color-on-dark); }
+  .sidebar .head .title-wrap { display: flex; flex-direction: column; }
+  .menu { position: absolute; width: 232px; padding: 6px; background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline-strong); border-radius: var(--gt-radius-lg); display: flex; flex-direction: column; gap: 2px; }
+</style>
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Phase 2 · App shell &amp; places</nav>
+    <h1 class="t-display-lg">Create and manage places</h1>
+    <p>Starting a place, changing how people find it, and inviting people to it. Only what the signed-in person is allowed to do is shown: the place menu and settings read the permission bits the server sends, and the server still decides. Invites are the only way into invite-only and private places, so creating and revoking them is a first-class screen rather than a menu item.</p>
+  </header>
+
+  <section class="group">
+    <h2>Web and desktop</h2>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail">
+              <div class="tile yellow place">O</div>
+              <div class="tile blue place">H<span class="count">3</span></div>
+              <div class="tile green place">C</div>
+              <div class="tile place active" style="background:var(--gt-color-surface-elevated);color:var(--gt-color-on-dark)"><svg class="i lg"><use href="#plus"/></svg></div>
+              <div style="margin-top:auto" class="avatar blue">MK<span class="presence"></span></div>
+            </div>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#plus"/></svg><span class="t-body-strong">Create a place</span></div>
+              <div class="form-main">
+                <div class="inner">
+                  <div class="col gap-xs"><h2 class="t-heading-xl">Create a place</h2><p class="mute t-body-sm">A place holds forums, chat and voice for one community. You become its owner and can hand it over later.</p></div>
+                  <div class="field"><label>Name</label><div class="input focus"><span>Open Woodworkers</span></div></div>
+                  <div class="field"><label>Address</label><div class="input"><span class="mute">places/</span><span>open-woodworkers</span></div><span class="note">3 to 32 lowercase letters, numbers or dashes. It appears in links and can be changed later.</span></div>
+                  <div class="field"><label>Description</label><div class="input textarea" style="height:84px;align-items:flex-start"><span>Joinery, finishing, and shop talk from people who build things slowly.</span></div></div>
+                  <div class="field"><label>Who can join</label>
+                    <div class="opts">
+                      <div class="opt on"><span class="dot"></span><div class="col"><span class="t-body-sm-strong">Public</span><span class="t-caption-md mute">Listed in Discover. Anyone with an account can join.</span></div></div>
+                      <div class="opt"><span class="dot"></span><div class="col"><span class="t-body-sm-strong">Invite only</span><span class="t-caption-md mute">Listed in Discover, but joining needs an invite.</span></div></div>
+                      <div class="opt"><span class="dot"></span><div class="col"><span class="t-body-sm-strong">Private</span><span class="t-caption-md mute">Hidden from Discover. Only people you invite can find it.</span></div></div>
+                    </div>
+                  </div>
+                  <div class="flex gap-sm"><button class="btn btn-primary">Create place</button><button class="btn btn-tertiary">Cancel</button></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Create a place. Public is the default and the only choice listed in Discover for people without an invite.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail">
+              <div class="tile yellow place active">O</div>
+              <div class="tile blue place">H<span class="count">3</span></div>
+              <div class="tile green place">C</div>
+              <div style="margin-top:auto" class="avatar blue">MK<span class="presence"></span></div>
+            </div>
+            <aside class="sidebar">
+              <div class="head"><span class="t-body-strong">Open Woodworkers</span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+              <div class="items">
+                <a class="nav-row" href="#"><svg><use href="#home"/></svg>Overview</a>
+                <div class="section-label">Forums</div>
+                <a class="nav-row" href="#"><svg><use href="#forum"/></svg>Joinery</a>
+                <div class="section-label">Chat</div>
+                <a class="nav-row" href="#"><svg><use href="#hash"/></svg>bench-talk</a>
+              </div>
+              <div class="foot flex center gap-sm"><span class="avatar s32 blue">MK<span class="presence"></span></span><div class="col grow"><span class="t-body-sm-strong">Marta K.</span><span class="t-caption-md mute">Online</span></div><svg class="i mute"><use href="#settings"/></svg></div>
+            </aside>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#settings"/></svg><span class="t-body-strong">Place settings</span><span style="margin-left:auto" class="pills"><span class="pill active">General</span><span class="pill">Invites</span></span></div>
+              <div class="form-main">
+                <div class="inner">
+                  <div class="field"><label>Name</label><div class="input focus"><span>Open Woodworkers</span></div></div>
+                  <div class="field"><label>Address</label><div class="input"><span class="mute">places/</span><span>open-woodworkers</span></div><span class="note">Changing it breaks links people already have.</span></div>
+                  <div class="field"><label>Description</label><div class="input textarea" style="height:84px;align-items:flex-start"><span>Joinery, finishing, and shop talk from people who build things slowly.</span></div></div>
+                  <div class="field"><label>Who can join</label>
+                    <div class="opts">
+                      <div class="opt on"><span class="dot"></span><div class="col"><span class="t-body-sm-strong">Public</span><span class="t-caption-md mute">Listed in Discover. Anyone with an account can join.</span></div></div>
+                      <div class="opt"><span class="dot"></span><div class="col"><span class="t-body-sm-strong">Invite only</span><span class="t-caption-md mute">Listed in Discover, but joining needs an invite.</span></div></div>
+                      <div class="opt"><span class="dot"></span><div class="col"><span class="t-body-sm-strong">Private</span><span class="t-caption-md mute">Hidden from Discover. Only people you invite can find it.</span></div></div>
+                    </div>
+                  </div>
+                  <div class="flex gap-sm"><button class="btn btn-primary">Save changes</button><button class="btn btn-tertiary">Discard</button></div>
+                  <div class="hairline-t" style="padding-top:16px"><div class="flex between center"><div class="col"><span class="t-body-sm-strong">Delete this place</span><span class="t-caption-md mute">Removes it for every member. Only the owner can do this.</span></div><button class="btn btn-danger">Delete place</button></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Place settings, General. Requires the Manage place permission; the delete row appears for the owner only.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail">
+              <div class="tile yellow place active">O</div>
+              <div class="tile blue place">H<span class="count">3</span></div>
+              <div class="tile green place">C</div>
+              <div style="margin-top:auto" class="avatar blue">MK<span class="presence"></span></div>
+            </div>
+            <aside class="sidebar">
+              <div class="head"><span class="t-body-strong">Open Woodworkers</span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+              <div class="items">
+                <a class="nav-row" href="#"><svg><use href="#home"/></svg>Overview</a>
+                <div class="section-label">Forums</div>
+                <a class="nav-row" href="#"><svg><use href="#forum"/></svg>Joinery</a>
+                <div class="section-label">Chat</div>
+                <a class="nav-row" href="#"><svg><use href="#hash"/></svg>bench-talk</a>
+              </div>
+              <div class="foot flex center gap-sm"><span class="avatar s32 blue">MK<span class="presence"></span></span><div class="col grow"><span class="t-body-sm-strong">Marta K.</span><span class="t-caption-md mute">Online</span></div><svg class="i mute"><use href="#settings"/></svg></div>
+            </aside>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#settings"/></svg><span class="t-body-strong">Place settings</span><span style="margin-left:auto" class="pills"><span class="pill">General</span><span class="pill active">Invites</span></span></div>
+              <div class="form-main">
+                <div class="inner wide">
+                  <div class="flex between center"><div class="col gap-xs"><h2 class="t-heading-xl">Invites</h2><p class="mute t-body-sm">Anyone with a link can join, up to the limits you set. Revoking a link stops it working right away.</p></div><button class="btn btn-primary">Create invite</button></div>
+                  <div class="card flush">
+                    <div class="invite"><div class="col grow"><code>k3Vq9Xz2Lm</code><span class="t-caption-md mute">Created by you · 3 of 10 uses · expires in 6 days</span></div><button class="btn btn-outline small">Copy link</button><button class="btn btn-danger small">Revoke</button></div>
+                    <div class="invite"><div class="col grow"><code>Pq7wT1nR8c</code><span class="t-caption-md mute">Created by Ana L. · 12 uses · never expires</span></div><button class="btn btn-outline small">Copy link</button><button class="btn btn-danger small">Revoke</button></div>
+                    <div class="invite"><div class="col grow"><code>Zx4mB6yE2d</code><span class="t-caption-md mute">Created by you · unused · expires tomorrow</span></div><button class="btn btn-outline small">Copy link</button><button class="btn btn-danger small">Revoke</button></div>
+                  </div>
+                  <p class="t-caption-md mute">Anyone with Create invites can make a link from the place menu, but only people with Manage invites see this list.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Place settings, Invites. Copy link puts the full link on the clipboard; the code alone is shown for reading it out loud.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail">
+              <div class="tile yellow place active">O</div>
+              <div class="tile blue place">H<span class="count">3</span></div>
+              <div style="margin-top:auto" class="avatar blue">MK<span class="presence"></span></div>
+            </div>
+            <div class="main"><div class="form-main" style="opacity:.4"><div class="inner"><h2 class="t-heading-xl">Invites</h2></div></div></div>
+            <div class="scrim">
+              <div class="card dialog" style="width:480px;background:var(--gt-color-surface-elevated);border-color:var(--gt-color-hairline-strong);border-radius:var(--gt-radius-xl)">
+                <h2 class="t-heading-md">Invite people to Open Woodworkers</h2>
+                <div class="field"><label>Link expires</label><div class="pills"><span class="pill">1 day</span><span class="pill active">7 days</span><span class="pill">30 days</span><span class="pill">Never</span></div></div>
+                <div class="field"><label>Uses</label><div class="pills"><span class="pill active">Unlimited</span><span class="pill">1</span><span class="pill">5</span><span class="pill">25</span><span class="pill">100</span></div></div>
+                <div class="flex gap-sm" style="justify-content:flex-end"><button class="btn btn-tertiary">Cancel</button><button class="btn btn-primary">Create link</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Create invite. Defaults match the server: seven days, unlimited uses.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail">
+              <div class="tile yellow place active">O</div>
+              <div class="tile blue place">H<span class="count">3</span></div>
+              <div style="margin-top:auto" class="avatar blue">MK<span class="presence"></span></div>
+            </div>
+            <div class="main"><div class="form-main" style="opacity:.4"><div class="inner"><h2 class="t-heading-xl">Invites</h2></div></div></div>
+            <div class="scrim">
+              <div class="card dialog" style="width:480px;background:var(--gt-color-surface-elevated);border-color:var(--gt-color-hairline-strong);border-radius:var(--gt-radius-xl)">
+                <h2 class="t-heading-md">Invite link ready</h2>
+                <p class="mute t-body-sm">Share it anywhere. It works for 7 days, with no limit on uses.</p>
+                <div class="linkbox"><span>https://app.gotalk.io/invite/k3Vq9Xz2Lm?instance=woodworkers.example.org</span><button class="btn btn-primary small">Copy link</button></div>
+                <p class="t-caption-md mute">Code <code>k3Vq9Xz2Lm</code> on woodworkers.example.org, if someone prefers to type it.</p>
+                <div class="flex gap-sm" style="justify-content:flex-end"><button class="btn btn-tertiary">Done</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Invite created. The link carries the instance, so it also works for someone who has not added it yet. Apps open it as gotalk://invite/&lt;code&gt;.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail">
+              <div class="tile yellow place active">O</div>
+              <div class="tile blue place">H<span class="count">3</span></div>
+              <div style="margin-top:auto" class="avatar blue">MK<span class="presence"></span></div>
+            </div>
+            <aside class="sidebar">
+              <div class="head"><span class="t-body-strong">Open Woodworkers</span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+              <div class="items"><a class="nav-row active" href="#"><svg><use href="#home"/></svg>Overview</a></div>
+            </aside>
+            <div class="main"><div class="topbar"><svg class="i mute"><use href="#home"/></svg><span class="t-body-strong">Overview</span></div></div>
+            <div class="menu" style="left:76px;top:96px;z-index:2">
+              <a class="nav-row" href="#"><svg><use href="#users"/></svg>Invite people</a>
+              <a class="nav-row" href="#"><svg><use href="#settings"/></svg>Place settings</a>
+              <div class="divider" style="margin:4px 0"></div>
+              <a class="nav-row" href="#" style="color:var(--gt-color-accent-red)"><svg style="color:var(--gt-color-accent-red)"><use href="#logout"/></svg>Leave place</a>
+            </div>
+          </div>
+        </div>
+        <figcaption>Place menu from the sidebar header. Each row appears only when the permission allows it. The owner cannot leave; the row becomes Delete place in settings.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail">
+              <div class="tile yellow place active">O</div>
+              <div class="tile blue place">H<span class="count">3</span></div>
+              <div style="margin-top:auto" class="avatar blue">MK<span class="presence"></span></div>
+            </div>
+            <div class="main"><div class="form-main" style="opacity:.4"><div class="inner"><h2 class="t-heading-xl">Place settings</h2></div></div></div>
+            <div class="scrim">
+              <div class="card dialog" style="width:480px;background:var(--gt-color-surface-elevated);border-color:var(--gt-color-hairline-strong);border-radius:var(--gt-radius-xl)">
+                <h2 class="t-heading-md">Delete Open Woodworkers?</h2>
+                <p class="mute t-body-sm">This removes the place for all 1,284 members, along with its forums and chat. It cannot be undone.</p>
+                <div class="field"><label>Type Open Woodworkers to confirm</label><div class="input focus"><span>Open Woodworkers</span></div></div>
+                <div class="flex gap-sm" style="justify-content:flex-end"><button class="btn btn-tertiary">Keep this place</button><button class="btn btn-danger">Delete place</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Delete place. Typing the name gates the destructive button; the server accepts the request from the owner (or an instance admin).</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Phone</h2>
+    <p>Place settings are pushed screens, like account settings. The place menu is a bottom sheet over the place screen, and invites are created in a sheet too.</p>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Open Woodworkers</span><span class="side end on-dark"><svg class="i"><use href="#more"/></svg></span></div>
+          <div class="body flush">
+            <div class="col" style="padding:8px">
+              <div class="section-label">Forums</div>
+              <a class="nav-row" href="#" style="padding:10px"><svg><use href="#forum"/></svg>Joinery</a>
+              <a class="nav-row" href="#" style="padding:10px"><svg><use href="#forum"/></svg>Finishing</a>
+              <div class="section-label">Chat</div>
+              <a class="nav-row" href="#" style="padding:10px"><svg><use href="#hash"/></svg>bench-talk</a>
+            </div>
+          </div>
+          <div class="scrim" style="align-items:flex-end"></div>
+          <div class="sheet">
+            <div class="grab"></div>
+            <div class="list-row" style="padding:12px 0"><svg class="i mute"><use href="#users"/></svg><span class="grow t-body-sm-strong">Invite people</span></div>
+            <div class="list-row hairline-t" style="padding:12px 0"><svg class="i mute"><use href="#settings"/></svg><span class="grow t-body-sm-strong">Place settings</span></div>
+            <div class="list-row hairline-t" style="padding:12px 0"><svg class="i danger"><use href="#logout"/></svg><span class="grow t-body-sm-strong danger">Leave place</span></div>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Place menu</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Place settings</span><span class="side"></span></div>
+          <div class="body">
+            <div class="pills"><span class="pill active">General</span><span class="pill">Invites</span></div>
+            <div class="field"><label>Name</label><div class="input focus"><span>Open Woodworkers</span></div></div>
+            <div class="field"><label>Address</label><div class="input"><span class="mute">places/</span><span>open-woodworkers</span></div></div>
+            <div class="field"><label>Who can join</label>
+              <div class="opts">
+                <div class="opt on"><span class="dot"></span><div class="col"><span class="t-body-sm-strong">Public</span><span class="t-caption-md mute">Anyone with an account can join.</span></div></div>
+                <div class="opt"><span class="dot"></span><div class="col"><span class="t-body-sm-strong">Invite only</span><span class="t-caption-md mute">Listed, but joining needs an invite.</span></div></div>
+                <div class="opt"><span class="dot"></span><div class="col"><span class="t-body-sm-strong">Private</span><span class="t-caption-md mute">Hidden. Only invited people find it.</span></div></div>
+              </div>
+            </div>
+            <button class="btn btn-primary block">Save changes</button>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Place settings</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Invites</span><span class="side end on-dark"><svg class="i"><use href="#plus"/></svg></span></div>
+          <div class="body">
+            <p class="mute t-body-sm">Anyone with a link can join, up to the limits you set.</p>
+            <div class="card flush">
+              <div class="invite" style="flex-wrap:wrap"><div class="col grow"><code>k3Vq9Xz2Lm</code><span class="t-caption-md mute">3 of 10 uses · 6 days left</span></div><button class="btn btn-outline small">Share</button><button class="btn btn-danger small">Revoke</button></div>
+              <div class="invite"><div class="col grow"><code>Pq7wT1nR8c</code><span class="t-caption-md mute">12 uses · never expires</span></div><button class="btn btn-outline small">Share</button><button class="btn btn-danger small">Revoke</button></div>
+              <div class="invite"><div class="col grow"><code>Zx4mB6yE2d</code><span class="t-caption-md mute">Unused · expires tomorrow</span></div><button class="btn btn-outline small">Share</button><button class="btn btn-danger small">Revoke</button></div>
+            </div>
+          </div>
+          <div class="scrim" style="align-items:flex-end"></div>
+          <div class="sheet">
+            <div class="grab"></div>
+            <h2 class="t-heading-md">Invite link ready</h2>
+            <p class="mute t-body-sm">It works for 7 days, with no limit on uses.</p>
+            <div class="linkbox"><span>https://app.gotalk.io/invite/k3Vq9Xz2Lm?instance=woodworkers.example.org</span></div>
+            <button class="btn btn-primary block">Share link</button>
+            <button class="btn btn-tertiary block">Copy link</button>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Invites, with the created sheet. Share opens the system share sheet; the web build copies instead.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>
