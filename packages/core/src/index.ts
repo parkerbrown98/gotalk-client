@@ -1,4 +1,5 @@
 export * from './auth.ts';
+export * from './chat.ts';
 export * from './compat.ts';
 export * from './composer.ts';
 export * from './devices.ts';

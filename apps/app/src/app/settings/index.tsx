@@ -3,7 +3,7 @@ import { Redirect, router } from 'expo-router';
 
 import { ScreenFrame } from '@/components/screen-frame';
 import { useMe } from '@/lib/api';
-import { authManager, useAuthTarget, useSession } from '@/lib/auth';
+import { signOut, useAuthTarget, useSession } from '@/lib/auth';
 import { useSessions } from '@/lib/sessions';
 import { useActiveInstance } from '@/lib/instances';
 import { goBack, useWide } from '@/lib/layout';
@@ -45,7 +45,7 @@ export default function SettingsIndex() {
           />
         </ListCard>
         <ListCard>
-          <ListRow icon="logout" title="Sign out" onPress={() => target && void authManager.signOut(target)} />
+          <ListRow icon="logout" title="Sign out" onPress={() => target && void signOut(target)} />
           <ListRow icon="trash" title="Delete account" tone="danger" onPress={() => router.push('/settings/delete')} />
         </ListCard>
       </Stack>

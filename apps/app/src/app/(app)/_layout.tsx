@@ -1,10 +1,12 @@
 import { useTheme } from '@gotalk/ui';
-import { Redirect, Stack, router } from 'expo-router';
+import { Redirect, Stack, router, usePathname } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
+import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CommandPalette, useCommandPaletteShortcut } from '@/components/command-palette';
-import { PlaceRail, PlaceSidebar, TabBar, useRouteSlug } from '@/components/shell';
+import { ConnectionBanner, useConnectionBannerVisible } from '@/components/connection-banner';
+import { MessagesSidebar, PlaceRail, PlaceSidebar, TabBar, useRouteSlug } from '@/components/shell';
 import { useConsents } from '@/lib/api';
 import { useSession } from '@/lib/auth';
 import { consentDismissed } from '@/lib/consent';
@@ -18,6 +20,10 @@ export default function AppLayout() {
   const active = useActiveInstance();
   const session = useSession();
   const slug = useRouteSlug();
+  const pathname = usePathname();
+  const insets = useSafeAreaInsets();
+  const inMessages = pathname === '/messages' || pathname.startsWith('/messages/');
+  const banner = useConnectionBannerVisible();
   const consents = useConsents();
   const [palette, setPalette] = useState(false);
   const owesConsent = (consents.data?.outstanding?.length ?? 0) > 0;
@@ -34,9 +40,17 @@ export default function AppLayout() {
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.colors.canvas }, animation: wide ? 'none' : 'default' }} />
   );
   if (!wide) {
+    // The banner takes the top inset, so screens below it do not pad for the status bar again.
     return (
       <View style={{ flex: 1, backgroundColor: theme.colors.canvas }}>
-        <View style={{ flex: 1 }}>{screens}</View>
+        {banner ? (
+          <View style={{ paddingTop: insets.top }}>
+            <ConnectionBanner />
+          </View>
+        ) : null}
+        <SafeAreaInsetsContext.Provider value={banner ? { ...insets, top: 0 } : insets}>
+          <View style={{ flex: 1 }}>{screens}</View>
+        </SafeAreaInsetsContext.Provider>
         <TabBar />
       </View>
     );
@@ -44,8 +58,11 @@ export default function AppLayout() {
   return (
     <View style={{ flex: 1, flexDirection: 'row', backgroundColor: theme.colors.canvas }}>
       <PlaceRail onOpenPalette={() => setPalette(true)} />
-      {slug ? <PlaceSidebar slug={slug} /> : null}
-      <View style={{ flex: 1 }}>{screens}</View>
+      {inMessages ? <MessagesSidebar /> : slug ? <PlaceSidebar slug={slug} /> : null}
+      <View style={{ flex: 1 }}>
+        {banner ? <ConnectionBanner /> : null}
+        <View style={{ flex: 1 }}>{screens}</View>
+      </View>
       <CommandPalette visible={palette} onClose={() => setPalette(false)} />
     </View>
   );

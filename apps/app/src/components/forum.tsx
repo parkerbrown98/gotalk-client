@@ -5,16 +5,10 @@ import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import { Composer } from '@/components/composer';
 import { Markdown } from '@/components/markdown';
-import { classifyFailure } from '@/lib/failure';
+import { failureMessage } from '@/lib/failure';
 import { useForumActions, usePostRevisions, type Post, type Topic, type WatchLevel } from '@/lib/forums';
 
-export function messageFor(e: unknown, fallback: string): string {
-  const f = classifyFailure(e);
-  if (f.kind === 'rejected') return f.message;
-  if (f.kind === 'network') return 'Could not reach the instance. Check your connection and try again.';
-  if (f.kind === 'rate_limited') return `Slow down a little. Try again in ${f.retryAfter} seconds.`;
-  return fallback;
-}
+export const messageFor = failureMessage;
 
 /** A bordered pill that either shows a count or acts as a small button. */
 export function Chip({ label, icon, on, onPress, accessibilityLabel }: { label?: string; icon?: IconName; on?: boolean; onPress?: () => void; accessibilityLabel?: string }) {

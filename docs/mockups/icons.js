@@ -49,6 +49,8 @@
     mailPlus: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.500 7 8.500 6 8.500-6"/>',
     wifi: '<path d="M2.500 9a14 14 0 0 1 19 0M5.500 12.500a10 10 0 0 1 13 0M8.500 16a6 6 0 0 1 7 0M12 19.500v.01"/>',
     clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    edit: '<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+    copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
     server: '<rect x="3" y="4" width="18" height="6" rx="1.500"/><rect x="3" y="14" width="18" height="6" rx="1.500"/><path d="M7 7v.01M7 17v.01"/>'
   };
   var out = '<svg xmlns="http://www.w3.org/2000/svg" style="display:none">';

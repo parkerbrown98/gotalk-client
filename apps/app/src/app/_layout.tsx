@@ -12,6 +12,7 @@ import { Platform } from 'react-native';
 import { shouldRetry } from '@/lib/api';
 import { authManager, useAuthHydrated } from '@/lib/auth';
 import { useInstancesHydrated } from '@/lib/instances';
+import { RealtimeHost } from '@/lib/realtime';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -94,6 +95,7 @@ export default function RootLayout() {
   return (
     <GotalkThemeProvider>
       <QueryClientProvider client={queryClient}>
+        <RealtimeHost />
         <Navigation />
       </QueryClientProvider>
     </GotalkThemeProvider>

@@ -1,6 +1,6 @@
 import { parseMarkdown, type Block, type Inline } from '@gotalk/core';
 import { Text, useTheme, typeStyle } from '@gotalk/ui';
-import { memo, useMemo } from 'react';
+import { memo, useMemo, type ReactNode } from 'react';
 import { Linking, Platform, ScrollView, Text as RNText, View, type TextStyle } from 'react-native';
 
 type Theme = ReturnType<typeof useTheme>;
@@ -65,7 +65,7 @@ function Inlines({ nodes, onMention }: { nodes: Inline[]; onMention?: (username:
   );
 }
 
-function Blocks({ blocks, onMention, compact }: { blocks: Block[]; onMention?: (username: string) => void; compact?: boolean }) {
+function Blocks({ blocks, onMention, compact, trailing }: { blocks: Block[]; onMention?: (username: string) => void; compact?: boolean; trailing?: ReactNode }) {
   const theme = useTheme();
   const c = theme.colors;
   const mono = useMono(theme);
@@ -78,6 +78,7 @@ function Blocks({ blocks, onMention, compact }: { blocks: Block[]; onMention?: (
             return (
               <RNText key={i} selectable style={[body, { color: c.body }]}>
                 <Inlines nodes={b.children} onMention={onMention} />
+                {trailing && i === blocks.length - 1 ? <> {trailing}</> : null}
               </RNText>
             );
           case 'heading':
@@ -135,6 +136,7 @@ function Blocks({ blocks, onMention, compact }: { blocks: Block[]; onMention?: (
             return <View key={i} style={{ height: 1, backgroundColor: c.hairline }} />;
         }
       })}
+      {trailing && blocks.at(-1)?.type !== 'paragraph' ? <RNText>{trailing}</RNText> : null}
     </View>
   );
 }
@@ -144,10 +146,12 @@ export interface MarkdownProps {
   /** Tapping an `@name`. */
   onMention?: (username: string) => void;
   compact?: boolean;
+  /** Inline text after the last paragraph, such as "(edited)". */
+  trailing?: ReactNode;
 }
 
 /** Posts and previews. Renders only the closed tree from `parseMarkdown`, so authored text never becomes markup. */
-export const Markdown = memo(function Markdown({ source, onMention, compact }: MarkdownProps) {
+export const Markdown = memo(function Markdown({ source, onMention, compact, trailing }: MarkdownProps) {
   const blocks = useMemo(() => parseMarkdown(source), [source]);
-  return <Blocks blocks={blocks} onMention={onMention} compact={compact} />;
+  return <Blocks blocks={blocks} onMention={onMention} compact={compact} trailing={trailing} />;
 });

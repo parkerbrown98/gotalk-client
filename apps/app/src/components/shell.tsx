@@ -1,17 +1,22 @@
-import { Avatar, Icon, NavRow, Text, useTheme } from '@gotalk/ui';
+import { Icon, NavRow, Text, useTheme } from '@gotalk/ui';
 import { router, usePathname } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ConversationNavRow, NewConversationDialog } from '@/components/conversations';
 import { CreateBoardDialog } from '@/components/create-board-dialog';
 import { InstanceIcon } from '@/components/instance-summary';
+import { MenuItem, MenuPopover, MenuSeparator } from '@/components/menu';
 import { PlaceMenuPopover, usePlaceMenu } from '@/components/place-menu';
+import { PresenceAvatar, PresenceMenuItems, presenceLabels } from '@/components/presence';
 import { useMe } from '@/lib/api';
 import { useSession } from '@/lib/auth';
+import { useConversations, useUnreadConversations } from '@/lib/chat';
 import { boardTree, useUnreadCount } from '@/lib/forums';
 import { useActiveInstance } from '@/lib/instances';
 import { useBoards, useChannels, useMyPlaces, usePlace, usePlaceAccess } from '@/lib/places';
+import { useMyStatus } from '@/lib/realtime';
 
 /** A small white count, like every other count in the shell. */
 function CountBadge({ count, style }: { count: number; style?: object }) {
@@ -42,6 +47,8 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
   const session = useSession();
   const places = useMyPlaces().data ?? [];
   const unread = useUnreadCount().data ?? 0;
+  const unreadMessages = useUnreadConversations();
+  const inMessages = pathname === '/messages' || pathname.startsWith('/messages/');
   if (!active) return null;
 
   const link = (key: string, label: string, onPress: () => void, isActive: boolean, children: React.ReactNode) => (
@@ -52,7 +59,7 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
       {children}
     </Pressable>
   );
-  const iconTile = (name: 'compass' | 'plus' | 'search' | 'bell', dashed: boolean, isActive: boolean, count = 0) => (
+  const iconTile = (name: 'compass' | 'plus' | 'search' | 'bell' | 'forum', dashed: boolean, isActive: boolean, count = 0) => (
     <View
       style={{
         width: 48,
@@ -74,6 +81,7 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
   return (
     <View style={{ width: 64, backgroundColor: c.canvas, borderRightWidth: 1, borderRightColor: c.hairline, paddingVertical: 12, alignItems: 'center' }}>
       <ScrollView contentContainerStyle={{ alignItems: 'center', gap: 10 }} showsVerticalScrollIndicator={false}>
+        {link('messages', unreadMessages > 0 ? `Direct messages, ${unreadMessages} unread` : 'Direct messages', () => router.push('/messages'), inMessages, iconTile('forum', false, inMessages, unreadMessages))}
         {link('palette', 'Jump to a place or channel', onOpenPalette, false, iconTile('search', false, false))}
         {link('inbox', unread > 0 ? `Inbox, ${unread} unread` : 'Inbox', () => router.push('/inbox'), pathname === '/inbox', iconTile('bell', false, pathname === '/inbox', unread))}
         {places.map((p) =>
@@ -84,7 +92,7 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
       </ScrollView>
       {session ? (
         <Pressable accessibilityRole="link" accessibilityLabel="Account and instances" onPress={() => router.push('/you')} style={{ marginTop: 8 }}>
-          <Avatar name={session.displayName} uri={session.avatarUrl} size={36} />
+          <PresenceAvatar user={{ id: session.userId, display_name: session.displayName, avatar_url: session.avatarUrl }} size={36} />
         </Pressable>
       ) : null}
     </View>
@@ -101,8 +109,6 @@ export function PlaceSidebar({ slug }: { slug: string }) {
   const boardNodes = boardTree(useBoards(slug, access.isMember).data ?? []);
   const channels = useChannels(slug, access.isMember).data ?? [];
   const menu = usePlaceMenu(place);
-  const session = useSession();
-  const me = useMe().data;
   const [menuOpen, setMenuOpen] = useState(false);
   const [newForum, setNewForum] = useState(false);
 
@@ -150,9 +156,20 @@ export function PlaceSidebar({ slug }: { slug: string }) {
         ))}
         {access.can('MANAGE_BOARDS') ? <NavRow label="New forum" icon="plus" onPress={() => setNewForum(true)} /> : null}
         {text.length > 0 ? section('Chat') : null}
-        {text.map((ch) => (
-          <NavRow key={ch.id} label={ch.name} icon="hash" active={pathname === `/places/${slug}/channels/${ch.id}`} onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug, id: ch.id } })} />
-        ))}
+        {text.map((ch) => {
+          const here = pathname === `/places/${slug}/channels/${ch.id}` || pathname.startsWith(`/places/${slug}/channels/${ch.id}/`);
+          return (
+            <NavRow
+              key={ch.id}
+              label={ch.name}
+              icon="hash"
+              active={here}
+              unread={!here && !!ch.unread}
+              count={here ? 0 : (ch.read_state?.mention_count ?? 0)}
+              onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug, id: ch.id } })}
+            />
+          );
+        })}
         {voice.length > 0 ? section('Voice') : null}
         {voice.map((ch) => (
           <NavRow key={ch.id} label={ch.name} icon="volume" active={pathname === `/places/${slug}/channels/${ch.id}`} onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug, id: ch.id } })} />
@@ -164,38 +181,102 @@ export function PlaceSidebar({ slug }: { slug: string }) {
         ) : null}
       </ScrollView>
 
-      {session ? (
-        <Pressable
-          accessibilityRole="link"
-          accessibilityLabel="Account settings"
-          onPress={() => router.push('/settings')}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: 8, borderTopWidth: 1, borderTopColor: c.hairline }}
-        >
-          <Avatar name={me?.display_name ?? session.displayName} uri={me?.avatar_url ?? session.avatarUrl} size={32} />
-          <View style={{ flex: 1 }}>
-            <Text variant="bodySmStrong" tone="onDark" numberOfLines={1}>
-              {me?.display_name ?? session.displayName}
-            </Text>
-            <Text variant="captionMd" tone="muted">
-              @{session.username}
-            </Text>
-          </View>
-          <Icon name="settings" size={16} color={c.mute} />
-        </Pressable>
-      ) : null}
+      <AccountFooter />
     </View>
   );
 }
 
-/** Phone tabs: places, inbox, search and the account. */
+/** Bottom of the sidebar: who is signed in and how present they look. Opens the presence picker. */
+export function AccountFooter() {
+  const theme = useTheme();
+  const c = theme.colors;
+  const session = useSession();
+  const me = useMe().data;
+  const status = useMyStatus();
+  const [open, setOpen] = useState(false);
+  if (!session) return null;
+  const name = me?.display_name ?? session.displayName;
+  return (
+    <>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${name}, ${presenceLabels[status]}. Change status or open account settings`}
+        onPress={() => setOpen(true)}
+        style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 8, padding: 8, borderTopWidth: 1, borderTopColor: c.hairline, backgroundColor: pressed ? c.surfaceElevated : 'transparent' })}
+      >
+        <PresenceAvatar user={{ id: session.userId, display_name: name, avatar_url: me?.avatar_url ?? session.avatarUrl }} size={32} ring={c.surface} />
+        <View style={{ flex: 1 }}>
+          <Text variant="bodySmStrong" tone="onDark" numberOfLines={1}>
+            {name}
+          </Text>
+          <Text variant="captionMd" tone="muted">
+            {presenceLabels[status]}
+          </Text>
+        </View>
+        <Icon name="chevronDown" size={16} color={c.mute} />
+      </Pressable>
+      <MenuPopover visible={open} onClose={() => setOpen(false)} anchor={{ left: 72, bottom: 56 }}>
+        <PresenceMenuItems onDone={() => setOpen(false)} />
+        <MenuSeparator />
+        <MenuItem
+          label="Account settings"
+          icon="settings"
+          onPress={() => {
+            setOpen(false);
+            router.push('/settings');
+          }}
+        />
+      </MenuPopover>
+    </>
+  );
+}
+
+/** Second column on wide screens while in direct messages: the conversations. */
+export function MessagesSidebar() {
+  const theme = useTheme();
+  const c = theme.colors;
+  const pathname = usePathname();
+  const conversations = useConversations();
+  const [creating, setCreating] = useState(false);
+  const list = conversations.data ?? [];
+  return (
+    <View style={{ width: 248, backgroundColor: c.surface, borderRightWidth: 1, borderRightColor: c.hairline }}>
+      <View style={{ height: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: c.hairline }}>
+        <Text variant="bodyStrong" tone="onDark" accessibilityRole="header">
+          Direct messages
+        </Text>
+        <Pressable accessibilityRole="button" accessibilityLabel="New message" onPress={() => setCreating(true)} hitSlop={8}>
+          <Icon name="plus" size={16} color={c.mute} />
+        </Pressable>
+      </View>
+      <ScrollView contentContainerStyle={{ padding: 8, gap: 2 }}>
+        {list.map((ch) => (
+          <ConversationNavRow key={ch.id} channel={ch} active={pathname === `/messages/${ch.id}` || pathname.startsWith(`/messages/${ch.id}/`)} />
+        ))}
+        {conversations.isSuccess && list.length === 0 ? (
+          <Text variant="captionMd" tone="muted" style={{ paddingHorizontal: 10, paddingTop: 10 }}>
+            No conversations yet. Start one with someone you share a place with.
+          </Text>
+        ) : null}
+      </ScrollView>
+      <AccountFooter />
+      <NewConversationDialog visible={creating} onClose={() => setCreating(false)} />
+    </View>
+  );
+}
+
+/** Phone tabs: places, direct messages, inbox, search and the account. */
 export function TabBar() {
   const theme = useTheme();
   const c = theme.colors;
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
   const unread = useUnreadCount().data ?? 0;
+  const unreadMessages = useUnreadConversations();
+  const inMessages = pathname === '/messages' || pathname.startsWith('/messages/');
   const tabs = [
-    { label: 'Places', icon: 'home', href: '/home', active: pathname !== '/you' && pathname !== '/inbox' && pathname !== '/search', count: 0 },
+    { label: 'Places', icon: 'home', href: '/home', active: pathname !== '/you' && pathname !== '/inbox' && pathname !== '/search' && !inMessages, count: 0 },
+    { label: 'Messages', icon: 'forum', href: '/messages', active: inMessages, count: unreadMessages },
     { label: 'Inbox', icon: 'bell', href: '/inbox', active: pathname === '/inbox', count: unread },
     { label: 'Search', icon: 'search', href: '/search', active: pathname === '/search', count: 0 },
     { label: 'You', icon: 'user', href: '/you', active: pathname === '/you', count: 0 },

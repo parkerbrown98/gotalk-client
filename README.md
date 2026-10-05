@@ -19,7 +19,8 @@ the client discovers it via `/.well-known/gotalk-instance` and `GET /api/v1/inst
 | `packages/tokens` | Design tokens from [DESIGN.md](DESIGN.md) (colors, spacing, radii, Inter type scale, breakpoints) → one typed dark theme and `dist/tokens.css` (`--gt-*` CSS variables for non-React surfaces such as server-rendered pages) |
 | `packages/ui` | `ThemeProvider`/`useTheme` and primitives (`Text`, `Button`, `TextField`, `Card`, `Stack`, `Screen`, `Badge`) built on React Native |
 | `packages/api-client` | Typed REST client generated from the server's OpenAPI document (`openapi-typescript` + `openapi-fetch`) |
-| `packages/core` | Framework-agnostic client logic: instance discovery, API compatibility checks, saved-instance store |
+| `packages/core` | Framework-agnostic client logic: instance discovery, API compatibility checks, saved-instance store, auth, Markdown, chat helpers |
+| `packages/gateway` | Framework-agnostic WebSocket client for the real-time gateway: identify, heartbeats, reconnects, close codes, catch-up after a gap |
 | `apps/app` | Expo Router app (mobile + web) |
 | `apps/desktop` | Tauri shell |
 | `docs/mockups` | Static HTML mockups of each flow for web, desktop and phone, built from the tokens (see the [design process](docs/client-plan.md#design-process)). Open `docs/mockups/index.html` after `pnpm build` |
@@ -47,7 +48,7 @@ Instances must allow the client's origin in `server.cors_allowed_origins` (the d
 | Command | Purpose |
 |---|---|
 | `pnpm typecheck` | Type-check every package |
-| `pnpm test` | Unit tests (Vitest). Set `GOTALK_TEST_INSTANCE=localhost:18080` to also run discovery against a live server |
+| `pnpm test` | Unit tests (Vitest). Set `GOTALK_TEST_INSTANCE=localhost:18080` to also run discovery and the gateway against a live server |
 | `pnpm build` | Web export to `apps/app/dist` and `packages/tokens/dist/tokens.css` |
 | `pnpm desktop:build` | Desktop installers (runs the web export first) |
 | `pnpm api:sync` | Refresh `packages/api-client/openapi.json` from a running instance and regenerate types (`GOTALK_OPENAPI_URL` overrides the default `http://localhost:18080/api/v1/openapi.json`) |
@@ -101,6 +102,23 @@ paging because that is what the API provides. Post text goes through `parseMarkd
 (`marked` lexer, converted to a closed tree) and the `Markdown` component renders that tree, so raw HTML
 is shown as text and only http(s) and mailto links open. Drafts are stored on the server under
 `topic:<board id>` and `reply:<topic id>[:<post id>]` and are removed once the post is sent.
+
+## Real-time and chat
+
+`@gotalk/gateway` keeps one WebSocket per active instance. It identifies with the session's current
+access token, heartbeats at the server's interval, and reconnects with jittered backoff (at once on
+`4007`; it stops on `4010`, when the session ended). The server cannot resume a session, so after a
+reconnect `apps/app/src/lib/realtime.ts` asks every loaded channel for `GET …/messages?after=<last id>`
+and refreshes the lists that summarize them. Events write straight into the TanStack Query caches that
+the screens read, so there is one source of truth whether data came from a request or the gateway.
+
+Chat lives in `(app)/places/[slug]/channels/[id]` (threads open beside it on wide screens and as
+`threads/[thread]` on phones) and `(app)/messages`. Sends are optimistic: each carries a nonce the server
+echoes, so the response and the `MESSAGE_CREATE` event settle the same pending message. Sends made while
+offline wait for the connection; refused ones offer Retry and Delete. Message actions appear on hover on
+wide screens with a hovering pointer and on a long press elsewhere. Presence (online, idle, do not
+disturb, invisible) is chosen from the account row or the You tab, remembered per instance on the device,
+and sent when connecting.
 
 ## Desktop notes
 

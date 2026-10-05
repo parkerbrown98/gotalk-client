@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Chat: message actions, pins and presence · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+<style>
+  .feed { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 16px 0 8px; }
+  .msg { display: grid; grid-template-columns: 36px 1fr; gap: 12px; padding: 4px 20px; position: relative; }
+  .msg.hl { background: var(--gt-color-surface); }
+  .msg.cont { padding-top: 0; padding-bottom: 0; }
+  .msg .gutter { width: 36px; font-size: 11px; color: var(--gt-color-ash); text-align: right; padding-top: 4px; }
+  .msg .meta { display: flex; gap: 8px; align-items: baseline; }
+  .msg .text { font-size: var(--gt-type-body-md-size); line-height: var(--gt-type-body-md-line-height); color: var(--gt-color-body); max-width: 70ch; }
+  .phone .msg .text { font-size: var(--gt-type-body-sm-size); line-height: var(--gt-type-body-sm-line-height); }
+  .msg .edited { font-size: 12px; color: var(--gt-color-ash); }
+  .chip { display: inline-flex; gap: 6px; align-items: center; height: 24px; padding: 0 8px; border-radius: var(--gt-radius-full); border: 1px solid var(--gt-color-hairline); font-size: 13px; color: var(--gt-color-body); margin-top: 4px; margin-right: 4px; }
+  .chip.on { background: var(--gt-color-surface-elevated); border-color: var(--gt-color-hairline-strong); color: var(--gt-color-on-dark); }
+  .actions { position: absolute; right: 20px; top: -14px; display: flex; gap: 2px; padding: 2px; background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline-strong); border-radius: var(--gt-radius-md); }
+  .actions span { width: 28px; height: 28px; display: grid; place-items: center; border-radius: var(--gt-radius-sm); color: var(--gt-color-body); }
+  .actions span.on { background: var(--gt-color-surface-card); color: var(--gt-color-on-dark); }
+  .actions svg { width: 16px; height: 16px; }
+  .menu { position: absolute; width: 220px; padding: 6px; background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline-strong); border-radius: var(--gt-radius-lg); display: flex; flex-direction: column; gap: 2px; z-index: 2; }
+  .menu .row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: var(--gt-radius-sm); font-size: 14px; color: var(--gt-color-on-dark); }
+  .menu .row svg { width: 16px; height: 16px; color: var(--gt-color-mute); }
+  .menu .row.on { background: var(--gt-color-surface-card); }
+  .menu .row.danger, .menu .row.danger svg { color: var(--gt-color-accent-red); }
+  .menu .sep { height: 1px; background: var(--gt-color-hairline); margin: 4px 0; }
+  .menu .row .sub { margin-left: auto; font-size: 12px; color: var(--gt-color-mute); }
+  .composer { padding: 0 20px 16px; }
+  .composer .box { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 8px 6px 12px; border-radius: var(--gt-radius-md); background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline); }
+  .composer .box svg { width: 18px; height: 18px; color: var(--gt-color-mute); flex: none; }
+  .editbox { margin-top: 4px; padding: 8px 12px; border-radius: var(--gt-radius-md); background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline-strong); font-size: 15px; line-height: 1.5; color: var(--gt-color-on-dark); }
+  .side-panel { width: 380px; flex: none; border-left: 1px solid var(--gt-color-hairline); background: var(--gt-color-surface); display: flex; flex-direction: column; }
+  .pin-card { margin: 0 12px 8px; padding: 12px; border-radius: var(--gt-radius-md); border: 1px solid var(--gt-color-hairline); background: var(--gt-color-canvas); display: flex; flex-direction: column; gap: 6px; }
+  .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--gt-color-surface-elevated); border-top: 1px solid var(--gt-color-hairline-strong); border-radius: var(--gt-radius-xl) var(--gt-radius-xl) 0 0; padding: 24px 16px 32px; display: flex; flex-direction: column; gap: 16px; }
+  .grab { width: 36px; height: 4px; border-radius: 2px; background: var(--gt-color-stone); margin: -12px auto 0; }
+  .emoji-row { display: flex; justify-content: space-between; }
+  .emoji-row span { width: 44px; height: 44px; display: grid; place-items: center; border-radius: var(--gt-radius-full); background: var(--gt-color-surface-card); font-size: 20px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .dot.online { background: var(--gt-color-accent-green); }
+  .dot.idle { background: var(--gt-color-accent-yellow); }
+  .dot.dnd { background: var(--gt-color-accent-red); }
+  .dot.invisible { border: 2px solid var(--gt-color-stone); }
+  .avatar .presence.dnd { background: var(--gt-color-accent-red); }
+  .quote-box { padding: 10px 12px; border-radius: var(--gt-radius-md); background: var(--gt-color-surface); border: 1px solid var(--gt-color-hairline); }
+  .tochip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 4px 0 8px; border-radius: var(--gt-radius-full); background: var(--gt-color-surface-card); font-size: 13px; color: var(--gt-color-on-dark); }
+  .tochip svg { width: 12px; height: 12px; color: var(--gt-color-mute); }
+  .seen { font-size: 12px; color: var(--gt-color-ash); padding: 0 20px 0 68px; }
+</style>
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Phase 4 · Real-time chat</nav>
+    <h1 class="t-display-lg">Chat: message actions, pins and presence</h1>
+    <p>What happens to a single message: actions on hover (a long press on phones), editing in place, deleting with a reason for moderators, and pins in a side panel. Conversations get their own rail entry, and everyone can choose how present they look.</p>
+  </header>
+
+  <section class="group">
+    <h2>Desktop</h2>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile s36" style="width:48px;height:48px"><svg class="i lg mute"><use href="#forum"/></svg></div><div class="tile yellow place active">O</div><div class="tile blue place">H</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <aside class="sidebar"><div class="head"><span class="t-body-strong">Open Woodworkers</span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+              <div class="items"><div class="section-label">Chat</div><a class="nav-row active" href="#"><svg><use href="#hash"/></svg>bench-talk</a><a class="nav-row" href="#"><svg><use href="#hash"/></svg>buy-sell-swap</a><a class="nav-row unread" href="#"><svg><use href="#hash"/></svg>help-wanted<span class="meta"><span class="count">1</span></span></a></div></aside>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#hash"/></svg><span class="t-body-strong">bench-talk</span><span style="margin-left:auto" class="flex center gap-md mute"><svg class="i"><use href="#pin"/></svg><svg class="i"><use href="#users"/></svg></span></div>
+              <div class="feed">
+                <div class="msg"><span class="avatar green">JP</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:12</span></div><div class="text">Anyone up for open shop tomorrow?</div></div></div>
+                <div class="msg hl" style="margin-top:20px"><span class="avatar blue">MK</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Marta K.</span><span class="t-caption-md ash">10:14</span></div><div class="text">I'll bring the cherry offcuts. <span class="edited">(edited)</span></div><div><span class="chip on">👍 3</span></div></div>
+                  <div class="actions"><span>😄</span><span><svg><use href="#reply"/></svg></span><span><svg><use href="#thread"/></svg></span><span class="on"><svg><use href="#more"/></svg></span></div>
+                  <div class="menu" style="right:20px;bottom:44px">
+                    <div class="row"><svg><use href="#reply"/></svg>Reply</div>
+                    <div class="row"><svg><use href="#thread"/></svg>Start a thread</div>
+                    <div class="row on"><svg><use href="#pin"/></svg>Pin message</div>
+                    <div class="row"><svg><use href="#copy"/></svg>Copy text</div>
+                    <div class="sep"></div>
+                    <div class="row"><svg><use href="#edit"/></svg>Edit message</div>
+                    <div class="row"><svg><use href="#clock"/></svg>Edit history</div>
+                    <div class="row danger"><svg><use href="#trash"/></svg>Delete message</div>
+                  </div>
+                </div>
+                <div class="msg" style="margin-top:8px"><span class="avatar red">AL</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md ash">10:21</span></div><div class="text">Doors at 9.</div></div></div>
+              </div>
+              <div class="composer"><div class="box"><span class="grow t-body-md ash">Message #bench-talk</span><svg><use href="#smile"/></svg></div></div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Message actions. Hovering a message lifts it one surface step and shows react, reply, thread and more. The menu only lists what the viewer may do: authors edit, Manage messages pins and deletes anyone’s. The first rail tile opens direct messages.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile s36" style="width:48px;height:48px"><svg class="i lg mute"><use href="#forum"/></svg></div><div class="tile yellow place active">O</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#hash"/></svg><span class="t-body-strong">bench-talk</span></div>
+              <div class="feed">
+                <div class="msg"><span class="avatar green">JP</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:12</span></div><div class="text">Anyone up for open shop tomorrow?</div></div></div>
+                <div class="msg hl" style="margin-top:8px"><span class="avatar blue">MK</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Marta K.</span><span class="t-caption-md ash">10:14</span></div>
+                  <div class="editbox">I'll bring the cherry offcuts, and some walnut.</div>
+                  <div class="flex between center" style="margin-top:6px"><span class="t-caption-md mute">Escape to cancel · Enter to save</span><span class="flex gap-sm"><button class="btn btn-tertiary small">Cancel</button><button class="btn btn-primary small">Save</button></span></div>
+                </div></div>
+              </div>
+              <div class="composer"><div class="box"><span class="grow t-body-md ash">Message #bench-talk</span><svg><use href="#smile"/></svg></div></div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Editing happens in place. The earlier text is kept in the edit history for the author and moderators.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <div class="main"><div class="topbar"><svg class="i mute"><use href="#hash"/></svg><span class="t-body-strong">bench-talk</span></div></div>
+            <div class="scrim">
+              <div class="card dialog" style="width:480px;background:var(--gt-color-surface-elevated);border-color:var(--gt-color-hairline-strong);border-radius:var(--gt-radius-xl)">
+                <h2 class="t-heading-md">Delete this message?</h2>
+                <div class="quote-box"><div class="flex gap-sm center"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:12</span></div><span class="t-body-sm">Selling my old #4, DM me. Cash only.</span></div>
+                <div class="field"><label>Reason</label><div class="input"><span class="ph">Tell Jonas why (optional)</span></div><span class="note">Jonas is told the message was removed and why. The deletion is recorded in the audit log.</span></div>
+                <div class="flex gap-sm" style="justify-content:flex-end"><button class="btn btn-tertiary">Keep</button><button class="btn btn-danger">Delete message</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Deleting someone else’s message (Manage messages). Deleting your own skips the reason.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#hash"/></svg><span class="t-body-strong">bench-talk</span><span style="margin-left:auto" class="flex center gap-md"><svg class="i on-dark"><use href="#pin"/></svg><svg class="i mute"><use href="#users"/></svg></span></div>
+              <div class="viewport" style="flex:1;min-height:0">
+                <div class="col grow" style="min-width:0">
+                  <div class="feed">
+                    <div class="msg"><span class="avatar red">AL</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md ash">10:52</span></div><div class="text">@Marta did you want the cherry in 4/4?</div></div></div>
+                  </div>
+                  <div class="composer"><div class="box"><span class="grow t-body-md ash">Message #bench-talk</span></div></div>
+                </div>
+                <aside class="side-panel">
+                  <div class="flex between center hairline-b" style="height:52px;padding:0 16px"><span class="t-body-strong">Pinned messages</span><svg class="i mute"><use href="#x"/></svg></div>
+                  <div class="col" style="padding-top:12px">
+                    <div class="pin-card"><div class="flex gap-sm center"><span class="avatar s24 red">AL</span><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md ash">Sep 12</span></div><span class="t-body-sm">Open shop is Sundays, doors at 9. Bring your own PPE.</span><span class="flex gap-md t-caption-md"><a href="#" style="text-decoration:underline">Jump</a><a href="#" class="mute" style="text-decoration:underline">Unpin</a></span></div>
+                    <div class="pin-card"><div class="flex gap-sm center"><span class="avatar s24 green">JP</span><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">Aug 30</span></div><span class="t-body-sm">Planer blades were replaced on the 28th. Log any nicks in #help-wanted.</span><span class="flex gap-md t-caption-md"><a href="#" style="text-decoration:underline">Jump</a><a href="#" class="mute" style="text-decoration:underline">Unpin</a></span></div>
+                    <span class="t-caption-md mute" style="padding:4px 16px">2 of up to 50 pins</span>
+                  </div>
+                </aside>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Pinned messages open in the side panel, like a thread. Unpin shows for Manage messages, and for everyone in direct messages.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="place active" style="position:relative"><div class="tile" style="background:var(--gt-color-surface-elevated)"><svg class="i lg on-dark"><use href="#forum"/></svg></div></div><div class="tile yellow place">O</div><div class="tile blue place">H</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <aside class="sidebar"><div class="head"><span class="t-body-strong">Direct messages</span><svg class="i mute"><use href="#plus"/></svg></div>
+              <div class="items">
+                <a class="nav-row unread" href="#"><span class="avatar s24 green">JP<span class="presence idle"></span></span>Jonas P.<span class="meta"><span class="count">2</span></span></a>
+                <a class="nav-row active" href="#"><span class="avatar s24 red">AL<span class="presence"></span></span>Ana L.</a>
+                <a class="nav-row" href="#"><span class="avatar s24" style="font-size:11px">3</span>Ana, Tomas, Jonas</a>
+                <a class="nav-row" href="#"><span class="avatar s24 yellow">TW<span class="presence off"></span></span>Tomas W.</a>
+              </div>
+              <div class="foot" style="position:relative">
+                <div class="menu" style="bottom:56px;left:8px;width:232px">
+                  <div class="row on"><span class="dot online"></span>Online<svg class="i" style="margin-left:auto;color:var(--gt-color-on-dark)"><use href="#check"/></svg></div>
+                  <div class="row"><span class="dot idle"></span>Idle</div>
+                  <div class="row"><span class="dot dnd"></span><span class="col"><span>Do not disturb</span></span></div>
+                  <div class="row"><span class="dot invisible"></span><span class="col"><span>Invisible</span><span class="t-caption-md mute">You appear offline</span></span></div>
+                  <div class="sep"></div>
+                  <div class="row"><svg><use href="#settings"/></svg>Account settings</div>
+                </div>
+                <div class="nav-row"><span class="avatar s32 blue">MK<span class="presence"></span></span><span class="col grow"><span class="t-body-sm-strong">Marta K.</span><span class="t-caption-md mute">Online</span></span><svg><use href="#chevronDown"/></svg></div>
+              </div>
+            </aside>
+            <div class="main">
+              <div class="topbar"><span class="avatar s24 red">AL<span class="presence"></span></span><span class="t-body-strong">Ana L.</span><span class="t-caption-md mute">Online</span><span style="margin-left:auto" class="flex center gap-md mute"><svg class="i"><use href="#pin"/></svg></span></div>
+              <div class="feed">
+                <div class="msg"><span class="avatar red">AL</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md ash">Yesterday 18:02</span></div><div class="text">Thanks, I'll add it to the pinned topic.</div></div></div>
+                <div class="msg" style="margin-top:8px"><span class="avatar blue">MK</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Marta K.</span><span class="t-caption-md ash">09:40</span></div><div class="text">Did the glue-up hold?</div></div></div>
+                <div class="seen">Seen</div>
+              </div>
+              <div class="composer"><div class="box"><span class="grow t-body-md ash">Message Ana L.</span><svg><use href="#smile"/></svg></div></div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Direct messages from the rail’s first tile, with presence on every avatar and “Seen” under your last message once they read it. The account row opens the presence picker; the choice is remembered on this device and sent when it connects.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="place active" style="position:relative"><div class="tile" style="background:var(--gt-color-surface-elevated)"><svg class="i lg on-dark"><use href="#forum"/></svg></div></div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <div class="main"><div class="topbar"><span class="t-body-strong">Direct messages</span></div></div>
+            <div class="scrim">
+              <div class="card dialog" style="width:480px;background:var(--gt-color-surface-elevated);border-color:var(--gt-color-hairline-strong);border-radius:var(--gt-radius-xl)">
+                <h2 class="t-heading-md">New message</h2>
+                <div class="field"><label>To</label><div class="input focus" style="height:auto;min-height:40px;flex-wrap:wrap"><span class="tochip">Ana L.<svg><use href="#x"/></svg></span><span>tom</span></div><span class="note">People you share a place with. Add up to 9 for a group.</span></div>
+                <div class="card flush" style="background:var(--gt-color-surface)">
+                  <div class="list-row"><span class="avatar s32 yellow">TW<span class="presence off"></span></span><span class="col grow"><span class="t-body-sm-strong">Tomas W.</span><span class="t-caption-md mute">@tomas.w · Open Woodworkers</span></span></div>
+                  <div class="list-row"><span class="avatar s32">TB</span><span class="col grow"><span class="t-body-sm-strong">Tom Baker</span><span class="t-caption-md mute">@tbaker · Hand Tool Club</span></span></div>
+                </div>
+                <div class="flex gap-sm" style="justify-content:flex-end"><button class="btn btn-tertiary">Cancel</button><button class="btn btn-primary">Start conversation</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>New message. One person opens your existing conversation with them; several start a group.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Phone</h2>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">bench-talk</span><span class="side end on-dark"><svg class="i"><use href="#pin"/></svg></span></div>
+          <div class="feed" style="padding-top:8px">
+            <div class="msg" style="padding:4px 16px"><span class="avatar s32 green">JP</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:12</span></div><div class="text">Anyone up for open shop tomorrow?</div></div></div>
+            <div class="msg hl" style="padding:4px 16px;margin-top:6px"><span class="avatar s32 blue">MK</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Marta K.</span><span class="t-caption-md ash">10:14</span></div><div class="text">I'll bring the cherry offcuts.</div></div></div>
+          </div>
+          <div class="scrim" style="align-items:flex-end"></div>
+          <div class="sheet" style="gap:8px">
+            <div class="grab"></div>
+            <div class="emoji-row" style="padding:8px 0"><span>👍</span><span>❤️</span><span>🎉</span><span>😄</span><span>👀</span><span><svg class="i mute"><use href="#smile"/></svg></span></div>
+            <div class="card flush" style="background:var(--gt-color-surface)">
+              <div class="list-row"><svg class="i mute"><use href="#reply"/></svg><span class="t-body-sm-strong">Reply</span></div>
+              <div class="list-row"><svg class="i mute"><use href="#thread"/></svg><span class="t-body-sm-strong">Start a thread</span></div>
+              <div class="list-row"><svg class="i mute"><use href="#pin"/></svg><span class="t-body-sm-strong">Pin message</span></div>
+              <div class="list-row"><svg class="i mute"><use href="#copy"/></svg><span class="t-body-sm-strong">Copy text</span></div>
+              <div class="list-row"><svg class="i mute"><use href="#edit"/></svg><span class="t-body-sm-strong">Edit message</span></div>
+              <div class="list-row"><svg class="i danger"><use href="#trash"/></svg><span class="t-body-sm-strong danger">Delete message</span></div>
+            </div>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>A long press opens the same actions as a sheet, with quick reactions on top.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Pinned messages</span><span class="side"></span></div>
+          <div class="body flush" style="padding-top:12px">
+            <div class="pin-card"><div class="flex gap-sm center"><span class="avatar s24 red">AL</span><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md ash">Sep 12</span></div><span class="t-body-sm">Open shop is Sundays, doors at 9. Bring your own PPE.</span><span class="flex gap-md t-caption-md"><a href="#" style="text-decoration:underline">Jump</a><a href="#" class="mute" style="text-decoration:underline">Unpin</a></span></div>
+            <div class="pin-card"><div class="flex gap-sm center"><span class="avatar s24 green">JP</span><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">Aug 30</span></div><span class="t-body-sm">Planer blades were replaced on the 28th.</span><span class="flex gap-md t-caption-md"><a href="#" style="text-decoration:underline">Jump</a></span></div>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Pins on phones are their own screen.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side"></span><span class="t-body-sm-strong">You</span><span class="side"></span></div>
+          <div class="body">
+            <div class="flex gap-md center"><span class="avatar blue" style="width:56px;height:56px;font-size:20px">MK<span class="presence dnd" style="width:14px;height:14px"></span></span><span class="col"><span class="t-heading-sm">Marta K.</span><span class="t-body-sm mute">@marta.k · Do not disturb</span></span></div>
+          </div>
+          <div class="tabbar"><a href="#"><svg><use href="#home"/></svg>Places</a><a href="#"><svg><use href="#forum"/></svg>Messages</a><a href="#"><svg><use href="#bell"/></svg>Inbox</a><a href="#"><svg><use href="#search"/></svg>Search</a><a class="active" href="#"><svg><use href="#user"/></svg>You</a></div>
+          <div class="scrim" style="align-items:flex-end"></div>
+          <div class="sheet">
+            <div class="grab"></div>
+            <h2 class="t-heading-md">Status</h2>
+            <div class="card flush" style="background:var(--gt-color-surface)">
+              <div class="list-row"><span class="dot online"></span><span class="t-body-sm-strong grow">Online</span></div>
+              <div class="list-row"><span class="dot idle"></span><span class="t-body-sm-strong grow">Idle</span></div>
+              <div class="list-row" style="background:var(--gt-color-surface-card)"><span class="dot dnd"></span><span class="t-body-sm-strong grow">Do not disturb</span><svg class="i on-dark"><use href="#check"/></svg></div>
+              <div class="list-row"><span class="dot invisible"></span><span class="col grow"><span class="t-body-sm-strong">Invisible</span><span class="t-caption-md mute">You appear offline</span></span></div>
+            </div>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>The presence picker opens from the avatar on the You tab. The tab bar gains Messages next to Inbox.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Thread</span><span class="side"></span></div>
+          <div class="feed" style="justify-content:flex-start;padding-top:12px">
+            <div class="msg" style="padding:4px 16px"><span class="avatar s32 green">JP</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:23</span></div><div class="text">Doors at 9. Coffee is on me.</div></div></div>
+            <div class="daydiv flex center gap-md" style="padding:8px 16px;font-size:13px;color:var(--gt-color-mute)"><span>3 replies</span><i style="flex:1;height:1px;background:var(--gt-color-hairline)"></i></div>
+            <div class="msg" style="padding:4px 16px"><span class="avatar s32 yellow">TW</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Tomas W.</span><span class="t-caption-md ash">10:28</span></div><div class="text">Decaf for me, please.</div></div></div>
+            <div class="msg" style="padding:4px 16px;margin-top:6px"><span class="avatar s32 red">AL</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Ana L.</span><span class="t-caption-md ash">10:31</span></div><div class="text">I'll bring the oat milk.</div></div></div>
+          </div>
+          <div class="composer" style="padding:0 12px 28px"><div class="box"><span class="grow t-body-md ash">Reply in thread</span></div></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Threads on phones are a full screen with the starting message on top.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>

@@ -120,6 +120,14 @@ export function useBoardAccess(board: Board | undefined): { can: (...names: Perm
   return { can };
 }
 
+/** What the user may do in a channel, thread or conversation; channel overwrites apply. */
+export function useChannelAccess(channel: Channel | undefined): { can: (...names: PermissionName[]) => boolean } {
+  const table = usePermissionTable();
+  const bits = channel?.my_permissions;
+  const can = useCallback((...names: PermissionName[]) => hasPermission(bits, names, table), [bits, table]);
+  return { can };
+}
+
 export interface PlaceInput {
   name: string;
   slug: string;

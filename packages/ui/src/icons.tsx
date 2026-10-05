@@ -40,6 +40,10 @@ const shapes = {
   pin: ['m14 4 6 6-3 1-3.5 3.5.5 4.5-9-9 4.5.5L13 7l1-3ZM5 19l4-4'],
   eye: ['M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z', { circle: [12, 12, 3] }],
   at: [{ circle: [12, 12, 4] }, 'M16 12v1.5a2.5 2.5 0 0 0 5 0V12a9 9 0 1 0-3.5 7.1'],
+  edit: ['M4 20h4L19 9l-4-4L4 16v4Z', 'm13.5 6.5 4 4'],
+  copy: [{ rect: [8, 8, 12, 12, 2] }, 'M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2'],
+  wifi: ['M2.5 9a14 14 0 0 1 19 0M5.5 12.5a10 10 0 0 1 13 0M8.5 16a6 6 0 0 1 7 0M12 19.5v.01'],
+  command: ['M9 9h6v6H9V9ZM9 9V6.5A2.5 2.5 0 1 0 6.5 9H9ZM15 9V6.5A2.5 2.5 0 1 1 17.5 9H15ZM9 15v2.5A2.5 2.5 0 1 1 6.5 15H9ZM15 15v2.5a2.5 2.5 0 1 0 2.5-2.5H15Z'],
 } as const satisfies Record<string, readonly Shape[]>;
 
 export type IconName = keyof typeof shapes;

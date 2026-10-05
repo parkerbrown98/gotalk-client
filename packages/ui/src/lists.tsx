@@ -37,6 +37,8 @@ export interface ListRowProps {
   title: string;
   subtitle?: string;
   icon?: IconName;
+  /** Drawn instead of the icon, e.g. an avatar or a status dot. */
+  leading?: ReactNode;
   /** Rendered at the right edge, before the chevron. */
   trailing?: ReactNode;
   tone?: Extract<TextTone, 'default' | 'danger'>;
@@ -45,12 +47,12 @@ export interface ListRowProps {
   chevron?: boolean;
 }
 
-export function ListRow({ title, subtitle, icon, trailing, tone = 'default', onPress, chevron }: ListRowProps) {
+export function ListRow({ title, subtitle, icon, leading, trailing, tone = 'default', onPress, chevron }: ListRowProps) {
   const theme = useTheme();
   const c = theme.colors;
   const body = (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space.md, paddingHorizontal: theme.space.lg, paddingVertical: theme.space.md }}>
-      {icon ? <Icon name={icon} size={16} color={tone === 'danger' ? c.accentRed : c.mute} /> : null}
+      {leading ?? (icon ? <Icon name={icon} size={16} color={tone === 'danger' ? c.accentRed : c.mute} /> : null)}
       <View style={{ flex: 1 }}>
         <Text variant="bodySmStrong" tone={tone === 'danger' ? 'danger' : 'onDark'}>
           {title}
@@ -73,13 +75,29 @@ export function ListRow({ title, subtitle, icon, trailing, tone = 'default', onP
   );
 }
 
+export interface NavRowProps {
+  label: string;
+  icon?: IconName;
+  /** Drawn instead of the icon, e.g. an avatar. */
+  leading?: ReactNode;
+  active?: boolean;
+  /** New activity: the label turns bright and medium weight. */
+  unread?: boolean;
+  /** A white count at the end of the row (mentions, unread direct messages). */
+  count?: number;
+  accessibilityLabel?: string;
+  onPress: () => void;
+}
+
 /** Sidebar row: command-palette-row in DESIGN.md. */
-export function NavRow({ label, icon, active, onPress }: { label: string; icon?: IconName; active?: boolean; onPress: () => void }) {
+export function NavRow({ label, icon, leading, active, unread, count = 0, accessibilityLabel, onPress }: NavRowProps) {
   const theme = useTheme();
   const c = theme.colors;
+  const bright = active || unread;
   return (
     <Pressable
       accessibilityRole="link"
+      accessibilityLabel={accessibilityLabel ?? (count > 0 ? `${label}, ${count} unread` : unread ? `${label}, unread` : label)}
       accessibilityState={{ selected: !!active }}
       onPress={onPress}
       style={({ pressed }) => ({
@@ -92,10 +110,17 @@ export function NavRow({ label, icon, active, onPress }: { label: string; icon?:
         backgroundColor: active || pressed ? c.surfaceCard : 'transparent',
       })}
     >
-      {icon ? <Icon name={icon} size={16} color={active ? c.onDark : c.mute} /> : null}
-      <Text variant="bodySm" tone={active ? 'onDark' : 'default'}>
+      {leading ?? (icon ? <Icon name={icon} size={16} color={bright ? c.onDark : c.mute} /> : null)}
+      <Text variant="bodySm" tone={bright ? 'onDark' : 'default'} numberOfLines={1} style={[{ flex: 1 }, unread ? { fontFamily: theme.fontFaces['500'] } : null]}>
         {label}
       </Text>
+      {count > 0 ? (
+        <View style={{ minWidth: 20, height: 20, paddingHorizontal: 6, borderRadius: 10, backgroundColor: c.primary, alignItems: 'center', justifyContent: 'center' }}>
+          <Text variant="captionSm" tone="inverse" style={{ fontFamily: theme.fontFaces['500'], lineHeight: 16 }}>
+            {count > 99 ? '99+' : count}
+          </Text>
+        </View>
+      ) : null}
     </Pressable>
   );
 }

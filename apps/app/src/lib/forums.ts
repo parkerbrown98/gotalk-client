@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useApiClient } from './api';
 import { useSession } from './auth';
+import { useGatewayReady } from './connection';
 import { useActiveInstance } from './instances';
 
 export type Topic = Schemas['Topic'];
@@ -182,16 +183,17 @@ export function useNotifications(unreadOnly: boolean) {
   return { ...query, items };
 }
 
-/** Unread notifications; polled until the gateway pushes them (Phase 4). */
+/** Unread notifications. The gateway pushes new ones; polling covers the time it is down. */
 export function useUnreadCount() {
   const active = useActiveInstance();
   const session = useSession();
   const client = useApiClient();
+  const live = useGatewayReady();
   return useQuery({
     queryKey: ['notifications-unread', active?.id],
     enabled: !!client && !!session,
-    refetchInterval: 60_000,
-    refetchOnWindowFocus: true,
+    refetchInterval: live ? false : 60_000,
+    refetchOnWindowFocus: !live,
     queryFn: async () => unwrap(await client!.GET('/users/@me/notifications/unread-count')).count,
   });
 }

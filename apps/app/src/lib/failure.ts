@@ -19,6 +19,15 @@ export function classifyFailure(e: unknown): FailureKind {
   return { kind: 'unknown' };
 }
 
+/** One sentence for a failed action, falling back to `fallback` when there is nothing more specific. */
+export function failureMessage(e: unknown, fallback: string): string {
+  const f = classifyFailure(e);
+  if (f.kind === 'rejected') return f.message;
+  if (f.kind === 'network') return 'Could not reach the instance. Check your connection and try again.';
+  if (f.kind === 'rate_limited') return `Slow down a little. Try again in ${f.retryAfter} seconds.`;
+  return fallback;
+}
+
 /** Which form field a server message is about, when the server did not say. */
 export function fieldFor(message: string): 'invite_code' | 'username' | 'email' | 'password' | undefined {
   if (/invite/i.test(message)) return 'invite_code';

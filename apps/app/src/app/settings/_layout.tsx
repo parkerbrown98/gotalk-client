@@ -2,7 +2,7 @@ import { NavRow, Text, useTheme } from '@gotalk/ui';
 import { Redirect, Stack, router, usePathname } from 'expo-router';
 import { View } from 'react-native';
 
-import { authManager, useAuthTarget, useSession } from '@/lib/auth';
+import { signOut, useAuthTarget, useSession } from '@/lib/auth';
 import { useActiveInstance } from '@/lib/instances';
 import { useWide } from '@/lib/layout';
 
@@ -40,7 +40,7 @@ function SettingsNav() {
         <NavRow key={p.path} label={p.label} icon={p.icon} active={pathname === p.path} onPress={() => router.replace(p.path)} />
       ))}
       <View style={{ marginTop: 'auto', borderTopWidth: 1, borderTopColor: theme.colors.hairline, paddingTop: theme.space.sm }}>
-        <NavRow label="Sign out" icon="logout" onPress={() => target && void authManager.signOut(target)} />
+        <NavRow label="Sign out" icon="logout" onPress={() => target && void signOut(target)} />
       </View>
     </View>
   );

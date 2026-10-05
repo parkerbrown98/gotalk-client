@@ -1,13 +1,16 @@
-import { Avatar, Button, Card, Stack, Text } from '@gotalk/ui';
+import { Button, Card, Stack, Text } from '@gotalk/ui';
 import { router } from 'expo-router';
-import { ActivityIndicator } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Pressable } from 'react-native';
 
 import { InstanceIcon, InstanceSummary } from '@/components/instance-summary';
+import { PresenceAvatar, PresenceSheet, presenceLabels } from '@/components/presence';
 import { ScreenFrame } from '@/components/screen-frame';
 import { useInstanceInfo, useMe } from '@/lib/api';
 import { forgetInstance, useSession } from '@/lib/auth';
 import { instancesStore, useActiveInstance, useInstances } from '@/lib/instances';
 import { resetTo } from '@/lib/layout';
+import { useMyStatus } from '@/lib/realtime';
 
 /** The signed-in account and the instances saved on this device. */
 export default function You() {
@@ -17,18 +20,23 @@ export default function You() {
   const others = instances.filter((i) => i.id !== active?.id);
   const info = useInstanceInfo();
   const me = useMe().data;
+  const status = useMyStatus();
+  const [picking, setPicking] = useState(false);
   if (!active || !session) return null;
+  const name = me?.display_name ?? session.displayName;
 
   return (
     <ScreenFrame title="You">
       <Stack gap="xl">
         <Card>
           <Stack direction="row" gap="md" align="center">
-            <Avatar name={me?.display_name ?? session.displayName} uri={me?.avatar_url ?? session.avatarUrl} size={48} />
+            <Pressable accessibilityRole="button" accessibilityLabel={`Status: ${presenceLabels[status]}. Change`} onPress={() => setPicking(true)}>
+              <PresenceAvatar user={{ id: session.userId, display_name: name, avatar_url: me?.avatar_url ?? session.avatarUrl }} size={48} />
+            </Pressable>
             <Stack gap="none" style={{ flex: 1 }}>
-              <Text variant="headingSm">{me?.display_name ?? session.displayName}</Text>
-              <Text variant="captionMd" tone="muted">
-                @{session.username}
+              <Text variant="headingSm">{name}</Text>
+              <Text variant="captionMd" tone="muted" onPress={() => setPicking(true)}>
+                @{session.username} · {presenceLabels[status]}
               </Text>
             </Stack>
             <Button title="Account" variant="tertiary" onPress={() => router.push('/settings')} />
@@ -89,6 +97,7 @@ export default function You() {
           />
         </Stack>
       </Stack>
+      <PresenceSheet visible={picking} onClose={() => setPicking(false)} />
     </ScreenFrame>
   );
 }

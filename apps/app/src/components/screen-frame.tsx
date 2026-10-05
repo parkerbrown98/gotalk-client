@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useWide } from '@/lib/layout';
 
-function TitleBar({ title, onBack, end }: { title: string; onBack?: () => void; end?: ReactNode }) {
+export function TitleBar({ title, onBack, end }: { title: string; onBack?: () => void; end?: ReactNode }) {
   const theme = useTheme();
   return (
     <View

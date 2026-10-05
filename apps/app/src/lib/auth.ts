@@ -75,9 +75,29 @@ export function useAuthTarget() {
   return active ? { id: active.id, apiBaseUrl: active.apiBaseUrl } : null;
 }
 
+const beforeSignOut = new Set<(instanceId: string) => void>();
+
+/**
+ * Runs before this device ends a session on purpose. The gateway uses it to disconnect first, so the
+ * server closing the connection is not mistaken for the session being ended elsewhere.
+ */
+export function onBeforeSignOut(listener: (instanceId: string) => void): () => void {
+  beforeSignOut.add(listener);
+  return () => beforeSignOut.delete(listener);
+}
+
+export function prepareSignOut(instanceId: string): void {
+  for (const l of beforeSignOut) l(instanceId);
+}
+
+export async function signOut(target: { id: string; apiBaseUrl: string }): Promise<void> {
+  prepareSignOut(target.id);
+  await authManager.signOut(target);
+}
+
 /** Signs out (best effort on the server) and drops the instance from this device. */
 export async function forgetInstance(id: string): Promise<void> {
   const instance = instancesStore.getState().instances.find((i) => i.id === id);
-  if (instance) await authManager.signOut({ id: instance.id, apiBaseUrl: instance.apiBaseUrl });
+  if (instance) await signOut({ id: instance.id, apiBaseUrl: instance.apiBaseUrl });
   instancesStore.getState().removeInstance(id);
 }

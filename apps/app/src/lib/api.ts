@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import { authManager, useSession } from './auth';
+import { useGatewayReady } from './connection';
 import { useActiveInstance } from './instances';
 
 /** API client bound to the active instance. It sends the session's token and refreshes it as needed. */
@@ -25,19 +26,20 @@ export function useInstanceInfo() {
 }
 
 /**
- * The signed-in user. Polling is how a session revoked from another device is noticed until the
- * gateway arrives in Phase 4: the failing request signs this device out.
+ * The signed-in user. The gateway reports an ended session and profile changes; while it is down,
+ * polling is how a session revoked from another device is noticed (the failing request signs this device out).
  */
 export function useMe() {
   const active = useActiveInstance();
   const session = useSession();
   const client = useApiClient();
+  const live = useGatewayReady();
   return useQuery({
     queryKey: ['me', active?.id],
     enabled: !!client && !!session,
     queryFn: async () => unwrap(await client!.GET('/users/@me')),
-    refetchInterval: 60_000,
-    refetchOnWindowFocus: true,
+    refetchInterval: live ? false : 60_000,
+    refetchOnWindowFocus: !live,
   });
 }
 

@@ -13,7 +13,7 @@ against a complete API.
 | Desktop | Tauri v2 wrapping the web export | Small native binaries; shares the web build and its theme |
 | Themes | `@gotalk/tokens` (mirrors `DESIGN.md`, dark-only) → typed theme + CSS variables; `@gotalk/ui` primitives read `useTheme()` | One source of truth across every target, plus `tokens.css` for server-rendered pages |
 | API access | `openapi-typescript` + `openapi-fetch` generated from the server's OpenAPI 3.1 document | Types stay in lockstep with the server; `pnpm api:sync` refreshes them |
-| Server state | TanStack Query | Caching, refetching and optimistic updates; the gateway will write into the same cache |
+| Server state | TanStack Query | Caching, refetching and optimistic updates; gateway events write into the same per-query caches |
 | Client state | zustand (vanilla stores in `@gotalk/core`) | Framework-agnostic and works the same on every target |
 | Monorepo | pnpm workspaces + Turborepo | Isolated installs (supported by Expo SDK 54+), cached tasks |
 
@@ -128,8 +128,9 @@ Verified:
 
 Known gaps and decisions:
 
-- A session ended from another device is noticed on the next request, window focus, or the 60-second poll
-  of `GET /users/@me`, until the gateway (Phase 4) pushes it.
+- A session ended from another device is noticed at once through the gateway (close code `4010`, added in
+  Phase 4). While the gateway is down, the next request, window focus or the 60-second poll of
+  `GET /users/@me` still notices it.
 - The server records an IP address and user agent per session but no location, so devices show the
   former.
 - Sign-in has no "forgot password" flow because the backend has none yet.
@@ -222,8 +223,8 @@ Delivered:
 - **Search** (`places/[slug]/search`, phone Search tab): words, phrases and exclusions with author,
   tag, forum, answered state, dates, opening posts only and sort, paging, and highlighted snippets.
 - **Inbox:** replies, mentions, accepted answers, reactions and new topics with read and unread, mark
-  all read, dismiss, and links into the topic. An unread count shows on the rail bell and the phone tab,
-  polled every 60 seconds until the gateway arrives.
+  all read, dismiss, and links into the topic. An unread count shows on the rail bell and the phone tab;
+  since Phase 4 the gateway pushes new notifications and the 60-second poll only runs while it is down.
 - **Watch levels** (watching, normal, muted) for forums and topics.
 - **Tests:** Markdown (sanitizing, mentions, links, plain text), composer helpers (formatting,
   mention queries, validation, drafts), relative time and notification wording in `@gotalk/core`.
@@ -253,29 +254,109 @@ Known gaps and decisions:
 - A forum's edit history shows what each earlier version said; the API has no way to restore one.
 - WYSIWYG editing stays a later decision: Markdown input with live preview is what shipped.
 
-## Phase 4 — Real-time gateway & chat
+## Phase 4 — Real-time gateway & chat ✅
+
+Goal: channels, threads and direct messages that update live on every target, survive a dropped network,
+and show what is still on its way.
 
 Mockups: [Chat and direct messages](./mockups/07-chat.html) (channel feed, thread panel, direct messages,
-reconnecting and failed sends). Not yet mocked: message edit/delete, pinned messages, presence picker.
-Mock those before starting them.
+reconnecting and failed sends) and
+[Chat: message actions, pins and presence](./mockups/11-chat-more.html) (hover actions and the message
+menu, editing in place, deleting with a reason, pinned messages, direct messages on the rail, new message,
+presence picker, and the phone versions) are the reference for these screens.
 
-- **`packages/gateway`:** a framework-agnostic WebSocket client.
-  - Handles hello → identify → READY, heartbeats, and backoff reconnect.
-  - Follows the server's close codes, including `4007`: reconnect without resuming.
-  - Catches up through `GET …/messages?after=<last id>`, because the server has no resume.
-  - Uses the same token storage as Phase 1.
-- Gateway events write into the TanStack Query cache: messages, reactions, read state, presence,
-  membership, notifications.
-- Text channels:
-  - virtualized message list (FlashList or equivalent) with cursor history
-  - optimistic sends using the server's client nonces
-  - edits, deletes, pins, replies, and threads
-  - typing indicators and read state with mention counts
-- Direct and group messages, and presence (online/idle/dnd/invisible).
-- **Exit criteria:**
-  - two clients on different targets chat in real time
-  - after a network drop, the client reconnects and backfills without duplicates
-  - pending and failed sends look and behave like the offline mockup
+Delivered:
+
+- **Gateway** (`packages/gateway`, framework-agnostic):
+  - hello → identify (the current access token from the Phase 1 token storage, and the chosen presence)
+    → READY; heartbeats at the server's interval with a jittered first beat, and a missing ack treated as
+    a dead connection
+  - reconnects with jittered exponential backoff (1 s doubling to 30 s), at once on `4007` with a fresh
+    identify (there is nothing to resume), spread over 0.5–2.5 s after `1001`, and no sooner than 10 s
+    after `4008`
+  - `4010` stops it, and the app confirms the ended session with a request so Phase 1's "another device
+    ended this session" notice shows; `4004` asks the app whether the session is still valid first
+  - retries right away when the browser comes back online or the app returns to the foreground
+  - `catchUp` pages through `GET …/messages?after=<last id>`, 100 at a time; a gap longer than five pages
+    reloads the newest page instead
+- **Gateway → cache** (`apps/app/src/lib/realtime.ts`): one connection for the active instance, hosted at
+  the root so it outlives the settings screens, and stopped before an intentional sign-out so the server
+  closing it is not mistaken for a revocation. Events write into the TanStack Query caches: messages
+  (keeping the user's own reaction flags, which events lack), reactions (idempotent for the user's own
+  optimistic ones), typing, channels, conversation members, read state (`CHANNEL_READ` from other
+  sessions, `READ_RECEIPT`), notifications, presence, place membership, and READY's user. After a
+  reconnect every loaded channel catches up, the lists that summarize them refresh, and waiting sends go
+  out. The 60-second polls of `GET /users/@me` and the notification count only run while the gateway is
+  down.
+- **Text channels** (`places/[slug]/channels/[id]`):
+  - a FlashList feed anchored to the bottom that loads older pages upward by cursor, with day dividers,
+    an author's consecutive messages grouped, the white New marker where the read position was when the
+    channel opened, and the start of the channel once all history is loaded
+  - message actions on hover (wide screens with a pointer that hovers) and on a long press (phones, with
+    quick reactions): reply (quote that jumps to the original), threads (started from a message; a panel
+    beside the channel on wide screens, their own screen on phones), pins (a strip under the top bar, a
+    side panel or phone screen, and Jump), edit in place with edit history, delete (your own, or anyone's
+    with Manage messages and an optional reason the author is told), copy text
+  - typing indicators; the read position moves when the newest message is on screen and the window has
+    attention; unread state and mention counts on channel rows in the sidebar and on the phone place screen
+  - a member list with presence on wide screens; choosing someone opens a conversation with them
+  - slash commands: suggestions from the bots that can see the channel, `/name value option:value` with
+    type checks and `@user`/`#channel` lookups, sent as interactions (bots answer with ordinary messages)
+- **Optimistic sends** with the server's client nonces: a message shows as "Sending" until the response or
+  its `MESSAGE_CREATE` echo replaces it, whichever comes first. Sends made while offline wait, still
+  "Sending", and go out after reconnecting unless the caught-up history shows they already arrived. Refused
+  sends show "Not sent." with Retry (same nonce) and Delete.
+- **Direct and group messages:** a rail tile and conversation sidebar on wide screens, and a Messages tab on
+  phones with search, previews and unread counts; a new-message dialog that finds people in your places
+  (one person reopens your conversation with them, several start a group with an optional name); adding
+  people to and leaving groups; "Seen" under your last message in one-to-one conversations; pins.
+- **Presence:** online, idle, do not disturb and invisible, picked from the account row in the sidebar or the
+  avatar on the You tab, remembered per instance on the device and sent when connecting. Avatars show
+  presence, fetched in batches with `GET /presences` and kept current by `PRESENCE_UPDATE`.
+- **Reconnecting banner:** one line at the top after 1.5 seconds of reconnecting, or right away when the
+  browser reports being offline.
+- **Tests:** 20 gateway tests (handshake, heartbeat watchdog, backoff and its cap, `1001`, `4004`, `4007`,
+  `4008`, `4010`, frames from abandoned sockets, catch-up paging) plus an opt-in live test, and chat helpers
+  in `@gotalk/core` (merging without duplicates, reactions, feed layout, the New marker, typing text,
+  conversation titles, previews, slash-command parsing).
+
+Verified:
+
+- unit tests and typecheck across the workspace, the web export, and `expo lint` clean for the new code
+- a scripted Chromium run against a local server with one person on a wide window (1280px) and another on
+  a phone-width window (390px) connected through a TCP proxy that could be cut:
+  - messages, typing, reactions, replies (from the long-press sheet), edits, pins, threads and deletions
+    arrive live on the other side
+  - a mention counts on the phone's channel row and the New marker shows on opening it
+  - a conversation started on the phone appears live on the wide window with a rail badge; "Seen" follows
+    reading, and an open conversation does not count as unread
+  - presence changes show in the conversation header; do not disturb confirmed through the API
+  - cutting the network: the banner shows, reading continues, a send stays "Sending" and three messages are
+    missed; after reconnecting each missed message appears once and the waiting send arrives once on both
+    sides
+  - an injected server error shows "Not sent." with Retry and Delete working
+  - a message posted while the phone's first load of a channel was in flight (response held back) still
+    shows, and deleting a message on the oldest loaded page does not stop older history from loading
+  - ending the phone's session from another login signs it out through the gateway, with the notice
+- not yet exercised: iOS and Android builds (FlashList and the on-screen keyboard on devices), the Tauri
+  shell at runtime (it loads the same export and its CSP allows `ws:`/`wss:`), touch on tablet-width web,
+  and screen readers
+
+Known gaps and decisions:
+
+- The exit criterion "two clients on different targets" was met with two web clients at desktop and phone
+  widths, which use different layouts and input; a run across the Tauri shell or a device is still to do.
+- The catch-up covers missed messages. Edits, deletions and reactions missed while offline appear when the
+  channel's history is next fetched: it is marked stale and refetches on the next open or window focus.
+- Unsent messages are kept in memory, so a reload drops them.
+- The rail shows no per-place unread counts: that needs every place's channel list, and only open places
+  load theirs. The mockup's rail count was removed.
+- The member list shows the first 100 members, without roles.
+- The API has no message search or attachments yet, so the mockups' search icon and composer "+" were
+  removed. Reactions offer the same fixed set as forums.
+- Threads are reached from their starting message; they are not listed in the sidebar.
+- Do not disturb changes only how others see you until push notifications arrive (Phase 7).
+- Gateway events update the per-query caches directly; a normalized entity cache was not needed.
 
 ## Phase 5 — Voice & video
 
@@ -300,8 +381,8 @@ Mockups: none yet. Reports queue, roles editor, instance admin and developer set
 - Reports queue, audit log, warnings/timeouts/bans, and transparency pages.
 - Roles editor (ordering, permission bits) and board/channel overwrite editors.
 - Instance admin: policy publishing, registration mode, and instance settings.
-- Developer settings: personal access tokens, applications/bots, slash commands (invocation in chat
-  comes in Phase 4), and webhooks with a delivery log.
+- Developer settings: personal access tokens, applications/bots, slash commands (invoking them in chat
+  shipped in Phase 4), and webhooks with a delivery log.
 
 ## Phase 7 — Distribution & polish
 
@@ -337,5 +418,4 @@ Mockups: none yet. Reports queue, roles editor, instance admin and developer set
   - styling stays on plain `StyleSheet` + tokens, or moves to Unistyles/Tamagui (revisit when
     responsive variants get heavy)
   - Markdown renderer/editor library
-  - normalized entity cache vs. per-query caches for gateway updates
   - final app identifiers (`io.gotalk.app` / `io.gotalk.desktop` are placeholders)

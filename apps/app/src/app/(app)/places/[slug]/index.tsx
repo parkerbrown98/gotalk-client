@@ -164,7 +164,7 @@ export default function PlaceScreen() {
             {access.can('MANAGE_BOARDS') ? <NavRow label="New forum" icon="plus" onPress={() => setNewForum(true)} /> : null}
             {text.length > 0 ? section('Chat') : null}
             {text.map((ch) => (
-              <NavRow key={ch.id} label={ch.name} icon="hash" onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug: place.slug, id: ch.id } })} />
+              <NavRow key={ch.id} label={ch.name} icon="hash" unread={!!ch.unread} count={ch.read_state?.mention_count ?? 0} onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug: place.slug, id: ch.id } })} />
             ))}
             {voice.length > 0 ? section('Voice') : null}
             {voice.map((ch) => (
