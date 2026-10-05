@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ApiError, unwrap, type GotalkClient } from '@gotalk/api-client';
-import { applyReaction, keepOwnReactions } from '@gotalk/core';
+import { applyReaction, applyVoiceState, keepOwnReactions, type VoiceState } from '@gotalk/core';
 import { catchUp, createGatewayClient, type GatewayClient, type PresenceStatus, type VisibleStatus } from '@gotalk/gateway';
 import { useQueryClient, type QueryClient, type QueryKey } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
@@ -27,6 +27,7 @@ import {
 } from './chat';
 import { connectionStore } from './connection';
 import { useActiveInstance } from './instances';
+import { attachVoice, leaveVoice, onVoiceServerUpdate, onVoiceSpeaking, onVoiceState, voiceKeys } from './voice';
 
 // ---- My presence: chosen per instance, remembered on this device, sent when connecting ----
 
@@ -205,8 +206,26 @@ function startConnection(qc: QueryClient, inst: string, gatewayUrl: string, apiB
       downSince: s.state === 'reconnecting' ? (prev.downSince ?? Date.now()) : null,
     })),
   );
-  const offSignOut = onBeforeSignOut((id) => id === inst && gateway.stop());
+  const offSignOut = onBeforeSignOut((id) => {
+    if (id !== inst) return;
+    // Leave while the session can still say so; the server would end the call with the session anyway.
+    void leaveVoice();
+    gateway.stop();
+  });
   const placeChannels = chatKeys.placeChannels(inst);
+  const detachVoice = attachVoice({
+    inst,
+    api,
+    myId,
+    setSpeaking: (speaking) => gateway.setSpeaking(speaking),
+    channelName: (id) => {
+      for (const [, list] of qc.getQueriesData<Channel[]>({ queryKey: placeChannels })) {
+        const found = list?.find((c) => c.id === id);
+        if (found) return found.name;
+      }
+      return undefined;
+    },
+  });
   const dms = chatKeys.dms(inst);
 
   /** After a gap: load what each held channel missed, then refresh the lists that summarize them. */
@@ -237,7 +256,7 @@ function startConnection(qc: QueryClient, inst: string, gatewayUrl: string, apiB
     );
     if (disposed) return;
     requestPresence(watched.keys());
-    await invalidate(qc, placeChannels, dms, ['channel', inst], ['pins', inst], ['receipts', inst], ['notifications-unread', inst], ['notifications', inst], ['places', inst]);
+    await invalidate(qc, placeChannels, dms, ['channel', inst], ['pins', inst], ['receipts', inst], ['notifications-unread', inst], ['notifications', inst], ['places', inst], voiceKeys.all(inst));
     await actions.flushQueued();
   }
 
@@ -327,6 +346,14 @@ function startConnection(qc: QueryClient, inst: string, gatewayUrl: string, apiB
   gateway.on('PLACE_JOIN', placesChanged);
   gateway.on('PLACE_LEAVE', placesChanged);
   gateway.on('PLACE_DELETE', placesChanged);
+  gateway.on('VOICE_STATE_UPDATE', (state) => {
+    for (const [key, list] of qc.getQueriesData<VoiceState[]>({ queryKey: voiceKeys.all(inst) })) {
+      if (list) qc.setQueryData(key, applyVoiceState(list, state, key[2] as string));
+    }
+    onVoiceState(state);
+  });
+  gateway.on('VOICE_SERVER_UPDATE', (conn) => void onVoiceServerUpdate(conn));
+  gateway.on('VOICE_SPEAKING', onVoiceSpeaking);
 
   void loadMyStatus(inst).then((status) => {
     if (disposed) return;
@@ -336,6 +363,7 @@ function startConnection(qc: QueryClient, inst: string, gatewayUrl: string, apiB
 
   return () => {
     disposed = true;
+    detachVoice();
     gateway.stop();
     offState();
     offSignOut();

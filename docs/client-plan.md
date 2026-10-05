@@ -369,26 +369,108 @@ Known gaps and decisions:
 - The API has no message search or attachments yet, so the mockups' search icon and composer "+" were
   removed. Reactions offer the same fixed set as forums.
 - Threads are reached from their starting message; they are not listed in the sidebar.
-- Creating voice channels and setting their user limit come with voice in Phase 5, and per-role channel
-  permissions with the overwrite editors in Phase 6. Moving a channel into or out of a category is done
+- Creating voice channels and setting their user limit arrived with voice in Phase 5; per-role channel
+  permissions come with the overwrite editors in Phase 6. Moving a channel into or out of a category is done
   from its settings rather than by dragging.
 - Do not disturb changes only how others see you until push notifications arrive (Phase 7).
 - Gateway events update the per-query caches directly; a normalized entity cache was not needed.
 
 ## Phase 5 — Voice & video
 
-Mockups: [Voice and video](./mockups/08-voice.html) (in-call stage with screen share, moderator menu,
-voice settings with push-to-talk, mini call bar, connection quality). Not yet mocked: camera layouts.
+Status: built and verified on the web against a local server with LiveKit. The exit run across the
+desktop app and a phone is still to do (see *Known gaps*), so the phase is not closed.
 
-- LiveKit: `livekit-client` on web/desktop, `@livekit/react-native` on mobile. Mobile needs a development
-  build (`expo prebuild` / EAS) with the LiveKit config plugin, not Expo Go.
-- Join/leave/move flows using the server-issued token, plus `VOICE_STATE_UPDATE`,
-  `VOICE_SERVER_UPDATE`, and `VOICE_SPEAKING` handling.
-- Self mute/deafen, push-to-talk (global shortcut on desktop via a Tauri plugin), and speaking indicators.
-- Screen share and camera: web/desktop first, then mobile.
-- Call-quality telemetry reporting, and moderator controls (server mute/deafen, move, disconnect).
-- **Exit criteria:** a three-way call across web, desktop, and one mobile platform, with screen share
-  from desktop, and call screens matching the Phase 5 mockups.
+Goal: sit in a voice channel while doing something else, with cameras, screen share and moderation, on
+every target.
+
+Mockups: [Voice and video](./mockups/08-voice.html) (before joining, in-call stage with screen share,
+cameras on desktop and phone, moderator menu, voice settings with push-to-talk, mini call bar,
+connection quality) and the voice type in [Manage chat channels](./mockups/12-channels-manage.html) are
+the reference for these screens. Before building, the missing frames were added: before joining (desktop
+and phone), camera layouts (desktop and phone) and a new voice channel. Voice settings now use the pill
+tabs and checkbox `DESIGN.md` already has, instead of a segmented control and switch it lacks.
+
+Delivered:
+
+- **Media** (`apps/app/src/lib/voice-platform*.ts`): `livekit-client` on web and desktop;
+  `@livekit/react-native` with `@livekit/react-native-webrtc` on phones, configured by
+  `@livekit/react-native-expo-plugin` and `@config-plugins/react-native-webrtc` (microphone and camera
+  usage strings, Android permissions, iOS background audio). The native SDK loads on first join, so the
+  rest of the app still runs in Expo Go; voice there says it needs a development build.
+- **Call engine** (`apps/app/src/lib/voice.ts`, framework-agnostic store plus React hooks):
+  - join with the server-issued token (`POST /channels/{id}/voice`), joining another channel switches,
+    leave with `DELETE /users/@me/voice`; mute and deafen carry over to the next call
+  - `VOICE_SERVER_UPDATE` (moved by a moderator) reconnects to the new room and the call screen follows;
+    being removed, the channel closing or joining elsewhere ends the call with a notice; a "left" event
+    while the media connection is still up re-registers the call instead of dropping it
+  - a media connection lost for good is rejoined three times (1, 3, 6 s), then the call ends and the
+    server's state is cleared only if it is still this call
+  - `VOICE_STATE_UPDATE` keeps per-place voice states (`GET /places/{id}/voice-states`) current, and is
+    refetched after a gateway gap; `VOICE_SPEAKING` drives indicators outside your own call
+  - self mute and deafen (deafening mutes; undeafening unmutes only if deafening did), applied to the
+    media at once and reported with `PATCH /users/@me/voice`; server mute/deafen and lost permissions
+    take the mic away and show on the control
+  - speaking indicators from LiveKit's active speakers, relayed to the gateway at most once per 1.5 s
+    (the gateway allows 120 frames a minute)
+  - camera (with flip on phones) and screen share with system audio, both behind Share screen; stopping a
+    share from the browser's own bar is noticed
+  - call-quality telemetry every 30 s from WebRTC stats (packet loss, jitter, round trip, bitrate) to
+    `POST /users/@me/voice/telemetry`; the connection quality shows as bars
+- **Push to talk:** published muted so talking starts the moment the key goes down; system-wide in the
+  desktop app through `tauri-plugin-global-shortcut` (registered only while in a call, falling back to
+  the window with a notice when another app holds the key), while the window has focus on the web, and
+  not on phones. The key is captured from the next key press and stored by physical key.
+- **Screens:**
+  - voice channel: before joining (who is here with speaking and mic state, mute/deafen for joining,
+    Join, full, no Connect permission, voice not available on the instance, "Joining moves you out of …"),
+    then the call: an even grid of tiles with cameras first, or the shared screen on the stage with the
+    others in a column (phones: share above a two-column grid); fit and full screen for shares on the web
+  - controls: mic, deafen, camera, screen share, settings and Leave; phones put flip camera, share and
+    settings behind ⋯ and list everyone behind the people icon
+  - moderator menu on a participant (popover on wide screens, sheet on phones): mute and deafen for
+    everyone (Mute members), Move to… and Disconnect (Move members)
+  - voice settings: microphone and speaker pickers (where the browser can route output), input mode,
+    push-to-talk key, noise suppression and a microphone level test
+  - the call survives navigation: a panel at the bottom of the wide sidebar, and a mini bar above the tab
+    bar on phones (or under wide screens without a sidebar) showing who is talking
+  - the sidebar and phone place screen count people in each voice channel; voice channels can be
+    created and edited (category and user limit) and sit inside their category
+- **Desktop shell:** the global-shortcut plugin and its capability, macOS microphone and camera usage
+  strings (`Info.plist`) and entitlements for signed builds.
+- **Tests:** voice helpers in `@gotalk/core` (applying voice-state events, grouping, mic state, call
+  duration, quality, telemetry from stats, the speaking relay, push-to-talk bindings, tile order and grid
+  columns) and voice channels inside categories.
+
+Verified:
+
+- unit tests and typecheck across the workspace, the web export, `expo lint` clean for the new code,
+  `expo-doctor` clean, the Expo config adding the iOS and Android permissions, and a Tauri debug bundle
+- a scripted Chromium run (fake microphone and camera) against a local server with LiveKit
+  (`docker compose --profile voice`), with an owner and a member in wide windows (1280px) and a member in a
+  phone-width window (390px):
+  - three-way call; speaking shows on the others' tiles; mute, deafen and undeafen show on the others' side
+  - screen share from the owner plays on both other clients, phone included; a camera shows in the grid
+  - moderator mute takes the member's mic away and back; Move to… takes a member to another channel
+    and their screen follows; Disconnect ends the member's call with a notice
+  - the sidebar panel while reading a text channel, the phone mini bar and returning to the call
+  - lowering a channel's user limit in the edit form makes it show as full to a member at once
+  - telemetry samples reach the server's voice sessions; a reload mid-call is noticed through LiveKit's
+    webhook and the person leaves everyone's list
+  - push to talk in the browser: silent while the key is up, heard while it is held
+- not yet exercised: the Tauri app at runtime (microphone, camera and screen capture in WKWebView,
+  WebView2 and WebKitGTK, and the global shortcut), iOS and Android development builds, and a dropped
+  media connection (the browser test could not cut WebRTC traffic)
+
+Known gaps and decisions:
+
+- **Exit criteria not yet met:** the three-way call ran across three web clients (two layouts). It still
+  needs the desktop app sharing its screen and a phone, which needs Xcode or the Android SDK (or EAS).
+- Screen share on phones needs a broadcast extension (iOS) and a foreground service (Android); phones
+  have camera only for now. Whether WKWebView on macOS offers `getDisplayMedia` to the desktop app is
+  unverified; the share button only appears where the browser engine supports it.
+- Calls on Android stop in the background until a foreground service is added; iOS keeps audio running.
+- Per-person volume, the call timer (it counts from when you joined), video quality choices and noise
+  suppression beyond the browser's own are not built. Voice channels list a count, not their members.
 
 ## Phase 6 — Moderation, admin & developer tools
 

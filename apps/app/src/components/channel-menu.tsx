@@ -23,7 +23,7 @@ export interface ChannelFormProps {
   onClose: () => void;
   /** The channel or category to edit; a new one is created without it. */
   channel?: Channel;
-  /** The place's categories, to choose where a text channel goes. */
+  /** The place's categories, to choose where a text or voice channel goes. */
   categories: Channel[];
 }
 
@@ -40,30 +40,44 @@ export function ChannelFormDialog(props: ChannelFormProps) {
 function ChannelForm({ slug, onClose, channel, categories }: ChannelFormProps) {
   const theme = useTheme();
   const actions = useChatActions();
-  const [kind, setKind] = useState<'text' | 'category'>(channel?.kind === 'category' ? 'category' : 'text');
+  const [kind, setKind] = useState<'text' | 'voice' | 'category'>(channel?.kind === 'category' || channel?.kind === 'voice' ? channel.kind : 'text');
   const [name, setName] = useState(channel?.name ?? '');
   const [topic, setTopic] = useState(channel?.topic ?? '');
   const [parent, setParent] = useState(channel?.parent_id ?? '');
   const [nsfw, setNsfw] = useState(channel?.is_nsfw ?? false);
+  const [limit, setLimit] = useState(String(channel?.user_limit ?? 0));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const text = kind === 'text';
-  const noun = text ? 'channel' : 'category';
+  const voice = kind === 'voice';
+  const noun = kind === 'category' ? 'category' : 'channel';
 
   async function save() {
     const finalName = name.trim().replace(/\s+/g, ' ');
     if (!finalName) return setError(`Give the ${noun} a name.`);
+    const userLimit = Number(limit.trim() || '0');
+    if (voice && (!Number.isInteger(userLimit) || userLimit < 0 || userLimit > 99)) return setError('The user limit is a whole number from 0 to 99.');
     if (!actions) return;
     setBusy(true);
     setError(null);
     try {
       if (channel) {
-        await actions.updateChannel(channel.id, text ? { name: finalName, topic: topic.trim(), parent_id: parent, is_nsfw: nsfw } : { name: finalName });
+        await actions.updateChannel(
+          channel.id,
+          text ? { name: finalName, topic: topic.trim(), parent_id: parent, is_nsfw: nsfw } : voice ? { name: finalName, parent_id: parent, user_limit: userLimit } : { name: finalName },
+        );
         onClose();
       } else {
-        const created = await actions.createChannel(slug, text ? { kind, name: finalName, topic: topic.trim(), parent_id: parent || undefined, is_nsfw: nsfw } : { kind, name: finalName });
+        const created = await actions.createChannel(
+          slug,
+          text
+            ? { kind, name: finalName, topic: topic.trim(), parent_id: parent || undefined, is_nsfw: nsfw }
+            : voice
+              ? { kind, name: finalName, parent_id: parent || undefined, user_limit: userLimit }
+              : { kind, name: finalName },
+        );
         onClose();
-        if (created.kind === 'text') router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug, id: created.id } });
+        if (created.kind !== 'category') router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug, id: created.id } });
       }
     } catch (e) {
       setError(failureMessage(e, `Could not save the ${noun}. Try again.`));
@@ -86,6 +100,7 @@ function ChannelForm({ slug, onClose, channel, categories }: ChannelFormProps) {
             <PillTabs
               options={[
                 { value: 'text', label: 'Text channel' },
+                { value: 'voice', label: 'Voice channel' },
                 { value: 'category', label: 'Category' },
               ]}
               value={kind}
@@ -94,9 +109,9 @@ function ChannelForm({ slug, onClose, channel, categories }: ChannelFormProps) {
           </Stack>
         )}
         <TextField label="Name" value={name} onChangeText={setName} maxLength={100} autoFocus autoCapitalize="none" />
-        {text ? (
+        {text ? <TextField label="Topic" value={topic} onChangeText={setTopic} placeholder="What to talk about here (optional)" maxLength={1024} /> : null}
+        {text || voice ? (
           <>
-            <TextField label="Topic" value={topic} onChangeText={setTopic} placeholder="What to talk about here (optional)" maxLength={1024} />
             {categories.length > 0 ? (
               <Stack gap="xs">
                 <Text variant="bodySmStrong" tone="onDark">
@@ -105,9 +120,21 @@ function ChannelForm({ slug, onClose, channel, categories }: ChannelFormProps) {
                 <PillTabs options={[{ value: '', label: 'None' }, ...categories.map((c) => ({ value: c.id, label: c.name }))]} value={parent} onChange={setParent} />
               </Stack>
             ) : null}
-            <Checkbox checked={nsfw} onChange={setNsfw}>
-              Age-restricted (NSFW)
-            </Checkbox>
+            {text ? (
+              <Checkbox checked={nsfw} onChange={setNsfw}>
+                Age-restricted (NSFW)
+              </Checkbox>
+            ) : (
+              <TextField
+                label="User limit"
+                value={limit}
+                onChangeText={(v) => setLimit(v.replace(/[^0-9]/g, ''))}
+                keyboardType="number-pad"
+                maxLength={2}
+                style={{ width: 120 }}
+                hint="Up to 99 people. 0 means no limit; people who can move members can always join."
+              />
+            )}
           </>
         ) : null}
       </Stack>

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { CallMiniBar } from '@/components/call-bar';
 import { CommandPalette, useCommandPaletteShortcut } from '@/components/command-palette';
 import { ConnectionBanner, useConnectionBannerVisible } from '@/components/connection-banner';
 import { MessagesSidebar, PlaceRail, PlaceSidebar, TabBar, useRouteSlug } from '@/components/shell';
@@ -51,6 +52,7 @@ export default function AppLayout() {
         <SafeAreaInsetsContext.Provider value={banner ? { ...insets, top: 0 } : insets}>
           <View style={{ flex: 1 }}>{screens}</View>
         </SafeAreaInsetsContext.Provider>
+        <CallMiniBar />
         <TabBar />
       </View>
     );
@@ -62,6 +64,8 @@ export default function AppLayout() {
       <View style={{ flex: 1 }}>
         {banner ? <ConnectionBanner /> : null}
         <View style={{ flex: 1 }}>{screens}</View>
+        {/* Without a sidebar there is no call panel, so the call shows here instead. */}
+        {inMessages || slug ? null : <CallMiniBar />}
       </View>
       <CommandPalette visible={palette} onClose={() => setPalette(false)} />
     </View>

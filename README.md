@@ -43,6 +43,11 @@ Run a local server from [`../gotalk-server`](../gotalk-server) with `GOTALK_PORT
 enter `localhost:18080` on the connect screen. Local and LAN hosts try `http://` before `https://`.
 Instances must allow the client's origin in `server.cors_allowed_origins` (the default is `*`).
 
+Voice and video need the server's LiveKit media server: start it with
+`GOTALK_PORT=18080 GOTALK_VOICE_LIVEKIT_URL=ws://localhost:7880 docker compose --profile voice up -d`.
+On phones, voice needs a development build (`npx expo run:ios|android` or `eas build --profile
+development`) because Expo Go lacks the WebRTC native modules; everything else still runs in Expo Go.
+
 ## Commands
 
 | Command | Purpose |

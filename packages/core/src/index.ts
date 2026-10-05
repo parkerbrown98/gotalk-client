@@ -11,3 +11,4 @@ export * from './permissions.ts';
 export * from './places.ts';
 export * from './time.ts';
 export * from './web.ts';
+export * from './voice.ts';

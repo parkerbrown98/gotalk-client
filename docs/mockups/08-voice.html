@@ -32,13 +32,6 @@
   .quality { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--gt-color-mute); }
   .quality i { display: inline-flex; gap: 2px; align-items: flex-end; height: 12px; }
   .quality i b { width: 3px; background: var(--gt-color-accent-green); display: block; border-radius: 1px; }
-  .seg { display: inline-flex; flex: none; padding: 2px; border-radius: var(--gt-radius-md); background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline); }
-  .seg span { padding: 4px 12px; border-radius: 6px; font-size: 14px; white-space: nowrap; color: var(--gt-color-body); }
-  .seg span.on { background: var(--gt-color-surface-card); color: var(--gt-color-on-dark); }
-  .toggle { width: 36px; height: 20px; border-radius: 10px; background: var(--gt-color-primary); position: relative; flex: none; }
-  .toggle::after { content: ''; position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--gt-color-on-primary); }
-  .toggle.off { background: var(--gt-color-surface-card); border: 1px solid var(--gt-color-hairline-strong); }
-  .toggle.off::after { right: auto; left: 2px; top: 1px; background: var(--gt-color-mute); }
   .minibar { display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 16px; background: var(--gt-color-surface-elevated); border-top: 1px solid var(--gt-color-hairline); flex: none; }
   .tilegrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1; min-height: 0; }
   .tilegrid .peer { min-height: 150px; flex: none; }
@@ -48,6 +41,15 @@
   .msg .text { line-height: 1.5; color: var(--gt-color-body); }
   .composer .box { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 8px 6px 12px; border-radius: var(--gt-radius-md); background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline); }
   .composer .box svg { width: 18px; height: 18px; color: var(--gt-color-mute); flex: none; }
+  /* A camera feed: a stand-in silhouette on the stone surface, never a photo. */
+  .peer.cam { background: var(--gt-color-stone); overflow: hidden; }
+  .peer.cam::before { content: ''; position: absolute; left: 50%; top: 26%; width: 22%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; background: var(--gt-color-ash); }
+  .peer.cam::after { content: ''; position: absolute; left: 50%; bottom: -18%; width: 52%; aspect-ratio: 1.6; transform: translateX(-50%); border-radius: 50% 50% 0 0; background: var(--gt-color-ash); }
+  .peer.cam .nm { z-index: 1; }
+  .peer.cam .nm span.chip { padding: 2px 8px; border-radius: var(--gt-radius-full); background: var(--gt-color-surface-elevated); display: inline-flex; gap: 6px; align-items: center; }
+  .lobby { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 24px; }
+  .lobby .who { display: flex; gap: 12px; }
+  .lobby .who .peer { width: 132px; height: 108px; flex: none; }
 </style>
 </head>
 <body>
@@ -55,7 +57,7 @@
   <header class="board-head">
     <nav><a href="index.html">Mockups</a> / Phase 5 · Voice &amp; video</nav>
     <h1 class="t-display-lg">Voice and video</h1>
-    <p>A voice channel is a room you can sit in while doing something else. Who is talking is the one place green appears; muted and deafened states use red on the icon only. Screen share takes the stage and participants step aside into a column.</p>
+    <p>A voice channel is a room you can sit in while doing something else. Who is talking is the one place green appears; muted and deafened states use red on the icon only. Screen share takes the stage and participants step aside into a column; cameras without a share fill an even grid.</p>
   </header>
 
   <section class="group">
@@ -99,7 +101,7 @@
                 </div>
               </div>
               <div class="bar">
-                <div class="flex center gap-sm"><span class="ctl"><svg><use href="#mic"/></svg></span><span class="ctl off"><svg><use href="#headphones"/></svg></span><span class="ctl"><svg><use href="#video"/></svg></span><span class="ctl on"><svg><use href="#monitor"/></svg></span></div>
+                <div class="flex center gap-sm"><span class="ctl"><svg><use href="#mic"/></svg></span><span class="ctl off"><svg><use href="#headphones"/></svg></span><span class="ctl"><svg><use href="#video"/></svg></span><span class="ctl on"><svg><use href="#monitor"/></svg></span><span class="ctl"><svg><use href="#settings"/></svg></span></div>
                 <span class="t-caption-md mute flex center gap-sm">Hold <span class="keys"><span class="keycap">⌥</span><span class="keycap">Space</span></span> to talk</span>
                 <span class="ctl leave"><svg><use href="#phoneOff"/></svg>Leave</span>
               </div>
@@ -143,14 +145,62 @@
               <h2 class="t-heading-md">Voice settings</h2>
               <div class="field"><label>Microphone</label><div class="input"><span>MacBook Pro Microphone</span><svg class="i trail"><use href="#chevronDown"/></svg></div></div>
               <div class="field"><label>Speakers</label><div class="input"><span>External Headphones</span><svg class="i trail"><use href="#chevronDown"/></svg></div></div>
-              <div class="flex between center"><div class="col"><span class="t-body-sm-strong">Input mode</span><span class="t-caption-md mute">Push to talk works system-wide in the desktop app.</span></div><span class="seg"><span>Voice activity</span><span class="on">Push to talk</span></span></div>
+              <div class="flex between center"><div class="col"><span class="t-body-sm-strong">Input mode</span><span class="t-caption-md mute">Push to talk works system-wide in the desktop app.</span></div><div class="pills"><span class="pill">Voice activity</span><span class="pill active" style="background:var(--gt-color-surface-card)">Push to talk</span></div></div>
               <div class="flex between center"><div class="col"><span class="t-body-sm-strong">Push-to-talk key</span><span class="t-caption-md mute">Press a key or combination to change it.</span></div><span class="flex gap-sm center"><span class="keys"><span class="keycap">⌥</span><span class="keycap">Space</span></span><button class="btn btn-tertiary small">Change</button></span></div>
-              <div class="flex between center"><div class="col"><span class="t-body-sm-strong">Reduce background noise</span></div><span class="toggle"></span></div>
+              <div class="check"><span class="box on"><svg><use href="#check"/></svg></span><span>Reduce background noise</span></div>
+              <div class="flex center gap-sm"><span class="t-caption-md mute" style="width:96px">Input level</span><span style="flex:1;height:6px;border-radius:3px;background:var(--gt-color-surface-card);overflow:hidden"><span style="display:block;width:38%;height:100%;background:var(--gt-color-accent-green)"></span></span></div>
               <div class="flex gap-sm" style="justify-content:flex-end"><button class="btn btn-tertiary">Test microphone</button><button class="btn btn-primary">Done</button></div>
             </div>
           </div>
         </div>
-        <figcaption>Voice settings on desktop. Push to talk is desktop-only; on phones the mute button is the control.</figcaption>
+        <figcaption>Voice settings on desktop and the web. Push to talk is system-wide in the desktop app and works while the window has focus on the web; on phones the mute button is the control and the device pickers are left to the system. Test microphone shows the input level while it runs; speaking lights the meter green.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <aside class="sidebar"><div class="head"><span class="t-body-strong">Open Woodworkers</span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+              <div class="items"><div class="section-label">Voice</div><a class="nav-row" href="#"><svg><use href="#volume"/></svg>Open shop<span class="meta">3</span></a><a class="nav-row active" href="#"><svg><use href="#volume"/></svg>Quiet corner</a></div>
+            </aside>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#volume"/></svg><span class="t-body-strong">Open shop</span><span class="t-caption-md mute">3 in call</span></div>
+              <div class="lobby">
+                <div class="who">
+                  <div class="peer speaking"><span class="avatar green">JP</span><span class="nm"><svg><use href="#mic"/></svg>Jonas P.</span></div>
+                  <div class="peer"><span class="avatar red">AL</span><span class="nm"><svg class="off"><use href="#micOff"/></svg>Ana L.</span></div>
+                  <div class="peer"><span class="avatar yellow">TW</span><span class="nm"><svg><use href="#video"/></svg>Tomas W.</span></div>
+                </div>
+                <div class="flex center gap-sm"><span class="ctl"><svg><use href="#mic"/></svg></span><span class="ctl"><svg><use href="#headphones"/></svg></span><button class="btn btn-primary">Join voice</button></div>
+                <span class="t-caption-md mute">You join with your microphone on. Mute first to join muted.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Before joining. The people already in the call show as tiles, speaking included; an empty channel says "No one is here yet." Mute and deafen can be set before joining. A full channel shows "This channel is full" in place of Join; without Connect the notice explains it, and an instance without a media server says voice is not available.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#volume"/></svg><span class="t-body-strong">Open shop</span><span class="t-caption-md mute">4 in call · 00:08:51</span><span style="margin-left:auto" class="quality"><i><b style="height:4px"></b><b style="height:7px"></b><b style="height:10px"></b><b style="height:12px"></b></i>Good connection</span></div>
+              <div class="stage" style="grid-template-columns:1fr 1fr;grid-auto-rows:1fr">
+                <div class="peer cam speaking"><span class="nm"><span class="chip"><svg><use href="#mic"/></svg>Jonas P.</span></span></div>
+                <div class="peer cam"><span class="nm"><span class="chip"><svg><use href="#mic"/></svg>You</span></span></div>
+                <div class="peer"><span class="avatar red">AL</span><span class="nm"><svg class="off"><use href="#micOff"/></svg>Ana L.</span></div>
+                <div class="peer"><span class="avatar yellow">TW</span><span class="nm"><svg class="off"><use href="#headphones"/></svg>Tomas W.</span></div>
+              </div>
+              <div class="bar">
+                <div class="flex center gap-sm"><span class="ctl"><svg><use href="#mic"/></svg></span><span class="ctl"><svg><use href="#headphones"/></svg></span><span class="ctl on"><svg><use href="#video"/></svg></span><span class="ctl"><svg><use href="#monitor"/></svg></span><span class="ctl"><svg><use href="#settings"/></svg></span></div>
+                <span class="ctl leave"><svg><use href="#phoneOff"/></svg>Leave</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Cameras without a screen share: an even grid, cameras first. A camera fills its tile and the name sits on a chip; your own camera is mirrored. Without cameras the grid holds avatars. When someone shares a screen, the share takes the stage and camera tiles move into the column.</figcaption>
       </figure>
 
     </div>
@@ -192,6 +242,43 @@
           <div class="home-bar"></div>
         </div>
         <figcaption>Browsing while in a call. The mini bar sits above the composer and shows who is speaking.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronDown"/></svg></span><span class="t-body-sm-strong">Open shop</span><span class="side end on-dark"><svg class="i"><use href="#users"/></svg></span></div>
+          <div class="body">
+            <div class="flex between center"><span class="t-caption-md mute">Open Woodworkers · 00:08:51</span><span class="quality"><i><b style="height:4px"></b><b style="height:7px"></b><b style="height:10px"></b><b style="height:12px"></b></i></span></div>
+            <div class="tilegrid" style="grid-auto-rows:min-content;align-content:start">
+              <div class="peer cam speaking"><span class="nm"><span class="chip"><svg><use href="#mic"/></svg>Jonas P.</span></span></div>
+              <div class="peer cam"><span class="nm"><span class="chip"><svg><use href="#mic"/></svg>You</span></span></div>
+              <div class="peer"><span class="avatar red">AL</span><span class="nm"><svg class="off"><use href="#micOff"/></svg>Ana L.</span></div>
+              <div class="peer"><span class="avatar yellow">TW</span><span class="nm"><svg><use href="#mic"/></svg>Tomas W.</span></div>
+            </div>
+          </div>
+          <div class="flex between center" style="padding:12px 20px 32px;border-top:1px solid var(--gt-color-hairline)"><span class="ctl"><svg><use href="#mic"/></svg></span><span class="ctl"><svg><use href="#headphones"/></svg></span><span class="ctl on"><svg><use href="#video"/></svg></span><span class="ctl"><svg><use href="#more"/></svg></span><span class="ctl leave" style="width:44px;padding:0;justify-content:center"><svg><use href="#phoneOff"/></svg></span></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Cameras on a phone: the same two-column grid, cameras first. ⋯ opens a sheet with Flip camera and Voice settings.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Open shop</span><span class="side end"></span></div>
+          <div class="body" style="justify-content:center;align-items:center;gap:20px">
+            <span class="t-caption-md mute">3 in call</span>
+            <div class="tilegrid" style="grid-auto-rows:min-content;align-content:start;width:100%">
+              <div class="peer speaking"><span class="avatar green">JP</span><span class="nm"><svg><use href="#mic"/></svg>Jonas P.</span></div>
+              <div class="peer"><span class="avatar red">AL</span><span class="nm"><svg class="off"><use href="#micOff"/></svg>Ana L.</span></div>
+              <div class="peer"><span class="avatar yellow">TW</span><span class="nm"><svg><use href="#mic"/></svg>Tomas W.</span></div>
+            </div>
+          </div>
+          <div class="flex center gap-sm" style="padding:12px 20px 32px;border-top:1px solid var(--gt-color-hairline)"><span class="ctl"><svg><use href="#mic"/></svg></span><span class="ctl"><svg><use href="#headphones"/></svg></span><button class="btn btn-primary" style="flex:1">Join voice</button></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Before joining on a phone.</figcaption>
       </figure>
 
     </div>

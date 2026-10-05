@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Platform } from 'react-native';
 
 import { accentFor } from './accent.ts';
 import { Text, type TextTone } from './components.tsx';
-import { ElevationContext, Icon, type IconName } from './icons.tsx';
+import { ElevationContext, Icon, useElevated, type IconName } from './icons.tsx';
 import { useTheme } from './theme.tsx';
 
 /** Rows separated by hairlines inside one bordered surface. */
@@ -87,12 +87,14 @@ export interface NavRowProps {
   count?: number;
   /** Notifications are off: the row steps down to ash, never turns bright, and ends in a muted bell unless it has a count. */
   muted?: boolean;
+  /** Quiet text at the end of the row, e.g. how many people are in a voice channel. */
+  meta?: string;
   accessibilityLabel?: string;
   onPress: () => void;
 }
 
 /** Sidebar row: command-palette-row in DESIGN.md. */
-export function NavRow({ label, icon, leading, active, unread, count = 0, muted, accessibilityLabel, onPress }: NavRowProps) {
+export function NavRow({ label, icon, leading, active, unread, count = 0, muted, meta, accessibilityLabel, onPress }: NavRowProps) {
   const theme = useTheme();
   const c = theme.colors;
   const bright = active || (unread && !muted);
@@ -117,6 +119,11 @@ export function NavRow({ label, icon, leading, active, unread, count = 0, muted,
       <Text variant="bodySm" tone={bright ? 'onDark' : muted ? 'faint' : 'default'} numberOfLines={1} style={[{ flex: 1 }, unread && !muted ? { fontFamily: theme.fontFaces['500'] } : null]}>
         {label}
       </Text>
+      {meta ? (
+        <Text variant="captionMd" tone="muted">
+          {meta}
+        </Text>
+      ) : null}
       {muted && count <= 0 ? <Icon name="bellOff" size={14} color={c.ash} /> : null}
       {count > 0 ? (
         <View style={{ minWidth: 20, height: 20, paddingHorizontal: 6, borderRadius: 10, backgroundColor: c.primary, alignItems: 'center', justifyContent: 'center' }}>
@@ -272,6 +279,8 @@ export interface PillTabsProps<T extends string> {
 /** A row of pill-shaped choices; the active one lifts one surface step. */
 export function PillTabs<T extends string>({ options, value, onChange }: PillTabsProps<T>) {
   const theme = useTheme();
+  // Inside dialogs the active chip lifts above the elevated surface.
+  const lifted = useElevated() ? theme.colors.surfaceCard : theme.colors.surfaceElevated;
   return (
     <View accessibilityRole="tablist" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.space.xs }}>
       {options.map((o) => {
@@ -286,7 +295,7 @@ export function PillTabs<T extends string>({ options, value, onChange }: PillTab
               paddingHorizontal: 10,
               paddingVertical: 4,
               borderRadius: theme.radii.full,
-              backgroundColor: active ? theme.colors.surfaceElevated : 'transparent',
+              backgroundColor: active ? lifted : 'transparent',
             }}
           >
             <Text variant="bodySm" tone={active ? 'onDark' : 'default'}>

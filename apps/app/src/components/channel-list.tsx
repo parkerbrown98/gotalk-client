@@ -1,4 +1,4 @@
-import { channelSections } from '@gotalk/core';
+import { channelSections, voiceStatesByChannel } from '@gotalk/core';
 import { Icon, NavRow, Text, useTheme } from '@gotalk/ui';
 import { router, usePathname } from 'expo-router';
 import { useRef, useState } from 'react';
@@ -7,6 +7,7 @@ import { Pressable, View } from 'react-native';
 import { ChannelFormDialog, ChannelMenu, useChannelMenu } from '@/components/channel-menu';
 import type { Anchor } from '@/components/menu';
 import type { Channel } from '@/lib/chat';
+import { useVoiceStates } from '@/lib/voice';
 
 function sectionLabel(label: string, top = 10) {
   return (
@@ -59,17 +60,35 @@ function CategoryLabel({ category, all, slug, wide }: { category: Channel; all: 
 }
 
 /**
- * A place's chat and voice channels: those outside a category first, then each category with its
- * channels. Muted channels step down; people with Manage channels get New channel and category menus.
+ * A place's chat and voice channels: text channels outside a category first, then each category with
+ * its channels, then voice channels outside a category. Voice rows count who is in them. Muted
+ * channels step down; people with Manage channels get New channel and category menus.
  */
 export function ChannelList({ slug, channels, canManage, wide }: { slug: string; channels: Channel[]; canManage: boolean; wide: boolean }) {
   const pathname = usePathname();
   const [creating, setCreating] = useState(false);
   const sections = channelSections(channels);
   const hasChat = sections.loose.length > 0 || sections.categories.length > 0;
+  const hasVoice = channels.some((c) => c.kind === 'voice');
+  const voiceStates = useVoiceStates(channels.find((c) => c.place_id)?.place_id ?? undefined, hasVoice).data;
+  const inVoice = voiceStatesByChannel(voiceStates ?? []);
 
   const row = (ch: Channel) => {
     const here = pathname === `/places/${slug}/channels/${ch.id}` || pathname.startsWith(`/places/${slug}/channels/${ch.id}/`);
+    if (ch.kind === 'voice') {
+      const count = inVoice[ch.id]?.length ?? 0;
+      return (
+        <NavRow
+          key={ch.id}
+          label={ch.name}
+          icon="volume"
+          active={here}
+          meta={count > 0 ? String(count) : undefined}
+          accessibilityLabel={`${ch.name}, voice channel${count > 0 ? `, ${count} in call` : ''}`}
+          onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug, id: ch.id } })}
+        />
+      );
+    }
     return (
       <NavRow
         key={ch.id}
@@ -96,9 +115,7 @@ export function ChannelList({ slug, channels, canManage, wide }: { slug: string;
       ))}
       {canManage ? <NavRow label="New channel" icon="plus" onPress={() => setCreating(true)} /> : null}
       {sections.voice.length > 0 ? sectionLabel('Voice') : null}
-      {sections.voice.map((ch) => (
-        <NavRow key={ch.id} label={ch.name} icon="volume" active={pathname === `/places/${slug}/channels/${ch.id}`} onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug, id: ch.id } })} />
-      ))}
+      {sections.voice.map(row)}
       <ChannelFormDialog slug={slug} visible={creating} onClose={() => setCreating(false)} categories={channels.filter((c) => c.kind === 'category')} />
     </>
   );

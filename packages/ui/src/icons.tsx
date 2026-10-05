@@ -47,6 +47,12 @@ const shapes = {
   copy: [{ rect: [8, 8, 12, 12, 2] }, 'M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2'],
   wifi: ['M2.5 9a14 14 0 0 1 19 0M5.5 12.5a10 10 0 0 1 13 0M8.5 16a6 6 0 0 1 7 0M12 19.5v.01'],
   command: ['M9 9h6v6H9V9ZM9 9V6.5A2.5 2.5 0 1 0 6.5 9H9ZM15 9V6.5A2.5 2.5 0 1 1 17.5 9H15ZM9 15v2.5A2.5 2.5 0 1 1 6.5 15H9ZM15 15v2.5a2.5 2.5 0 1 0 2.5-2.5H15Z'],
+  mic: [{ rect: [9, 3, 6, 11, 3] }, 'M5 11a7 7 0 0 0 14 0M12 18v3'],
+  micOff: ['M9 9V6a3 3 0 0 1 5.7-1.3M15 10v1a3 3 0 0 1-4.5 2.6M5 11a7 7 0 0 0 11 5.7M12 18v3M3 3l18 18'],
+  headphones: ['M4 14v-2a8 8 0 0 1 16 0v2', { rect: [3, 14, 4, 6, 1.5] }, { rect: [17, 14, 4, 6, 1.5] }],
+  monitor: [{ rect: [3, 4, 18, 12, 2] }, 'M8 20h8M12 16v4'],
+  video: [{ rect: [3, 6, 13, 12, 2] }, 'm16 10.5 5-3v9l-5-3'],
+  phoneOff: ['M4 15c4.5-3.5 11.5-3.5 16 0l-1.5 3-3.5-1.5v-2.5c-2-.7-4-.7-6 0V16.5L5.5 18 4 15Z'],
 } as const satisfies Record<string, readonly Shape[]>;
 
 export type IconName = keyof typeof shapes;

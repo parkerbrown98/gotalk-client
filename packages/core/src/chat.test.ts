@@ -231,14 +231,14 @@ describe('channel ordering', () => {
     last_message_at: null,
     created_at: `2026-10-0${position % 9}T00:00:00Z`,
   });
-  const list = [ch('market', 'category', 1), ch('bench', 'text', 0), ch('swap', 'text', 0, 'market'), ch('garage', 'text', 1, 'market'), ch('help', 'text', 2), ch('lounge', 'voice', 3), ch('events', 'category', 4)];
+  const list = [ch('market', 'category', 1), ch('bench', 'text', 0), ch('swap', 'text', 0, 'market'), ch('garage', 'text', 1, 'market'), ch('help', 'text', 2), ch('lounge', 'voice', 3), ch('events', 'category', 4), ch('stage', 'voice', 0, 'events'), ch('meetup', 'text', 5, 'events')];
 
   it('groups channels under their categories, loose ones first', () => {
     const s = channelSections(list);
     expect(s.loose.map((c) => c.id)).toEqual(['bench', 'help']);
     expect(s.categories.map((c) => [c.category.id, c.channels.map((x) => x.id)])).toEqual([
       ['market', ['swap', 'garage']],
-      ['events', []],
+      ['events', ['meetup', 'stage']],
     ]);
     expect(s.voice.map((c) => c.id)).toEqual(['lounge']);
   });

@@ -1,5 +1,5 @@
 import { previewText, type Message } from '@gotalk/core';
-import { Icon, Notice, Stack, Text, useTheme } from '@gotalk/ui';
+import { Icon, Notice, Text, useTheme } from '@gotalk/ui';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
@@ -9,7 +9,8 @@ import { MembersPanel, PinsList, SidePanel, ThreadPanel } from '@/components/cha
 import { BarButton, ChatFrame, TopBar } from '@/components/chat-screen';
 import { ChatView } from '@/components/chat-view';
 import { ScreenFrame } from '@/components/screen-frame';
-import { useChannel, usePins, type Channel } from '@/lib/chat';
+import { VoiceChannelScreen } from '@/components/voice-call';
+import { useChannel, usePins } from '@/lib/chat';
 import { failureMessage } from '@/lib/failure';
 import { goBack, useWide } from '@/lib/layout';
 import { useChannelAccess, useChannels } from '@/lib/places';
@@ -35,22 +36,7 @@ function PinnedStrip({ channelId, onOpen }: { channelId: string; onOpen: () => v
   );
 }
 
-function VoicePlaceholder({ channel, slug }: { channel: Channel; slug: string }) {
-  return (
-    <ScreenFrame title={channel.name} onBack={() => goBack({ pathname: '/places/[slug]', params: { slug } })}>
-      <Stack gap="lg">
-        <Text variant="headingXl" accessibilityRole="header">
-          {channel.name}
-        </Text>
-        <Notice tone="info" title="Voice is coming soon.">
-          You will join calls from here once voice opens in this client.
-        </Notice>
-      </Stack>
-    </ScreenFrame>
-  );
-}
-
-/** A text channel: the feed with members, pins or a thread beside it on wide screens. */
+/** A text channel (the feed with members, pins or a thread beside it on wide screens), or a voice channel's call. */
 export default function ChannelScreen() {
   const { slug, id, thread, jump } = useLocalSearchParams<{ slug: string; id: string; thread?: string; jump?: string }>();
   const wide = useWide();
@@ -90,7 +76,7 @@ export default function ChannelScreen() {
       </ScreenFrame>
     );
   }
-  if (channel.kind === 'voice') return <VoicePlaceholder channel={channel} slug={slug} />;
+  if (channel.kind === 'voice') return <VoiceChannelScreen key={channel.id} channel={channel} slug={slug} />;
 
   const togglePanel = (p: Exclude<Panel, null>) => {
     if (thread) router.setParams({ thread: undefined });

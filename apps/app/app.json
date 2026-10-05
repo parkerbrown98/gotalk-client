@@ -10,7 +10,12 @@
     "backgroundColor": "#07080A",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "io.gotalk.app"
+      "bundleIdentifier": "io.gotalk.app",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "audio"
+        ]
+      }
     },
     "android": {
       "package": "io.gotalk.app",
@@ -36,7 +41,22 @@
           "imageWidth": 76
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "@livekit/react-native-expo-plugin",
+        {
+          "android": {
+            "audioType": "communication"
+          }
+        }
+      ],
+      [
+        "@config-plugins/react-native-webrtc",
+        {
+          "cameraPermission": "Gotalk uses the camera when you turn it on in a voice channel.",
+          "microphonePermission": "Gotalk uses the microphone so others can hear you in voice channels."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

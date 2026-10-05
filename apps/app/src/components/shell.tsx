@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SidebarCallPanel } from '@/components/call-bar';
 import { ChannelList } from '@/components/channel-list';
 import { ConversationNavRow, NewConversationDialog } from '@/components/conversations';
 import { CreateBoardDialog } from '@/components/create-board-dialog';
@@ -164,6 +165,7 @@ export function PlaceSidebar({ slug }: { slug: string }) {
         ) : null}
       </ScrollView>
 
+      <SidebarCallPanel />
       <AccountFooter />
     </View>
   );
@@ -242,6 +244,7 @@ export function MessagesSidebar() {
           </Text>
         ) : null}
       </ScrollView>
+      <SidebarCallPanel />
       <AccountFooter />
       <NewConversationDialog visible={creating} onClose={() => setCreating(false)} />
     </View>

@@ -266,7 +266,9 @@ function byPosition(a: ChatChannel, b: ChatChannel): number {
 export interface ChannelSections {
   /** Text channels outside any category, listed first. */
   loose: ChatChannel[];
+  /** Each category with its text channels, then its voice channels. */
   categories: { category: ChatChannel; channels: ChatChannel[] }[];
+  /** Voice channels outside any category, listed last under Voice. */
   voice: ChatChannel[];
 }
 
@@ -276,13 +278,16 @@ export function channelSections(channels: readonly ChatChannel[]): ChannelSectio
   const categories = sorted.filter((c) => c.kind === 'category').map((category) => ({ category, channels: [] as ChatChannel[] }));
   const byId = new Map(categories.map((c) => [c.category.id, c]));
   const loose: ChatChannel[] = [];
-  for (const c of sorted) {
-    if (c.kind !== 'text') continue;
-    const home = c.parent_id ? byId.get(c.parent_id) : undefined;
-    if (home) home.channels.push(c);
-    else loose.push(c);
+  const voice: ChatChannel[] = [];
+  for (const kind of ['text', 'voice'] as const) {
+    for (const c of sorted) {
+      if (c.kind !== kind) continue;
+      const home = c.parent_id ? byId.get(c.parent_id) : undefined;
+      if (home) home.channels.push(c);
+      else (kind === 'text' ? loose : voice).push(c);
+    }
   }
-  return { loose, categories, voice: sorted.filter((c) => c.kind === 'voice') };
+  return { loose, categories, voice };
 }
 
 /** Channels ordered alongside this one: same category, and the same kind of row (categories, text or voice). */
