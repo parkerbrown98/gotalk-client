@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
+import { ChannelList } from '@/components/channel-list';
 import { CreateBoardDialog } from '@/components/create-board-dialog';
 import { InstanceIcon } from '@/components/instance-summary';
 import { PlaceMenuSheet, usePlaceMenu } from '@/components/place-menu';
@@ -162,15 +163,8 @@ export default function PlaceScreen() {
               </View>
             ))}
             {access.can('MANAGE_BOARDS') ? <NavRow label="New forum" icon="plus" onPress={() => setNewForum(true)} /> : null}
-            {text.length > 0 ? section('Chat') : null}
-            {text.map((ch) => (
-              <NavRow key={ch.id} label={ch.name} icon="hash" unread={!!ch.unread} count={ch.read_state?.mention_count ?? 0} onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug: place.slug, id: ch.id } })} />
-            ))}
-            {voice.length > 0 ? section('Voice') : null}
-            {voice.map((ch) => (
-              <NavRow key={ch.id} label={ch.name} icon="volume" onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug: place.slug, id: ch.id } })} />
-            ))}
-            {boardNodes.length + text.length + voice.length === 0 ? (
+            <ChannelList slug={place.slug} channels={channels} canManage={access.can('MANAGE_CHANNELS')} wide={false} />
+            {boardNodes.length + text.length + voice.length === 0 && !access.can('MANAGE_CHANNELS') ? (
               <Text variant="bodySm" tone="muted" style={{ padding: theme.space.md }}>
                 Nothing here yet. Forums and chat channels appear as they are added.
               </Text>

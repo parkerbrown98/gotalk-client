@@ -85,19 +85,22 @@ export interface NavRowProps {
   unread?: boolean;
   /** A white count at the end of the row (mentions, unread direct messages). */
   count?: number;
+  /** Notifications are off: the row steps down to ash, never turns bright, and ends in a muted bell unless it has a count. */
+  muted?: boolean;
   accessibilityLabel?: string;
   onPress: () => void;
 }
 
 /** Sidebar row: command-palette-row in DESIGN.md. */
-export function NavRow({ label, icon, leading, active, unread, count = 0, accessibilityLabel, onPress }: NavRowProps) {
+export function NavRow({ label, icon, leading, active, unread, count = 0, muted, accessibilityLabel, onPress }: NavRowProps) {
   const theme = useTheme();
   const c = theme.colors;
-  const bright = active || unread;
+  const bright = active || (unread && !muted);
+  const iconColor = bright ? c.onDark : muted ? c.ash : c.mute;
   return (
     <Pressable
       accessibilityRole="link"
-      accessibilityLabel={accessibilityLabel ?? (count > 0 ? `${label}, ${count} unread` : unread ? `${label}, unread` : label)}
+      accessibilityLabel={accessibilityLabel ?? `${label}${muted ? ', muted' : ''}${count > 0 ? `, ${count} unread` : unread && !muted ? ', unread' : ''}`}
       accessibilityState={{ selected: !!active }}
       onPress={onPress}
       style={({ pressed }) => ({
@@ -110,10 +113,11 @@ export function NavRow({ label, icon, leading, active, unread, count = 0, access
         backgroundColor: active || pressed ? c.surfaceCard : 'transparent',
       })}
     >
-      {leading ?? (icon ? <Icon name={icon} size={16} color={bright ? c.onDark : c.mute} /> : null)}
-      <Text variant="bodySm" tone={bright ? 'onDark' : 'default'} numberOfLines={1} style={[{ flex: 1 }, unread ? { fontFamily: theme.fontFaces['500'] } : null]}>
+      {leading ?? (icon ? <Icon name={icon} size={16} color={iconColor} /> : null)}
+      <Text variant="bodySm" tone={bright ? 'onDark' : muted ? 'faint' : 'default'} numberOfLines={1} style={[{ flex: 1 }, unread && !muted ? { fontFamily: theme.fontFaces['500'] } : null]}>
         {label}
       </Text>
+      {muted && count <= 0 ? <Icon name="bellOff" size={14} color={c.ash} /> : null}
       {count > 0 ? (
         <View style={{ minWidth: 20, height: 20, paddingHorizontal: 6, borderRadius: 10, backgroundColor: c.primary, alignItems: 'center', justifyContent: 'center' }}>
           <Text variant="captionSm" tone="inverse" style={{ fontFamily: theme.fontFaces['500'], lineHeight: 16 }}>

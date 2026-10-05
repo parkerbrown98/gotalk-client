@@ -304,7 +304,8 @@ function startConnection(qc: QueryClient, inst: string, gatewayUrl: string, apiB
     qc.setQueriesData<Channel[]>({ queryKey: placeChannels }, (list) => list?.filter((x) => x.id !== c.id));
     qc.setQueryData<Channel[]>(dms, (list) => list?.filter((x) => x.id !== c.id));
     qc.removeQueries({ queryKey: chatKeys.messages(inst, c.id) });
-    void qc.invalidateQueries({ queryKey: chatKeys.channel(inst, c.id) });
+    // Reset rather than refetch: a failed refetch would keep the deleted channel on screen.
+    void qc.resetQueries({ queryKey: chatKeys.channel(inst, c.id) });
   });
   gateway.on('CHANNEL_RECIPIENT_ADD', (e) => void invalidate(qc, dms, chatKeys.channel(inst, e.channel_id)));
   gateway.on('CHANNEL_RECIPIENT_REMOVE', (e) => void invalidate(qc, dms, chatKeys.channel(inst, e.channel_id)));

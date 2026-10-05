@@ -258,3 +258,56 @@ export function parseCommand(text: string, commands: readonly ChannelCommand[]):
   }
   return { command, options, lookups };
 }
+
+function byPosition(a: ChatChannel, b: ChatChannel): number {
+  return a.position - b.position || (a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : compareIds(a.id, b.id));
+}
+
+export interface ChannelSections {
+  /** Text channels outside any category, listed first. */
+  loose: ChatChannel[];
+  categories: { category: ChatChannel; channels: ChatChannel[] }[];
+  voice: ChatChannel[];
+}
+
+/** A place's channels the way the sidebar lists them, each group in the server's order. */
+export function channelSections(channels: readonly ChatChannel[]): ChannelSections {
+  const sorted = [...channels].sort(byPosition);
+  const categories = sorted.filter((c) => c.kind === 'category').map((category) => ({ category, channels: [] as ChatChannel[] }));
+  const byId = new Map(categories.map((c) => [c.category.id, c]));
+  const loose: ChatChannel[] = [];
+  for (const c of sorted) {
+    if (c.kind !== 'text') continue;
+    const home = c.parent_id ? byId.get(c.parent_id) : undefined;
+    if (home) home.channels.push(c);
+    else loose.push(c);
+  }
+  return { loose, categories, voice: sorted.filter((c) => c.kind === 'voice') };
+}
+
+/** Channels ordered alongside this one: same category, and the same kind of row (categories, text or voice). */
+export function channelSiblings(channels: readonly ChatChannel[], channel: ChatChannel): ChatChannel[] {
+  return channels.filter((c) => c.kind === channel.kind && (c.parent_id ?? null) === (channel.parent_id ?? null)).sort(byPosition);
+}
+
+/**
+ * The position changes that move a channel one step up or down among its siblings. Siblings keep the
+ * positions they had between them, so the order relative to other kinds of rows does not change;
+ * ties are spread out so the new order is unambiguous.
+ */
+export function moveChannel(siblings: readonly ChatChannel[], id: string, direction: -1 | 1): { id: string; position: number }[] {
+  const order = [...siblings].sort(byPosition);
+  const i = order.findIndex((c) => c.id === id);
+  const j = i + direction;
+  if (i < 0 || j < 0 || j >= order.length) return [];
+  const slots = order.map((c) => c.position);
+  [order[i], order[j]] = [order[j]!, order[i]!];
+  const out: { id: string; position: number }[] = [];
+  let previous = -1;
+  order.forEach((c, k) => {
+    const position = Math.max(slots[k]!, previous + 1);
+    previous = position;
+    if (position !== c.position) out.push({ id: c.id, position });
+  });
+  return out;
+}

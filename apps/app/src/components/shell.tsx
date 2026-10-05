@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ChannelList } from '@/components/channel-list';
 import { ConversationNavRow, NewConversationDialog } from '@/components/conversations';
 import { CreateBoardDialog } from '@/components/create-board-dialog';
 import { InstanceIcon } from '@/components/instance-summary';
@@ -155,26 +156,8 @@ export function PlaceSidebar({ slug }: { slug: string }) {
           </View>
         ))}
         {access.can('MANAGE_BOARDS') ? <NavRow label="New forum" icon="plus" onPress={() => setNewForum(true)} /> : null}
-        {text.length > 0 ? section('Chat') : null}
-        {text.map((ch) => {
-          const here = pathname === `/places/${slug}/channels/${ch.id}` || pathname.startsWith(`/places/${slug}/channels/${ch.id}/`);
-          return (
-            <NavRow
-              key={ch.id}
-              label={ch.name}
-              icon="hash"
-              active={here}
-              unread={!here && !!ch.unread}
-              count={here ? 0 : (ch.read_state?.mention_count ?? 0)}
-              onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug, id: ch.id } })}
-            />
-          );
-        })}
-        {voice.length > 0 ? section('Voice') : null}
-        {voice.map((ch) => (
-          <NavRow key={ch.id} label={ch.name} icon="volume" active={pathname === `/places/${slug}/channels/${ch.id}`} onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]', params: { slug, id: ch.id } })} />
-        ))}
-        {empty ? (
+        {access.isMember ? <ChannelList slug={slug} channels={channels} canManage={access.can('MANAGE_CHANNELS')} wide /> : null}
+        {empty && !access.can('MANAGE_CHANNELS') ? (
           <Text variant="captionMd" tone="muted" style={{ paddingHorizontal: 10, paddingTop: 10 }}>
             No forums or channels yet.
           </Text>

@@ -263,7 +263,9 @@ Mockups: [Chat and direct messages](./mockups/07-chat.html) (channel feed, threa
 reconnecting and failed sends) and
 [Chat: message actions, pins and presence](./mockups/11-chat-more.html) (hover actions and the message
 menu, editing in place, deleting with a reason, pinned messages, direct messages on the rail, new message,
-presence picker, and the phone versions) are the reference for these screens.
+presence picker, and the phone versions) and [Manage chat channels](./mockups/12-channels-manage.html)
+(categories in the sidebar, new channel, the channel menu, deleting, renaming a group conversation) are
+the reference for these screens.
 
 Delivered:
 
@@ -302,6 +304,13 @@ Delivered:
   - a member list with presence on wide screens; choosing someone opens a conversation with them
   - slash commands: suggestions from the bots that can see the channel, `/name value option:value` with
     type checks and `@user`/`#channel` lookups, sent as interactions (bots answer with ordinary messages)
+- **Managing channels** (Manage channels): new text channels and categories from the sidebar, the place
+  menu and the phone place screen; a channel menu (⋯ in the top bar, a sheet on phones) and category menus
+  (from their labels) to edit name, topic, category and the age restriction, move up or down among their
+  siblings, and delete, with deleting a category moving its channels to the top level. Anyone can mute a
+  text channel from the same menu; muted channels step down in the sidebar. The sidebar and the phone
+  place screen group channels under their categories. Other members see every change live, and someone
+  reading a deleted channel is told it is gone.
 - **Optimistic sends** with the server's client nonces: a message shows as "Sending" until the response or
   its `MESSAGE_CREATE` echo replaces it, whichever comes first. Sends made while offline wait, still
   "Sending", and go out after reconnecting unless the caught-up history shows they already arrived. Refused
@@ -309,7 +318,7 @@ Delivered:
 - **Direct and group messages:** a rail tile and conversation sidebar on wide screens, and a Messages tab on
   phones with search, previews and unread counts; a new-message dialog that finds people in your places
   (one person reopens your conversation with them, several start a group with an optional name); adding
-  people to and leaving groups; "Seen" under your last message in one-to-one conversations; pins.
+  people to, renaming and leaving groups; "Seen" under your last message in one-to-one conversations; pins.
 - **Presence:** online, idle, do not disturb and invisible, picked from the account row in the sidebar or the
   avatar on the You tab, remembered per instance on the device and sent when connecting. Avatars show
   presence, fetched in batches with `GET /presences` and kept current by `PRESENCE_UPDATE`.
@@ -318,7 +327,7 @@ Delivered:
 - **Tests:** 20 gateway tests (handshake, heartbeat watchdog, backoff and its cap, `1001`, `4004`, `4007`,
   `4008`, `4010`, frames from abandoned sockets, catch-up paging) plus an opt-in live test, and chat helpers
   in `@gotalk/core` (merging without duplicates, reactions, feed layout, the New marker, typing text,
-  conversation titles, previews, slash-command parsing).
+  conversation titles, previews, slash-command parsing, channel grouping and reordering).
 
 Verified:
 
@@ -338,6 +347,11 @@ Verified:
   - a message posted while the phone's first load of a channel was in flight (response held back) still
     shows, and deleting a message on the oldest loaded page does not stop older history from loading
   - ending the phone's session from another login signs it out through the gateway, with the notice
+- a second scripted run with an owner (wide) and a member (phone): creating a channel, a category from the
+  place menu and channels inside it, moving a channel up, editing a channel's name and topic, renaming
+  and deleting a category, and deleting a channel while the member reads it all show live on the phone;
+  the member only gets Mute, and a muted channel stays quiet when a message arrives; a member renames a
+  group conversation and the owner sees the new name
 - not yet exercised: iOS and Android builds (FlashList and the on-screen keyboard on devices), the Tauri
   shell at runtime (it loads the same export and its CSP allows `ws:`/`wss:`), touch on tablet-width web,
   and screen readers
@@ -355,6 +369,9 @@ Known gaps and decisions:
 - The API has no message search or attachments yet, so the mockups' search icon and composer "+" were
   removed. Reactions offer the same fixed set as forums.
 - Threads are reached from their starting message; they are not listed in the sidebar.
+- Creating voice channels and setting their user limit come with voice in Phase 5, and per-role channel
+  permissions with the overwrite editors in Phase 6. Moving a channel into or out of a category is done
+  from its settings rather than by dragging.
 - Do not disturb changes only how others see you until push notifications arrive (Phase 7).
 - Gateway events update the per-query caches directly; a normalized entity cache was not needed.
 

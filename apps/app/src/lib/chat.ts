@@ -505,6 +505,41 @@ export function chatActions({ qc, client, inst, myId }: ChatContext) {
       qc.removeQueries({ queryKey: chatKeys.messages(inst, channelId) });
       qc.removeQueries({ queryKey: chatKeys.channel(inst, channelId) });
     },
+    async createChannel(slug: string, input: Schemas['CreateChannelRequest']) {
+      const channel = unwrap(await client.POST('/places/{place}/channels', { params: { path: { place: slug } }, body: input }));
+      await qc.invalidateQueries({ queryKey: chatKeys.placeChannels(inst) });
+      return channel;
+    },
+    async updateChannel(channelId: string, patch: Schemas['UpdateChannelRequest']) {
+      const channel = unwrap(await client.PATCH('/channels/{channelID}', { params: { path: { channelID: channelId } }, body: patch }));
+      patchChannel(qc, inst, channelId, (held) => ({ ...held, ...channel }));
+      await qc.invalidateQueries({ queryKey: chatKeys.placeChannels(inst) });
+      return channel;
+    },
+    /** Moves a channel one step among its siblings; see `moveChannel` in core. */
+    async reorderChannels(changes: { id: string; position: number }[]) {
+      for (const c of changes) unwrap(await client.PATCH('/channels/{channelID}', { params: { path: { channelID: c.id } }, body: { position: c.position } }));
+      await qc.invalidateQueries({ queryKey: chatKeys.placeChannels(inst) });
+    },
+    async deleteChannel(channelId: string) {
+      unwrap(await client.DELETE('/channels/{channelID}', { params: { path: { channelID: channelId } } }));
+      qc.setQueriesData<Channel[]>({ queryKey: chatKeys.placeChannels(inst) }, (list) => list?.filter((c) => c.id !== channelId));
+      qc.removeQueries({ queryKey: chatKeys.messages(inst, channelId) });
+      qc.removeQueries({ queryKey: chatKeys.channel(inst, channelId) });
+      await qc.invalidateQueries({ queryKey: chatKeys.placeChannels(inst) });
+    },
+    /** Muting silences mention notifications from the channel; its unread state is still tracked. */
+    async setMuted(channelId: string, muted: boolean) {
+      const level = muted ? 'muted' : 'normal';
+      unwrap(await client.PUT('/channels/{channelID}/subscription', { params: { path: { channelID: channelId } }, body: { level } }));
+      patchChannel(qc, inst, channelId, (c) => ({ ...c, subscription: level }));
+    },
+    /** Anyone in a group conversation may rename it. */
+    async renameConversation(channelId: string, name: string) {
+      const channel = unwrap(await client.PATCH('/channels/{channelID}', { params: { path: { channelID: channelId } }, body: { name } }));
+      patchChannel(qc, inst, channelId, (held) => ({ ...held, name: channel.name }));
+      return channel;
+    },
     async invoke(channelId: string, parsed: ParsedCommand, lookup: (kind: 'user' | 'channel', name: string) => Promise<string | null>) {
       const options: Record<string, unknown> = { ...parsed.options };
       for (const l of parsed.lookups) {

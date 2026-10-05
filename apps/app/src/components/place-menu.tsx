@@ -3,13 +3,14 @@ import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { Modal, Pressable, View } from 'react-native';
 
+import { ChannelFormDialog } from '@/components/channel-menu';
 import { CreateInviteDialog } from '@/components/invite-dialog';
 import { classifyFailure } from '@/lib/failure';
 import { resetTo } from '@/lib/layout';
-import { usePlaceAccess, usePlaceActions, type Place } from '@/lib/places';
+import { useChannels, usePlaceAccess, usePlaceActions, type Place } from '@/lib/places';
 
 export interface PlaceMenuItem {
-  key: 'invite' | 'settings' | 'leave';
+  key: 'invite' | 'channel' | 'settings' | 'leave';
   label: string;
   icon: IconName;
   danger?: boolean;
@@ -21,6 +22,9 @@ export function usePlaceMenu(place: Place | undefined): { items: PlaceMenuItem[]
   const access = usePlaceAccess(place);
   const actions = usePlaceActions();
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [channelOpen, setChannelOpen] = useState(false);
+  const canChannels = access.can('MANAGE_CHANNELS');
+  const channels = useChannels(place?.slug, access.isMember && canChannels).data ?? [];
   const [leaveOpen, setLeaveOpen] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [leaveError, setLeaveError] = useState<string | null>(null);
@@ -30,6 +34,7 @@ export function usePlaceMenu(place: Place | undefined): { items: PlaceMenuItem[]
 
   const items: PlaceMenuItem[] = [];
   if (access.can('CREATE_INVITES')) items.push({ key: 'invite', label: 'Invite people', icon: 'users', onPress: () => setInviteOpen(true) });
+  if (canChannels) items.push({ key: 'channel', label: 'Create channel', icon: 'hash', onPress: () => setChannelOpen(true) });
   if (access.can('MANAGE_PLACE') || access.can('MANAGE_INVITES')) {
     items.push({ key: 'settings', label: 'Place settings', icon: 'settings', onPress: () => router.push({ pathname: '/places/[slug]/settings', params: { slug: place.slug } }) });
   }
@@ -55,6 +60,7 @@ export function usePlaceMenu(place: Place | undefined): { items: PlaceMenuItem[]
   const dialogs = (
     <>
       <CreateInviteDialog place={place} visible={inviteOpen} onClose={() => setInviteOpen(false)} />
+      <ChannelFormDialog slug={place.slug} visible={channelOpen} onClose={() => setChannelOpen(false)} categories={channels.filter((c) => c.kind === 'category')} />
       <Dialog visible={leaveOpen} onClose={() => setLeaveOpen(false)}>
         <Text variant="headingMd" accessibilityRole="header">
           Leave {place.name}?

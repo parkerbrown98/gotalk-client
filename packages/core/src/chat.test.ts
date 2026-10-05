@@ -3,6 +3,9 @@ import { describe, expect, it } from 'vitest';
 import {
   applyReaction,
   buildFeed,
+  channelSections,
+  channelSiblings,
+  moveChannel,
   commandQuery,
   conversationTitle,
   dayLabel,
@@ -15,6 +18,7 @@ import {
   typingText,
   validateMessage,
   type ChannelCommand,
+  type ChatChannel,
   type Message,
 } from './chat.ts';
 
@@ -205,5 +209,55 @@ describe('slash commands', () => {
   it('leaves ordinary messages and unknown commands alone', () => {
     expect(parseCommand('hello /remind', commands)).toBeNull();
     expect(parseCommand('/shrug', commands)).toBeNull();
+  });
+});
+
+describe('channel ordering', () => {
+  const ch = (id: string, kind: ChatChannel['kind'], position: number, parent: string | null = null): ChatChannel => ({
+    id,
+    kind,
+    position,
+    parent_id: parent,
+    place_id: 'p1',
+    name: id,
+    topic: '',
+    is_nsfw: false,
+    owner_id: null,
+    thread_message_id: null,
+    is_archived: false,
+    message_count: 0,
+    user_limit: 0,
+    last_message_id: null,
+    last_message_at: null,
+    created_at: `2026-10-0${position % 9}T00:00:00Z`,
+  });
+  const list = [ch('market', 'category', 1), ch('bench', 'text', 0), ch('swap', 'text', 0, 'market'), ch('garage', 'text', 1, 'market'), ch('help', 'text', 2), ch('lounge', 'voice', 3), ch('events', 'category', 4)];
+
+  it('groups channels under their categories, loose ones first', () => {
+    const s = channelSections(list);
+    expect(s.loose.map((c) => c.id)).toEqual(['bench', 'help']);
+    expect(s.categories.map((c) => [c.category.id, c.channels.map((x) => x.id)])).toEqual([
+      ['market', ['swap', 'garage']],
+      ['events', []],
+    ]);
+    expect(s.voice.map((c) => c.id)).toEqual(['lounge']);
+  });
+
+  it('moves a channel among its siblings by swapping their positions', () => {
+    const siblings = channelSiblings(list, list[1]!);
+    expect(siblings.map((c) => c.id)).toEqual(['bench', 'help']);
+    expect(moveChannel(siblings, 'help', -1)).toEqual([
+      { id: 'help', position: 0 },
+      { id: 'bench', position: 2 },
+    ]);
+    expect(moveChannel(siblings, 'bench', -1)).toEqual([]);
+  });
+
+  it('spreads out tied positions', () => {
+    const tied = [ch('a', 'text', 0), ch('b', 'text', 0), ch('c', 'text', 0)];
+    expect(moveChannel(tied, 'c', -1)).toEqual([
+      { id: 'c', position: 1 },
+      { id: 'b', position: 2 },
+    ]);
   });
 });

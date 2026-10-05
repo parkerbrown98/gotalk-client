@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Manage chat channels · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+<style>
+  .feed { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 16px 0 8px; }
+  .msg { display: grid; grid-template-columns: 36px 1fr; gap: 12px; padding: 4px 20px; }
+  .msg .meta { display: flex; gap: 8px; align-items: baseline; }
+  .msg .text { font-size: var(--gt-type-body-md-size); line-height: var(--gt-type-body-md-line-height); color: var(--gt-color-body); }
+  .composer { padding: 0 20px 16px; }
+  .composer .box { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 8px 6px 12px; border-radius: var(--gt-radius-md); background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline); }
+  .composer .box svg { width: 18px; height: 18px; color: var(--gt-color-mute); flex: none; }
+  .menu { position: absolute; width: 232px; padding: 6px; background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline-strong); border-radius: var(--gt-radius-lg); display: flex; flex-direction: column; gap: 2px; z-index: 2; }
+  .menu .row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: var(--gt-radius-sm); font-size: 14px; color: var(--gt-color-on-dark); }
+  .menu .row svg { width: 16px; height: 16px; color: var(--gt-color-mute); }
+  .menu .row.on { background: var(--gt-color-surface-card); }
+  .menu .row.danger, .menu .row.danger svg { color: var(--gt-color-accent-red); }
+  .menu .sep { height: 1px; background: var(--gt-color-hairline); margin: 4px 0; }
+  .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--gt-color-surface-elevated); border-top: 1px solid var(--gt-color-hairline-strong); border-radius: var(--gt-radius-xl) var(--gt-radius-xl) 0 0; padding: 24px 16px 32px; display: flex; flex-direction: column; gap: 16px; }
+  .grab { width: 36px; height: 4px; border-radius: 2px; background: var(--gt-color-stone); margin: -12px auto 0; }
+  .cat { display: flex; align-items: center; gap: 4px; padding: 10px 10px 2px; font-size: 13px; color: var(--gt-color-mute); }
+  .cat svg { width: 12px; height: 12px; }
+  .nav-row.muted { color: var(--gt-color-ash); }
+  .nav-row.muted svg { color: var(--gt-color-ash); }
+  .quote-box { padding: 10px 12px; border-radius: var(--gt-radius-md); background: var(--gt-color-surface); border: 1px solid var(--gt-color-hairline); }
+</style>
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Phase 4 · Real-time chat</nav>
+    <h1 class="t-display-lg">Manage chat channels</h1>
+    <p>People with Manage channels create text channels and categories, edit them, put them in order, and delete them. Everyone can mute a channel they do not need to hear from. Group conversations can be renamed by anyone in them.</p>
+  </header>
+
+  <section class="group">
+    <h2>Desktop</h2>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile" style="background:transparent"><svg class="i lg mute"><use href="#forum"/></svg></div><div class="tile yellow place active">O</div><div class="tile blue place">H</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <aside class="sidebar"><div class="head"><span class="t-body-strong">Open Woodworkers</span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+              <div class="items">
+                <div class="section-label">Chat</div>
+                <a class="nav-row active" href="#"><svg><use href="#hash"/></svg>bench-talk</a>
+                <a class="nav-row unread" href="#"><svg><use href="#hash"/></svg>help-wanted<span class="meta"><span class="count">1</span></span></a>
+                <div class="cat">Market<svg><use href="#chevronDown"/></svg></div>
+                <a class="nav-row" href="#"><svg><use href="#hash"/></svg>buy-sell-swap</a>
+                <a class="nav-row muted" href="#"><svg><use href="#hash"/></svg>garage-sales<span class="meta"><svg><use href="#bellOff"/></svg></span></a>
+                <div class="cat">Events<svg><use href="#chevronDown"/></svg></div>
+                <a class="nav-row" href="#"><svg><use href="#hash"/></svg>open-shop-sundays</a>
+                <a class="nav-row" href="#"><svg><use href="#plus"/></svg>New channel</a>
+              </div></aside>
+            <div class="main">
+              <div class="topbar"><svg class="i mute"><use href="#hash"/></svg><span class="t-body-strong">bench-talk</span><span class="t-caption-md mute">Saturday plans, offcuts, and shop gossip</span><span style="margin-left:auto" class="flex center gap-md mute"><svg class="i"><use href="#pin"/></svg><svg class="i"><use href="#users"/></svg><svg class="i on-dark"><use href="#more"/></svg></span></div>
+              <div class="feed">
+                <div class="msg"><span class="avatar green">JP</span><div class="col"><div class="meta"><span class="t-body-sm-strong">Jonas P.</span><span class="t-caption-md ash">10:12</span></div><div class="text">Anyone up for open shop tomorrow?</div></div></div>
+              </div>
+              <div class="composer"><div class="box"><span class="grow t-body-md ash">Message #bench-talk</span><svg><use href="#smile"/></svg></div></div>
+              <div class="menu" style="right:16px;top:100px">
+                <div class="row"><svg><use href="#bellOff"/></svg>Mute channel</div>
+                <div class="sep"></div>
+                <div class="row on"><svg><use href="#settings"/></svg>Edit channel</div>
+                <div class="row"><svg><use href="#arrowUp"/></svg>Move up</div>
+                <div class="row"><svg><use href="#arrowDown"/></svg>Move down</div>
+                <div class="sep"></div>
+                <div class="row danger"><svg><use href="#trash"/></svg>Delete channel</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>The sidebar groups channels under their categories, with channels outside a category first. The ⋯ in the top bar opens the channel menu: Mute for everyone, the rest for Manage channels. Muted channels step down to ash and never turn bright, though a mention still shows its count. Category labels carry a small chevron for Manage channels and open the same menu for the category; move up and down appear only where there is room to move.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <div class="main"><div class="topbar"><span class="t-body-strong">Open Woodworkers</span></div></div>
+            <div class="scrim">
+              <div class="card dialog" style="width:480px;background:var(--gt-color-surface-elevated);border-color:var(--gt-color-hairline-strong);border-radius:var(--gt-radius-xl)">
+                <h2 class="t-heading-md">New channel</h2>
+                <div class="field"><label>Type</label><div class="pills"><span class="pill active" style="background:var(--gt-color-surface-card)">Text channel</span><span class="pill">Category</span></div></div>
+                <div class="field"><label>Name</label><div class="input focus"><span>tool-library</span></div></div>
+                <div class="field"><label>Topic</label><div class="input"><span class="ph">What to talk about here (optional)</span></div></div>
+                <div class="field"><label>Category</label><div class="pills"><span class="pill">None</span><span class="pill active" style="background:var(--gt-color-surface-card)">Market</span><span class="pill">Events</span></div></div>
+                <div class="check"><span class="box"></span><span>Age-restricted (NSFW)</span></div>
+                <div class="flex gap-sm" style="justify-content:flex-end"><button class="btn btn-tertiary">Cancel</button><button class="btn btn-primary">Create channel</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>New channel, from the sidebar or the place menu. Choosing Category hides the topic, category and age fields; categories are always top level. Edit channel is the same form with the current values and Save.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><span class="title">Gotalk</span></div>
+          <div class="viewport">
+            <div class="rail"><div class="tile yellow place active">O</div><div class="avatar blue" style="margin-top:auto">MK<span class="presence"></span></div></div>
+            <div class="main"><div class="topbar"><svg class="i mute"><use href="#hash"/></svg><span class="t-body-strong">buy-sell-swap</span></div></div>
+            <div class="scrim">
+              <div class="card dialog" style="width:480px;background:var(--gt-color-surface-elevated);border-color:var(--gt-color-hairline-strong);border-radius:var(--gt-radius-xl)">
+                <h2 class="t-heading-md">Delete #buy-sell-swap?</h2>
+                <p class="t-body-sm mute">Its 1,204 messages and their threads are deleted for everyone. This cannot be undone.</p>
+                <div class="flex gap-sm" style="justify-content:flex-end"><button class="btn btn-tertiary">Keep</button><button class="btn btn-danger">Delete channel</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Deleting a channel. Deleting a category says instead that its channels move to the top level.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Phone</h2>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Open Woodworkers</span><span class="side end on-dark"><svg class="i"><use href="#more"/></svg></span></div>
+          <div class="body">
+            <div class="col gap-xs">
+              <div class="section-label" style="padding-left:0">Chat</div>
+              <a class="nav-row" href="#"><svg><use href="#hash"/></svg>bench-talk</a>
+              <a class="nav-row unread" href="#"><svg><use href="#hash"/></svg>help-wanted<span class="meta"><span class="count">1</span></span></a>
+              <div class="cat" style="padding-left:10px">Market</div>
+              <a class="nav-row" href="#"><svg><use href="#hash"/></svg>buy-sell-swap</a>
+              <a class="nav-row muted" href="#"><svg><use href="#hash"/></svg>garage-sales<span class="meta"><svg><use href="#bellOff"/></svg></span></a>
+              <a class="nav-row" href="#"><svg><use href="#plus"/></svg>New channel</a>
+            </div>
+          </div>
+          <div class="tabbar"><a class="active" href="#"><svg><use href="#home"/></svg>Places</a><a href="#"><svg><use href="#forum"/></svg>Messages</a><a href="#"><svg><use href="#bell"/></svg>Inbox</a><a href="#"><svg><use href="#search"/></svg>Search</a><a href="#"><svg><use href="#user"/></svg>You</a></div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>The place screen lists channels the same way, with New channel for Manage channels.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">bench-talk</span><span class="side end on-dark flex gap-md" style="justify-content:flex-end"><svg class="i"><use href="#pin"/></svg><svg class="i"><use href="#more"/></svg></span></div>
+          <div class="body"></div>
+          <div class="scrim" style="align-items:flex-end"></div>
+          <div class="sheet">
+            <div class="grab"></div>
+            <div class="card flush" style="background:var(--gt-color-surface)">
+              <div class="list-row"><svg class="i mute"><use href="#bellOff"/></svg><span class="t-body-sm-strong">Mute channel</span></div>
+              <div class="list-row"><svg class="i mute"><use href="#settings"/></svg><span class="t-body-sm-strong">Edit channel</span></div>
+              <div class="list-row"><svg class="i mute"><use href="#arrowUp"/></svg><span class="t-body-sm-strong">Move up</span></div>
+              <div class="list-row"><svg class="i mute"><use href="#arrowDown"/></svg><span class="t-body-sm-strong">Move down</span></div>
+              <div class="list-row"><svg class="i danger"><use href="#trash"/></svg><span class="t-body-sm-strong danger">Delete channel</span></div>
+            </div>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>On phones the channel menu is a sheet from the title bar’s ⋯.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Ana, Tomas, Jonas</span><span class="side end on-dark flex gap-md" style="justify-content:flex-end"><svg class="i"><use href="#pin"/></svg><svg class="i"><use href="#more"/></svg></span></div>
+          <div class="body"></div>
+          <div class="scrim" style="align-items:flex-end"></div>
+          <div class="sheet">
+            <div class="grab"></div>
+            <h2 class="t-heading-md">Rename conversation</h2>
+            <div class="field"><label>Name</label><div class="input focus" style="background:var(--gt-color-surface)"><span>Saturday crew</span></div><span class="note">Everyone in the conversation sees the new name.</span></div>
+            <div class="flex gap-sm" style="justify-content:flex-end"><button class="btn btn-tertiary" style="background:var(--gt-color-surface-card)">Cancel</button><button class="btn btn-primary">Save</button></div>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Anyone in a group conversation can rename it from its menu, next to Add people and Leave.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>

@@ -1,9 +1,10 @@
 import { previewText, type Message } from '@gotalk/core';
 import { Icon, Notice, Stack, Text, useTheme } from '@gotalk/ui';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
+import { ChannelMenu, useChannelMenu } from '@/components/channel-menu';
 import { MembersPanel, PinsList, SidePanel, ThreadPanel } from '@/components/chat-panels';
 import { BarButton, ChatFrame, TopBar } from '@/components/chat-screen';
 import { ChatView } from '@/components/chat-view';
@@ -54,10 +55,15 @@ export default function ChannelScreen() {
   const { slug, id, thread, jump } = useLocalSearchParams<{ slug: string; id: string; thread?: string; jump?: string }>();
   const wide = useWide();
   const theme = useTheme();
-  const listed = useChannels(slug).data?.find((c) => c.id === id);
+  const all = useChannels(slug).data;
+  const listed = all?.find((c) => c.id === id);
   const query = useChannel(id);
   const channel = query.data ?? listed;
   const access = useChannelAccess(channel);
+  const menu = useChannelMenu(channel, all ?? [], slug, () => router.replace({ pathname: '/places/[slug]', params: { slug } }));
+  const moreRef = useRef<View>(null);
+  const [menuAt, setMenuAt] = useState<{ left: number; top: number } | null>(null);
+  const [sheet, setSheet] = useState(false);
   const [panel, setPanel] = useState<Panel>('members');
   const [jumpTo, setJumpTo] = useState<{ id: string; seq: number } | null>(null);
 
@@ -106,7 +112,12 @@ export default function ChannelScreen() {
       wide={wide}
       title={channel.name}
       onBack={back}
-      end={<BarButton icon="pin" label="Pinned messages" size={20} onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]/pins', params: { slug, id } })} />}
+      end={
+        <View style={{ flexDirection: 'row', gap: 16 }}>
+          <BarButton icon="pin" label="Pinned messages" size={20} onPress={() => router.push({ pathname: '/places/[slug]/channels/[id]/pins', params: { slug, id } })} />
+          {menu.items.length > 0 ? <BarButton icon="more" label="Channel actions" size={20} onPress={() => setSheet(true)} /> : null}
+        </View>
+      }
       topBar={
         <>
           <TopBar
@@ -114,6 +125,15 @@ export default function ChannelScreen() {
               <>
                 <BarButton icon="pin" label="Pinned messages" active={panel === 'pins' && !thread} onPress={() => togglePanel('pins')} />
                 <BarButton icon="users" label="Members" active={panel === 'members' && !thread} onPress={() => togglePanel('members')} />
+                {menu.items.length > 0 ? (
+                  <View ref={moreRef}>
+                    <BarButton
+                      icon="more"
+                      label="Channel actions"
+                      onPress={() => moreRef.current?.measureInWindow((x, y, w, h) => setMenuAt({ left: x + w - 232, top: y + h + 8 }))}
+                    />
+                  </View>
+                ) : null}
               </>
             }
           >
@@ -132,6 +152,11 @@ export default function ChannelScreen() {
       }
       side={side}
     >
+      {menu.problem ? (
+        <View style={{ paddingHorizontal: 20, paddingTop: 8 }}>
+          <Notice tone="danger">{menu.problem}</Notice>
+        </View>
+      ) : null}
       <View style={{ flex: 1 }}>
         <ChatView
           key={channel.id}
@@ -145,6 +170,9 @@ export default function ChannelScreen() {
           jump={jumpTo ?? jumpParam}
         />
       </View>
+      <ChannelMenu items={menu.items} visible={!!menuAt} onClose={() => setMenuAt(null)} anchor={menuAt ?? undefined} />
+      <ChannelMenu items={menu.items} visible={sheet} onClose={() => setSheet(false)} />
+      {menu.dialogs}
     </ChatFrame>
   );
 }

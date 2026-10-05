@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
+import { RenameConversationDialog } from '@/components/channel-menu';
 import { ConversationHeading, PinsList, SidePanel } from '@/components/chat-panels';
 import { BarButton, ChatFrame, TopBar } from '@/components/chat-screen';
 import { ChatView } from '@/components/chat-view';
@@ -28,6 +29,7 @@ export default function Conversation() {
   const [pins, setPins] = useState(false);
   const [menu, setMenu] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [renaming, setRenaming] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [jumpTo, setJumpTo] = useState<{ id: string; seq: number } | null>(null);
@@ -52,6 +54,7 @@ export default function Conversation() {
   const other = channel.kind === 'dm' ? channel.recipients?.find((u) => u.id !== myId) : undefined;
   const menuItems = group
     ? [
+        { key: 'rename', label: 'Rename conversation', icon: 'edit' as const, onPress: () => setRenaming(true) },
         { key: 'add', label: 'Add people', icon: 'users' as const, onPress: () => setAdding(true) },
         { key: 'leave', label: 'Leave conversation', icon: 'logout' as const, danger: true, onPress: () => setLeaving(true) },
       ]
@@ -106,6 +109,7 @@ export default function Conversation() {
       </View>
       <ActionList items={menuItems} visible={menu} onClose={() => setMenu(false)} />
       <NewConversationDialog visible={adding} onClose={() => setAdding(false)} addTo={channel} />
+      <RenameConversationDialog channel={channel} visible={renaming} onClose={() => setRenaming(false)} />
       <Dialog visible={leaving} onClose={() => setLeaving(false)}>
         <Text variant="headingMd" accessibilityRole="header">
           Leave {title}?

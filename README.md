@@ -113,7 +113,8 @@ and refreshes the lists that summarize them. Events write straight into the TanS
 the screens read, so there is one source of truth whether data came from a request or the gateway.
 
 Chat lives in `(app)/places/[slug]/channels/[id]` (threads open beside it on wide screens and as
-`threads/[thread]` on phones) and `(app)/messages`. Sends are optimistic: each carries a nonce the server
+`threads/[thread]` on phones) and `(app)/messages`. People with Manage channels create, edit, reorder and
+delete channels and categories from the sidebar and the channel menu (`components/channel-menu.tsx`). Sends are optimistic: each carries a nonce the server
 echoes, so the response and the `MESSAGE_CREATE` event settle the same pending message. Sends made while
 offline wait for the connection; refused ones offer Retry and Delete. Message actions appear on hover on
 wide screens with a hovering pointer and on a long press elsewhere. Presence (online, idle, do not
