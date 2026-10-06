@@ -6,10 +6,13 @@ import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 
 import { ChatView } from '@/components/chat-view';
 import { Markdown } from '@/components/markdown';
+import { MenuItem, MenuPopover, MenuSeparator, type Anchor } from '@/components/menu';
+import { MemberModerationDialog, ReportDialog } from '@/components/moderation';
 import { PresenceAvatar, presenceLabels } from '@/components/presence';
 import { useSession } from '@/lib/auth';
 import { useChannel, useChatActions, useMessage, usePins, usePlaceMembers, type Channel } from '@/lib/chat';
 import { failureMessage } from '@/lib/failure';
+import { usePlace, usePlaceAccess } from '@/lib/places';
 import { usePresences } from '@/lib/realtime';
 
 /** The right-hand column on wide screens: members, pins or a thread. */
@@ -55,7 +58,7 @@ export function useMessageSomeone() {
   };
 }
 
-/** Who is here: online first, with presence. Tapping someone opens a conversation with them. */
+/** Who is here: online first, with presence. Choosing someone offers a message, a report, or moderation. */
 export function MembersPanel({ slug }: { slug: string }) {
   const theme = useTheme();
   const members = usePlaceMembers(slug, true);
@@ -63,19 +66,29 @@ export function MembersPanel({ slug }: { slug: string }) {
   const presence = usePresences(list.map((m) => m.user.id));
   const myId = useSession()?.userId;
   const message = useMessageSomeone();
+  const place = usePlace(slug).data;
+  const access = usePlaceAccess(place);
+  const canModerate = access.can('KICK_MEMBERS') || access.can('BAN_MEMBERS') || access.can('MODERATE_MEMBERS') || access.can('MANAGE_ROLES') || access.can('MANAGE_NICKNAMES');
+  const [menu, setMenu] = useState<{ userId: string; name: string; anchor: Anchor } | null>(null);
+  const [reporting, setReporting] = useState<{ userId: string; name: string } | null>(null);
+  const [moderating, setModerating] = useState<string | null>(null);
   const online = list.filter((m) => presence[m.user.id] && presence[m.user.id] !== 'offline');
   const offline = list.filter((m) => !presence[m.user.id] || presence[m.user.id] === 'offline');
 
   const row = (m: (typeof list)[number], dim: boolean) => {
     const status = presence[m.user.id];
     const label = m.nickname ?? m.user.display_name;
+    const self = m.user.id === myId;
     return (
       <Pressable
         key={m.user.id}
         accessibilityRole="button"
-        accessibilityLabel={m.user.id === myId ? `${label} (you)` : `Message ${label}`}
-        disabled={m.user.id === myId}
-        onPress={() => void message.start(m.user.id)}
+        accessibilityLabel={self ? `${label} (you)` : label}
+        disabled={self && !canModerate}
+        onPress={(e) => {
+          const { pageX, pageY } = e.nativeEvent;
+          setMenu({ userId: m.user.id, name: label, anchor: { left: pageX - 240, top: pageY + 8, flipAt: pageY - 8 } });
+        }}
         style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 10, paddingVertical: 6, borderRadius: theme.radii.sm, backgroundColor: pressed ? theme.colors.surfaceCard : 'transparent' })}
       >
         <PresenceAvatar user={m.user} size={24} ring={theme.colors.surface} />
@@ -91,6 +104,7 @@ export function MembersPanel({ slug }: { slug: string }) {
     );
   };
 
+  const self = menu?.userId === myId;
   return (
     <SidePanel>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 8, paddingVertical: 12, gap: 2 }}>
@@ -105,6 +119,44 @@ export function MembersPanel({ slug }: { slug: string }) {
         </Text>
         {offline.map((m) => row(m, true))}
       </ScrollView>
+      <MenuPopover visible={!!menu} onClose={() => setMenu(null)} anchor={menu?.anchor ?? {}}>
+        {menu && !self ? (
+          <MenuItem
+            label="Send a message"
+            icon="forum"
+            onPress={() => {
+              setMenu(null);
+              void message.start(menu.userId);
+            }}
+          />
+        ) : null}
+        {menu && canModerate ? (
+          <MenuItem
+            label={self ? 'Roles and nickname' : 'Moderate'}
+            icon="shield"
+            onPress={() => {
+              setMenu(null);
+              setModerating(menu.userId);
+            }}
+          />
+        ) : null}
+        {menu && !self ? (
+          <>
+            <MenuSeparator />
+            <MenuItem
+              label={`Report ${menu.name}`}
+              icon="flag"
+              danger
+              onPress={() => {
+                setMenu(null);
+                setReporting({ userId: menu.userId, name: menu.name });
+              }}
+            />
+          </>
+        ) : null}
+      </MenuPopover>
+      <ReportDialog place={slug} target={reporting ? { kind: 'user', id: reporting.userId } : null} subject={reporting?.name ?? ''} visible={!!reporting} onClose={() => setReporting(null)} />
+      <MemberModerationDialog slug={slug} userId={moderating} visible={!!moderating} onClose={() => setModerating(null)} />
     </SidePanel>
   );
 }

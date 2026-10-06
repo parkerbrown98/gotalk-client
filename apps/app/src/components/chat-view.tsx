@@ -10,6 +10,7 @@ import { ChatComposer } from '@/components/chat-composer';
 import { DeleteMessageDialog, MessageHistoryDialog, MessageMenu, MessageSheet, ReactionPickerDialog, StartThreadDialog, messageActions } from '@/components/chat-dialogs';
 import { ChatScopeContext, MessageRow, OutgoingRow, type ChatScope } from '@/components/chat-message';
 import type { Anchor } from '@/components/menu';
+import { ReportDialog } from '@/components/moderation';
 import { useApiClient, useMe } from '@/lib/api';
 import { useSession } from '@/lib/auth';
 import { useChannelCommands, useChatActions, useMemberNames, useMessages, useOutbox, useReceipts, type Channel, type OutgoingMessage } from '@/lib/chat';
@@ -132,6 +133,7 @@ export function ChatView({ channel, slug, wide, placeholder, intro, starter, onO
 
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [editingId, setEditing] = useState<string | null>(null);
+  const [reporting, setReporting] = useState<Message | null>(null);
   const [highlight, setHighlight] = useState<string | null>(null);
   const [menu, setMenu] = useState<{ message: Message; anchor?: Anchor } | null>(null);
   const [picker, setPicker] = useState<Message | null>(null);
@@ -282,6 +284,7 @@ export function ChatView({ channel, slug, wide, placeholder, intro, starter, onO
     ? messageActions(menu.message, { myId, can, reply: scope.reply, openThread: onOpenThread, startThread: setThreading, setEditing, showHistory: setHistory }, {
         pin: (m, on) => void run(() => actions!.pin(m, on), 'Could not change the pin. Try again.'),
         remove: setDeleting,
+        report: channel.place_id ? setReporting : undefined,
       })
     : [];
 
@@ -448,6 +451,7 @@ export function ChatView({ channel, slug, wide, placeholder, intro, starter, onO
       />
       <MessageHistoryDialog message={history} onClose={() => setHistory(null)} />
       <DeleteMessageDialog message={deleting} mine={!!deleting && deleting.author?.id === myId} onClose={() => setDeleting(null)} onDelete={(m, reason) => actions!.remove(m, reason)} />
+      <ReportDialog place={channel.place_id} target={reporting ? { kind: 'message', id: reporting.id } : null} subject="this message" visible={!!reporting} onClose={() => setReporting(null)} />
       <StartThreadDialog
         message={threading}
         onClose={() => setThreading(null)}

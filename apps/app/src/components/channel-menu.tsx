@@ -229,6 +229,7 @@ export function useChannelMenu(channel: Channel | undefined, all: Channel[], slu
   }
   if (manage) {
     items.push({ key: 'edit', label: `Edit ${noun}`, icon: 'settings', onPress: () => setEditing(true) });
+    items.push({ key: 'permissions', label: 'Permissions', icon: 'lock', onPress: () => router.push({ pathname: '/places/[slug]/settings/permissions/[id]', params: { slug, id: channel.id, kind: 'channel' } }) });
     if (up.length) items.push({ key: 'up', label: 'Move up', icon: 'arrowUp', onPress: () => run(() => actions.reorderChannels(up), 'Could not move it. Try again.') });
     if (down.length) items.push({ key: 'down', label: 'Move down', icon: 'arrowDown', onPress: () => run(() => actions.reorderChannels(down), 'Could not move it. Try again.') });
     items.push({ key: 'delete', label: `Delete ${noun}`, icon: 'trash', danger: true, onPress: () => setDeleting(true) });

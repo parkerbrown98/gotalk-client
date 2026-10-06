@@ -37,6 +37,8 @@ export default function Board() {
 
   const newTopic = () => router.push({ pathname: '/places/[slug]/boards/[id]/new', params: { slug, id } });
   const search = () => router.push({ pathname: '/places/[slug]/search', params: { slug, board: board?.id ?? '' } });
+  const canPermissions = !!board && boardAccess.can('MANAGE_BOARDS');
+  const permissions = () => board && router.push({ pathname: '/places/[slug]/settings/permissions/[id]', params: { slug, id: board.id, kind: 'board' } });
 
   const watch = board ? <WatchButton scope="board" level={board.subscription} onChange={(level) => actions.watchBoard(board.id, slug, level)} /> : null;
 
@@ -54,6 +56,7 @@ export default function Board() {
         <View style={{ flex: 1 }} />
       )}
       {watch}
+      {canPermissions ? <Button title="Permissions" variant="tertiary" size="sm" onPress={permissions} /> : null}
       <Button title="Search" variant="tertiary" size="sm" onPress={search} />
       {canPost ? <Button title="New topic" onPress={newTopic} /> : null}
     </View>
@@ -103,6 +106,7 @@ export default function Board() {
               <Text variant="captionMd" tone="muted" style={{ flex: 1 }} numberOfLines={2}>
                 {board.description}
               </Text>
+              {canPermissions ? <Button title="Permissions" variant="tertiary" size="sm" onPress={permissions} /> : null}
               {watch}
             </View>
           )}

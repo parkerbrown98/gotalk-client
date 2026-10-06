@@ -21,6 +21,15 @@ describe('describeNotification', () => {
     expect(v).toMatchObject({ actor: '', action: 'A moderator took action: post deleted', detail: 'Reason: Off topic', target: { placeSlug: 'open-woodworkers', topicId: null } });
   });
 
+  it('words the moderation actions the server sends', () => {
+    const data = { place_name: 'Open Woodworkers', place_slug: 'open-woodworkers', reason: 'Be kind' };
+    expect(describeNotification({ ...base, kind: 'moderation', topic_id: null, data: { ...data, action: 'member.warn' } }).action).toBe('You received a warning from the moderators');
+    expect(describeNotification({ ...base, kind: 'moderation', topic_id: null, data: { ...data, action: 'message.delete' } }).action).toBe('A moderator removed your message');
+    const timeout = describeNotification({ ...base, kind: 'moderation', topic_id: null, data: { ...data, action: 'member.timeout', until: '2026-03-02T15:00:00Z' } });
+    expect(timeout.action).toMatch(/^You were timed out until /);
+    expect(timeout.detail).toBe('Reason: Be kind');
+  });
+
   it('does not do anything for kinds it does not know', () => {
     expect(describeNotification({ ...base, kind: 'brand_new', data }).action).toBe('sent a notification');
   });

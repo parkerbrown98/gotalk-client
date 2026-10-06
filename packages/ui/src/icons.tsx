@@ -53,6 +53,11 @@ const shapes = {
   monitor: [{ rect: [3, 4, 18, 12, 2] }, 'M8 20h8M12 16v4'],
   video: [{ rect: [3, 6, 13, 12, 2] }, 'm16 10.5 5-3v9l-5-3'],
   phoneOff: ['M4 15c4.5-3.5 11.5-3.5 16 0l-1.5 3-3.5-1.5v-2.5c-2-.7-4-.7-6 0V16.5L5.5 18 4 15Z'],
+  flag: ['M5 21V4M5 4h11l-2 4 2 4H5'],
+  ban: [{ circle: [12, 12, 9] }, 'm5.6 5.6 12.8 12.8'],
+  key: [{ circle: [8, 15, 4] }, 'm11 12 8-8M16 7l3 3'],
+  server: [{ rect: [3, 4, 18, 6, 1.5] }, { rect: [3, 14, 18, 6, 1.5] }, 'M7 7v.01M7 17v.01'],
+  code: ['m8 7-5 5 5 5M16 7l5 5-5 5'],
 } as const satisfies Record<string, readonly Shape[]>;
 
 export type IconName = keyof typeof shapes;

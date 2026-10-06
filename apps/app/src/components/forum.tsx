@@ -5,6 +5,7 @@ import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import { Composer } from '@/components/composer';
 import { Markdown } from '@/components/markdown';
+import { ReportDialog } from '@/components/moderation';
 import { failureMessage } from '@/lib/failure';
 import { useForumActions, usePostRevisions, type Post, type Topic, type WatchLevel } from '@/lib/forums';
 
@@ -252,6 +253,7 @@ export function PostItem({ post, topic, indent = 0, wide, userId, canModerate, c
   const [history, setHistory] = useState(false);
   const [picker, setPicker] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [reporting, setReporting] = useState(false);
 
   const mine = !!userId && post.author.id === userId;
   const isTopicAuthor = !!userId && topic.author.id === userId;
@@ -260,6 +262,7 @@ export function PostItem({ post, topic, indent = 0, wide, userId, canModerate, c
   const canEdit = !deleted && (mine || canModerate);
   const canDelete = !deleted && post.post_number > 1 && (mine || canModerate);
   const canAccept = !deleted && solutionsEnabled && post.post_number > 1 && (isTopicAuthor || canModerate);
+  const canReport = !deleted && !mine && !!userId;
   const small = !wide || indent > 0;
 
   async function run(work: () => Promise<unknown>, fallback: string) {
@@ -356,17 +359,19 @@ export function PostItem({ post, topic, indent = 0, wide, userId, canModerate, c
           </View>
         ) : null}
 
-        {!editing && (canAccept || canEdit || canDelete) ? (
+        {!editing && (canAccept || canEdit || canDelete || canReport) ? (
           <View style={{ flexDirection: 'row', gap: theme.space.lg }}>
             {canAccept ? linkAction(accepted ? 'Clear solution' : 'Accept as solution', () => void run(() => actions.setSolution(topic.id, accepted ? null : post.id), 'Could not change the solution. Try again.')) : null}
             {canEdit ? linkAction('Edit', () => setEditing(true)) : null}
             {canDelete ? linkAction('Delete', () => setConfirmDelete(true), true) : null}
+            {canReport ? linkAction('Report', () => setReporting(true)) : null}
           </View>
         ) : null}
         {!editing && error ? <Text variant="captionMd" tone="danger">{error}</Text> : null}
       </View>
 
       <RevisionsDialog post={post} visible={history} onClose={() => setHistory(false)} />
+      <ReportDialog place={slug} target={{ kind: 'post', id: post.id }} subject={`this post by ${post.author.display_name}`} visible={reporting} onClose={() => setReporting(false)} />
       <ReactionPicker visible={picker} onClose={() => setPicker(false)} onPick={(e) => void run(() => actions.react(post, e, true), 'Could not react. Try again.')} />
       <Dialog visible={confirmDelete} onClose={() => setConfirmDelete(false)}>
         <Text variant="headingMd" accessibilityRole="header">

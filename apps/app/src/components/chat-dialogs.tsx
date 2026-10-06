@@ -29,7 +29,7 @@ export interface MessageAction {
 export function messageActions(
   m: Message,
   scope: Pick<ChatScope, 'myId' | 'can' | 'reply' | 'openThread' | 'startThread' | 'setEditing' | 'showHistory'>,
-  handlers: { pin: (m: Message, on: boolean) => void; remove: (m: Message) => void },
+  handlers: { pin: (m: Message, on: boolean) => void; remove: (m: Message) => void; report?: (m: Message) => void },
 ): MessageAction[] {
   const mine = !!scope.myId && m.author?.id === scope.myId;
   const out: MessageAction[] = [];
@@ -38,6 +38,11 @@ export function messageActions(
   else if (scope.can.thread) out.push({ key: 'thread', label: 'Start a thread', icon: 'thread', onPress: () => scope.startThread(m) });
   if (scope.can.pin) out.push({ key: 'pin', label: m.is_pinned ? 'Unpin message' : 'Pin message', icon: 'pin', onPress: () => handlers.pin(m, !m.is_pinned) });
   out.push({ key: 'copy', label: 'Copy text', icon: 'copy', onPress: () => void Clipboard.setStringAsync(m.content) });
+  // Reports go to a place's moderators, so direct messages have nobody to report to.
+  if (!mine && m.author && handlers.report) {
+    const report = handlers.report;
+    out.push({ key: 'report', label: 'Report message', icon: 'flag', onPress: () => report(m) });
+  }
   if (mine && scope.can.send) out.push({ key: 'edit', label: 'Edit message', icon: 'edit', onPress: () => scope.setEditing(m.id) });
   if (m.edited_at && (mine || scope.can.manage)) out.push({ key: 'history', label: 'Edit history', icon: 'clock', onPress: () => scope.showHistory(m) });
   if (mine || scope.can.manage) out.push({ key: 'delete', label: 'Delete message', icon: 'trash', danger: true, onPress: () => handlers.remove(m) });

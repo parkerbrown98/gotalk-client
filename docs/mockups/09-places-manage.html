@@ -11,6 +11,8 @@
   .form-main { flex: 1; min-width: 0; padding: 32px 40px; display: flex; flex-direction: column; gap: 24px; overflow: hidden; }
   .form-main .inner { width: 480px; display: flex; flex-direction: column; gap: 24px; }
   .form-main .inner.wide { width: 640px; }
+  .settings-layout { flex: 1; min-height: 0; display: flex; }
+  .settings-section-nav { width: 220px; flex: none; background: var(--gt-color-canvas); padding: 16px 8px; display: flex; flex-direction: column; gap: 2px; }
   .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
   .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--gt-color-surface-elevated); border-top: 1px solid var(--gt-color-hairline-strong); border-radius: var(--gt-radius-xl) var(--gt-radius-xl) 0 0; padding: 24px 16px 32px; display: flex; flex-direction: column; gap: 16px; }
   .grab { width: 36px; height: 4px; border-radius: 2px; background: var(--gt-color-stone); margin: -12px auto 0; }
@@ -97,8 +99,25 @@
               <div class="foot flex center gap-sm"><span class="avatar s32 blue">MK<span class="presence"></span></span><div class="col grow"><span class="t-body-sm-strong">Marta K.</span><span class="t-caption-md mute">Online</span></div><svg class="i mute"><use href="#settings"/></svg></div>
             </aside>
             <div class="main">
-              <div class="topbar"><svg class="i mute"><use href="#settings"/></svg><span class="t-body-strong">Place settings</span><span style="margin-left:auto" class="pills"><span class="pill active">General</span><span class="pill">Invites</span></span></div>
-              <div class="form-main">
+              <div class="topbar"><svg class="i mute"><use href="#settings"/></svg><span class="t-body-strong">Place settings</span></div>
+              <div class="settings-layout">
+                <nav class="settings-section-nav hairline-r">
+                  <div class="section-label">Place</div>
+                  <a class="nav-row active" href="#"><svg><use href="#settings"/></svg>General</a>
+                  <a class="nav-row" href="#"><svg><use href="#users"/></svg>Invites</a>
+                  <a class="nav-row" href="#"><svg><use href="#shield"/></svg>Roles</a>
+                  <a class="nav-row" href="#"><svg><use href="#lock"/></svg>Permissions</a>
+                  <div class="section-label">Moderation</div>
+                  <a class="nav-row" href="#"><svg><use href="#user"/></svg>Members</a>
+                  <a class="nav-row" href="#"><svg><use href="#flag"/></svg>Reports<span class="meta"><span class="count">3</span></span></a>
+                  <a class="nav-row" href="#"><svg><use href="#x"/></svg>Bans</a>
+                  <a class="nav-row" href="#"><svg><use href="#clock"/></svg>Audit log</a>
+                  <div class="section-label">Integrations</div>
+                  <a class="nav-row" href="#"><svg><use href="#link"/></svg>Webhooks</a>
+                  <a class="nav-row" href="#"><svg><use href="#bot"/></svg>Bots</a>
+                  <div class="hairline-t" style="margin-top:auto;padding-top:8px"><a class="nav-row" href="#"><svg><use href="#eye"/></svg>Transparency report</a></div>
+                </nav>
+                <div class="form-main">
                 <div class="inner">
                   <div class="field"><label>Name</label><div class="input focus"><span>Open Woodworkers</span></div></div>
                   <div class="field"><label>Address</label><div class="input"><span class="mute">places/</span><span>open-woodworkers</span></div><span class="note">Changing it breaks links people already have.</span></div>
@@ -113,11 +132,12 @@
                   <div class="flex gap-sm"><button class="btn btn-primary">Save changes</button><button class="btn btn-tertiary">Discard</button></div>
                   <div class="hairline-t" style="padding-top:16px"><div class="flex between center"><div class="col"><span class="t-body-sm-strong">Delete this place</span><span class="t-caption-md mute">Removes it for every member. Only the owner can do this.</span></div><button class="btn btn-danger">Delete place</button></div></div>
                 </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <figcaption>Place settings, General. Requires the Manage place permission; the delete row appears for the owner only.</figcaption>
+        <figcaption>Place settings, General. Requires Manage place; the Phase 6 section nav replaces the old General and Invites tabs, and the delete row appears for the owner only.</figcaption>
       </figure>
 
       <figure class="frame">
@@ -142,8 +162,25 @@
               <div class="foot flex center gap-sm"><span class="avatar s32 blue">MK<span class="presence"></span></span><div class="col grow"><span class="t-body-sm-strong">Marta K.</span><span class="t-caption-md mute">Online</span></div><svg class="i mute"><use href="#settings"/></svg></div>
             </aside>
             <div class="main">
-              <div class="topbar"><svg class="i mute"><use href="#settings"/></svg><span class="t-body-strong">Place settings</span><span style="margin-left:auto" class="pills"><span class="pill">General</span><span class="pill active">Invites</span></span></div>
-              <div class="form-main">
+              <div class="topbar"><svg class="i mute"><use href="#settings"/></svg><span class="t-body-strong">Place settings</span></div>
+              <div class="settings-layout">
+                <nav class="settings-section-nav hairline-r">
+                  <div class="section-label">Place</div>
+                  <a class="nav-row" href="#"><svg><use href="#settings"/></svg>General</a>
+                  <a class="nav-row active" href="#"><svg><use href="#users"/></svg>Invites</a>
+                  <a class="nav-row" href="#"><svg><use href="#shield"/></svg>Roles</a>
+                  <a class="nav-row" href="#"><svg><use href="#lock"/></svg>Permissions</a>
+                  <div class="section-label">Moderation</div>
+                  <a class="nav-row" href="#"><svg><use href="#user"/></svg>Members</a>
+                  <a class="nav-row" href="#"><svg><use href="#flag"/></svg>Reports<span class="meta"><span class="count">3</span></span></a>
+                  <a class="nav-row" href="#"><svg><use href="#x"/></svg>Bans</a>
+                  <a class="nav-row" href="#"><svg><use href="#clock"/></svg>Audit log</a>
+                  <div class="section-label">Integrations</div>
+                  <a class="nav-row" href="#"><svg><use href="#link"/></svg>Webhooks</a>
+                  <a class="nav-row" href="#"><svg><use href="#bot"/></svg>Bots</a>
+                  <div class="hairline-t" style="margin-top:auto;padding-top:8px"><a class="nav-row" href="#"><svg><use href="#eye"/></svg>Transparency report</a></div>
+                </nav>
+                <div class="form-main">
                 <div class="inner wide">
                   <div class="flex between center"><div class="col gap-xs"><h2 class="t-heading-xl">Invites</h2><p class="mute t-body-sm">Anyone with a link can join, up to the limits you set. Revoking a link stops it working right away.</p></div><button class="btn btn-primary">Create invite</button></div>
                   <div class="card flush">
@@ -153,11 +190,12 @@
                   </div>
                   <p class="t-caption-md mute">Anyone with Create invites can make a link from the place menu, but only people with Manage invites see this list.</p>
                 </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <figcaption>Place settings, Invites. Copy link puts the full link on the clipboard; the code alone is shown for reading it out loud.</figcaption>
+        <figcaption>Place settings, Invites. Requires Manage invites; the Phase 6 section nav replaces the old General and Invites tabs, and Copy link puts the full link on the clipboard.</figcaption>
       </figure>
 
       <figure class="frame">
@@ -293,7 +331,6 @@
           <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
           <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Place settings</span><span class="side"></span></div>
           <div class="body">
-            <div class="pills"><span class="pill active">General</span><span class="pill">Invites</span></div>
             <div class="field"><label>Name</label><div class="input focus"><span>Open Woodworkers</span></div></div>
             <div class="field"><label>Address</label><div class="input"><span class="mute">places/</span><span>open-woodworkers</span></div></div>
             <div class="field"><label>Who can join</label>
@@ -307,7 +344,7 @@
           </div>
           <div class="home-bar"></div>
         </div>
-        <figcaption>Place settings</figcaption>
+        <figcaption>Place settings. Phones reach General and Invites from the place settings list, so this pushed screen has no tabs.</figcaption>
       </figure>
 
       <figure class="frame">

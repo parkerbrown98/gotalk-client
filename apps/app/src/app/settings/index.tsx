@@ -2,6 +2,7 @@ import { Avatar, ListCard, ListRow, Stack, Text } from '@gotalk/ui';
 import { Redirect, router } from 'expo-router';
 
 import { ScreenFrame } from '@/components/screen-frame';
+import { useSettingsGroups } from '@/components/settings-page';
 import { useMe } from '@/lib/api';
 import { signOut, useAuthTarget, useSession } from '@/lib/auth';
 import { useSessions } from '@/lib/sessions';
@@ -16,6 +17,7 @@ export default function SettingsIndex() {
   const target = useAuthTarget();
   const me = useMe().data;
   const sessions = useSessions().data;
+  const groups = useSettingsGroups();
 
   if (wide) return <Redirect href="/settings/profile" />;
   if (!active || !session) return null;
@@ -48,6 +50,20 @@ export default function SettingsIndex() {
           <ListRow icon="logout" title="Sign out" onPress={() => target && void signOut(target)} />
           <ListRow icon="trash" title="Delete account" tone="danger" onPress={() => router.push('/settings/delete')} />
         </ListCard>
+        {groups
+          .filter((g) => g.label !== 'Account')
+          .map((g) => (
+            <Stack key={g.label} gap="sm">
+              <Text variant="captionMd" tone="muted">
+                {g.label}
+              </Text>
+              <ListCard>
+                {g.links.map((l) => (
+                  <ListRow key={l.path} icon={l.icon} title={l.label} chevron onPress={() => router.push(l.path)} />
+                ))}
+              </ListCard>
+            </Stack>
+          ))}
       </Stack>
     </ScreenFrame>
   );

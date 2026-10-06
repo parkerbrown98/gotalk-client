@@ -139,18 +139,23 @@ export function NavRow({ label, icon, leading, active, unread, count = 0, muted,
 export interface CheckboxProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
+  /** Shown but not changeable; the box and label step down to ash. */
+  disabled?: boolean;
+  /** A second, muted line under the label. */
+  description?: string;
   children: ReactNode;
 }
 
-export function Checkbox({ checked, onChange, children }: CheckboxProps) {
+export function Checkbox({ checked, onChange, disabled, description, children }: CheckboxProps) {
   const theme = useTheme();
   const c = theme.colors;
   return (
     <Pressable
       accessibilityRole="checkbox"
-      accessibilityState={{ checked }}
+      accessibilityState={{ checked, disabled: !!disabled }}
+      disabled={disabled}
       onPress={() => onChange(!checked)}
-      style={{ flexDirection: 'row', gap: theme.space.md, alignItems: 'flex-start' }}
+      style={{ flexDirection: 'row', gap: theme.space.md, alignItems: 'flex-start', opacity: disabled ? 0.5 : 1 }}
     >
       <View
         style={{
@@ -167,9 +172,16 @@ export function Checkbox({ checked, onChange, children }: CheckboxProps) {
       >
         {checked ? <Icon name="check" size={12} color={c.onPrimary} /> : null}
       </View>
-      <Text variant="bodySm" style={{ flex: 1 }}>
-        {children}
-      </Text>
+      <View style={{ flex: 1 }}>
+        <Text variant="bodySm" tone={description ? 'onDark' : 'default'}>
+          {children}
+        </Text>
+        {description ? (
+          <Text variant="captionMd" tone="muted">
+            {description}
+          </Text>
+        ) : null}
+      </View>
     </Pressable>
   );
 }

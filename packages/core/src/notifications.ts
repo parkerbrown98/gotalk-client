@@ -50,8 +50,26 @@ export function describeNotification(n: NotificationLike): NotificationView {
       return { ...base, detail: null, context: placeName, icon: 'forum', action: `started a topic${title ? `: ${title}` : ''}` };
     case 'moderation': {
       const reason = str(n.data.reason);
-      const what = str(n.data.action).replace(/_/g, ' ');
-      return { ...base, actor: '', icon: 'shield', action: what ? `A moderator took action: ${what}` : 'A moderator took action', detail: reason ? `Reason: ${reason}` : null, context: placeName };
+      const action = str(n.data.action);
+      const until = str(n.data.until);
+      const words: Record<string, string> = {
+        'member.warn': 'You received a warning from the moderators',
+        'member.timeout': until
+          ? `You were timed out until ${new Date(until).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}`
+          : 'You were timed out',
+        'message.delete': 'A moderator removed your message',
+        'post.delete': 'A moderator removed your post',
+        'topic.delete': 'A moderator removed your topic',
+      };
+      const what = action.replace(/[._]/g, ' ');
+      return {
+        ...base,
+        actor: '',
+        icon: 'shield',
+        action: words[action] ?? (what ? `A moderator took action: ${what}` : 'A moderator took action'),
+        detail: reason ? `Reason: ${reason}` : null,
+        context: placeName,
+      };
     }
     case 'direct_message':
       return { ...base, detail: null, icon: 'bell', action: 'sent you a message', context: '', target: null };

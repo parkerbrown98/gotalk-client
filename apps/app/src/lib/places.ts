@@ -85,7 +85,7 @@ export function useInvites(slug: string | undefined, enabled: boolean) {
 }
 
 /** The instance's permission bit table. Falls back to the built-in values until it loads. */
-function usePermissionTable() {
+export function usePermissionTable() {
   const active = useActiveInstance();
   const client = useApiClient();
   const defs = useQuery({

@@ -1,23 +1,18 @@
 import { NavRow, Text, useTheme } from '@gotalk/ui';
 import { Redirect, Stack, router, usePathname } from 'expo-router';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
+import { useSettingsGroups } from '@/components/settings-page';
 import { signOut, useAuthTarget, useSession } from '@/lib/auth';
 import { useActiveInstance } from '@/lib/instances';
 import { useWide } from '@/lib/layout';
-
-const pages = [
-  { path: '/settings/profile', label: 'Profile', icon: 'user' },
-  { path: '/settings/password', label: 'Password', icon: 'lock' },
-  { path: '/settings/devices', label: 'Devices', icon: 'laptop' },
-  { path: '/settings/delete', label: 'Delete account', icon: 'trash' },
-] as const;
 
 function SettingsNav() {
   const theme = useTheme();
   const pathname = usePathname();
   const active = useActiveInstance();
   const target = useAuthTarget();
+  const groups = useSettingsGroups();
   return (
     <View
       style={{
@@ -33,12 +28,18 @@ function SettingsNav() {
       <View style={{ marginBottom: theme.space.sm }}>
         <NavRow label={`Back to ${active?.name ?? 'home'}`} icon="chevronLeft" onPress={() => router.replace('/home')} />
       </View>
-      <Text variant="captionMd" tone="muted" style={{ paddingHorizontal: 10, paddingTop: 6, paddingBottom: 2 }}>
-        Account
-      </Text>
-      {pages.map((p) => (
-        <NavRow key={p.path} label={p.label} icon={p.icon} active={pathname === p.path} onPress={() => router.replace(p.path)} />
-      ))}
+      <ScrollView contentContainerStyle={{ gap: 2 }}>
+        {groups.map((g) => (
+          <View key={g.label} style={{ gap: 2, marginBottom: theme.space.sm }}>
+            <Text variant="captionMd" tone="muted" style={{ paddingHorizontal: 10, paddingTop: 6, paddingBottom: 2 }}>
+              {g.label}
+            </Text>
+            {g.links.map((p) => (
+              <NavRow key={p.path} label={p.label} icon={p.icon} active={pathname === p.path || pathname.startsWith(`${p.path}/`)} onPress={() => router.replace(p.path)} />
+            ))}
+          </View>
+        ))}
+      </ScrollView>
       <View style={{ marginTop: 'auto', borderTopWidth: 1, borderTopColor: theme.colors.hairline, paddingTop: theme.space.sm }}>
         <NavRow label="Sign out" icon="logout" onPress={() => target && void signOut(target)} />
       </View>

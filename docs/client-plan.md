@@ -472,16 +472,122 @@ Known gaps and decisions:
 - Per-person volume, the call timer (it counts from when you joined), video quality choices and noise
   suppression beyond the browser's own are not built. Voice channels list a count, not their members.
 
-## Phase 6 — Moderation, admin & developer tools
+## Phase 6 — Moderation, admin & developer tools ✅
 
-Mockups: none yet. Reports queue, roles editor, instance admin and developer settings need frames in
-`docs/mockups` before this phase starts.
+Goal: run a place and an instance from the client: work through reports, act on members, shape
+permissions, and manage the developer surface (tokens, bots, webhooks) without touching the API by hand.
 
-- Reports queue, audit log, warnings/timeouts/bans, and transparency pages.
-- Roles editor (ordering, permission bits) and board/channel overwrite editors.
-- Instance admin: policy publishing, registration mode, and instance settings.
-- Developer settings: personal access tokens, applications/bots, slash commands (invoking them in chat
-  shipped in Phase 4), and webhooks with a delivery log.
+Mockups: [Moderation](./mockups/13-moderation.html) (reports queue, report dialog, members and member
+actions, timeout and ban, bans, audit log, place transparency), [Roles and permissions](./mockups/14-roles-permissions.html)
+(roles list, role editor, @everyone, overrides, entry points from the channel menu and forum header),
+[Instance administration](./mockups/15-instance-admin.html) (instance settings, policies, publishing,
+instance transparency) and [Developer tools](./mockups/16-developer.html) (access tokens, applications,
+command editor, adding a bot, webhooks and deliveries, bots) are the reference for these screens.
+[Create and manage places](./mockups/09-places-manage.html) was updated: place settings now use a section
+nav instead of the General/Invites tabs.
+
+Delivered:
+
+- **Place settings** (`places/[slug]/settings/*`): a section nav beside the content on wide screens and a
+  grouped list of pushed screens on phones. Place (General, Invites, Roles, Permissions), Moderation
+  (Members, Reports with the open count, Bans, Audit log) and Integrations (Webhooks, Bots) each appear only
+  with their permission; the place menu opens settings whenever any section is allowed. The old
+  General/Invites screen moved into the first two sections unchanged.
+- **Reporting:** "Report message" in the message menu and long-press sheet (place channels only; direct
+  messages have no moderators), "Report" on forum posts, and "Report …" from the member list. A reason,
+  optional details, and a confirmation that does not reveal who handles it.
+- **Reports queue:** Open/Resolved/Dismissed, each report with its reason, where it came from, the reported
+  person, the server's snapshot of the content, the reporter's details, Open in context, Act on (opens the
+  member actions), and Resolve/Dismiss with an optional note for other moderators.
+- **Members and member actions:** prefix search with paging, role dots, Owner/Bot/Timed out badges. The
+  member dialog assigns and removes roles (only those below your highest), sets nicknames, warns (reason
+  required), times out (60 seconds to a week) or ends a timeout, kicks and bans (permanent, a day, a week,
+  30 days), and links to the person's moderation history. The owner, yourself and people ranked at or above
+  you cannot be acted on. In chat, choosing someone in the member list offers Send a message, Moderate and
+  Report.
+- **Bans:** current bans with who, when, why and when they lift; Unban; Ban by username for people who are
+  not members.
+- **Audit log:** newest first, category filters (members, roles, channels, messages, forums, topics, posts,
+  reports, webhooks, place), a filter for one person from Moderation history, and every action the server
+  records worded as a sentence (`describeAuditEntry` in `@gotalk/core`). Names come from the place's roles,
+  channels and forums, and people are looked up as members, then in bans and loaded reports.
+- **Roles editor:** highest first with @everyone last, Move up/Move down (and on the role's own page) within
+  your rank, create, rename, a color dot (none or the four accents), grouped permission checkboxes with
+  descriptions, a warning for Administrator, permissions you do not hold disabled, and delete with
+  confirmation. Permissions the instance defines but the client does not know are listed under Other.
+- **Overrides:** a Permissions section listing forums and channels with their override counts, and an
+  editor per forum or channel with Deny/Default/Allow for each permission that applies there (forum
+  permissions on forums, chat on text channels, voice on voice channels, both on categories), @everyone
+  first, Add a role, Remove override. Reached also from the channel menu and a Permissions button in the
+  forum header. Bits go past 32, so all of this uses BigInt helpers in `@gotalk/core` (`roles.ts`).
+- **Moderation notifications** now read as sentences ("You were timed out until …", "A moderator removed
+  your message") with the reason.
+- **Transparency:** a place report (from the place menu and settings) and an instance report (account
+  settings) with 30-day, 90-day and 12-month periods: reports filed, actions taken, content removed,
+  reports by reason and status, and actions by kind.
+- **Account settings** gained Developer (Access tokens, Applications) and Instance (Instance settings and
+  Policies for instance administrators, Transparency report when the instance publishes it) groups, on wide
+  screens and in the phone list.
+- **Access tokens:** list with hint, scopes, last use and expiry; create with name, scopes (admin only for
+  administrators), and an expiry; the token is shown once; revoke with confirmation; the instance's limit.
+- **Applications:** list, create (the bot token is shown once, then the application opens), edit name,
+  description, icon and public flag, copy the application ID, reset the bot token, add the bot to places
+  where you have Manage place, delete. Slash commands are edited locally (name, description, up to ten
+  typed options, required) and saved together, checked with the server's rules first.
+- **Webhooks:** list with health (active, failing, disabled), create with events described in plain words
+  (events that need View audit log or Manage reports are disabled without them), the signing secret shown
+  once, edit, turn off and on, ping, rotate the secret, delete, and a delivery log filtered by status whose
+  rows expand to the error and payload, with Redeliver.
+- **Bots:** add a bot to the place by application ID or from your own applications.
+- **Instance settings:** name, description, icon and who can create an account; the saved instance on the
+  device picks up the new name. **Policies:** terms, privacy and guidelines with their versions (in effect,
+  scheduled, earlier), each viewable; publishing is a full page that starts from the current text, with
+  Write/Preview, a consent checkbox, now or a date up to a year ahead, and a confirmation.
+- **UI:** `Checkbox` gained `disabled` and `description`; icons for flag, ban, key, server and code.
+- **Tests:** permission groups and bit helpers past 32, overwrite states and scopes, role ranking and
+  moves, role colors, durations and countdowns, audit wording (including ban lengths from timestamps and
+  server-taken actions), transparency breakdowns, moderation notifications, token and webhook wording,
+  webhook event rules and command validation in `@gotalk/core` (137 tests, up from 115).
+
+Verified:
+
+- unit tests and typecheck across the workspace, the web export, and `expo lint` clean for the new code
+- three scripted Chromium runs against a local server on fresh data, with an owner (1280px), a moderator
+  (1280px and 390px) and a member (390px):
+  - the owner sees every settings section; creates Moderator and Helper roles, colors and permissions,
+    reorders them; gives the moderator the role and a nickname; warns the member; denies @everyone Add
+    reactions in a channel; reaches overrides from the forum header and the channel menu; reports a
+    message from its menu
+  - the member reports a post from a phone, and gets the warning and later the timeout in the inbox
+  - the moderator sees only Members, Reports (count 2), Bans and Audit log; resolves one report with a note
+    and dismisses the other; times the member out for an hour; bans them for a day and lifts it; reads it
+    all in the audit log with names and lengths, filters it, opens one person's history, and does the same
+    from a phone
+  - as an instance administrator: creates, sees once and revokes a token; creates an application, saves a
+    command with a required integer option, adds the bot to the place and finds it in Members; creates a
+    webhook, pings it and expands the delivery; changes the instance name and registration mode and
+    restores them; publishes community guidelines (a past date is refused); reads both transparency reports
+- not yet exercised: iOS, Android and Tauri builds, screen readers, a webhook delivery that succeeds (the
+  server refuses private and loopback URLs, so a local run only sees pending and failed deliveries), and a
+  scheduled policy taking effect
+
+Known gaps and decisions:
+
+- The API has no user lookup by ID, so the audit log names someone who has left only if they appear in
+  current bans or reports loaded in this session; otherwise they show as "a former member".
+- `GET /users/@me/places` has no permissions, so adding a bot loads each joined place to find those you
+  manage.
+- Role and override changes reach other people's clients when their place and channel data next refresh
+  (window focus, reconnect, or `CHANNEL_UPDATE` for channel overrides); there is no gateway event for role
+  changes.
+- The open-report count on the settings nav counts the first page, so it stops at 50.
+- Reporting a person needs the chat member list, which is a wide-screen panel; on phones people can report
+  messages and posts. Moderators reach members from place settings on any screen.
+- Transferring ownership of a place (`POST /places/{place}/transfer`) is not in the client yet.
+- Published policy versions cannot be edited or withdrawn, because the API has no way to; the publish
+  confirmation says so.
+- Role colors offer none and the four accents from `DESIGN.md`; roles given other colors through the API
+  keep them until changed.
 
 ## Phase 7 — Distribution & polish
 

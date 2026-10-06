@@ -5,12 +5,14 @@ import { Modal, Pressable, View } from 'react-native';
 
 import { ChannelFormDialog } from '@/components/channel-menu';
 import { CreateInviteDialog } from '@/components/invite-dialog';
+import { usePlaceSettings } from '@/components/place-settings';
+import { useInstanceInfo } from '@/lib/api';
 import { classifyFailure } from '@/lib/failure';
 import { resetTo } from '@/lib/layout';
 import { useChannels, usePlaceAccess, usePlaceActions, type Place } from '@/lib/places';
 
 export interface PlaceMenuItem {
-  key: 'invite' | 'channel' | 'settings' | 'leave';
+  key: 'invite' | 'channel' | 'settings' | 'transparency' | 'leave';
   label: string;
   icon: IconName;
   danger?: boolean;
@@ -29,14 +31,19 @@ export function usePlaceMenu(place: Place | undefined): { items: PlaceMenuItem[]
   const [leaving, setLeaving] = useState(false);
   const [leaveError, setLeaveError] = useState<string | null>(null);
   const theme = useTheme();
+  const settings = usePlaceSettings(place?.slug);
+  const transparency = useInstanceInfo().data?.features.transparency ?? false;
 
   if (!place || !access.isMember) return { items: [], dialogs: null };
 
   const items: PlaceMenuItem[] = [];
   if (access.can('CREATE_INVITES')) items.push({ key: 'invite', label: 'Invite people', icon: 'users', onPress: () => setInviteOpen(true) });
   if (canChannels) items.push({ key: 'channel', label: 'Create channel', icon: 'hash', onPress: () => setChannelOpen(true) });
-  if (access.can('MANAGE_PLACE') || access.can('MANAGE_INVITES')) {
+  if (settings.sections.length > 0) {
     items.push({ key: 'settings', label: 'Place settings', icon: 'settings', onPress: () => router.push({ pathname: '/places/[slug]/settings', params: { slug: place.slug } }) });
+  }
+  if (transparency) {
+    items.push({ key: 'transparency', label: 'Transparency report', icon: 'eye', onPress: () => router.push({ pathname: '/places/[slug]/transparency', params: { slug: place.slug } }) });
   }
   // The owner cannot leave; they transfer or delete the place instead.
   if (!access.isOwner) items.push({ key: 'leave', label: 'Leave place', icon: 'logout', danger: true, onPress: () => setLeaveOpen(true) });
