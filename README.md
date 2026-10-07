@@ -24,6 +24,7 @@ the client discovers it via `/.well-known/gotalk-instance` and `GET /api/v1/inst
 | `apps/app` | Expo Router app (mobile + web) |
 | `apps/desktop` | Tauri shell |
 | `docs/mockups` | Static HTML mockups of each flow for web, desktop and phone, built from the tokens (see the [design process](docs/client-plan.md#design-process)). Open `docs/mockups/index.html` after `pnpm build` |
+| `docs/brand` | SVG masters for the app icon (rounded, full-bleed iOS, macOS grid), Android adaptive layers, favicon and splash glyph; the PNGs in `apps/app/assets/images` and `apps/desktop/src-tauri/icons` (via `tauri icon`) are rendered from these |
 
 Shared packages are consumed as TypeScript source; there is no separate package build step.
 

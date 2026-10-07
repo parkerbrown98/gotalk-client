@@ -35,20 +35,23 @@ function PolicyRow({ kind, current }: { kind: PolicyKind; current: PolicySummary
   const subtitle = current
     ? `Version ${current.version} · in effect since ${new Date(current.effective_at).toLocaleDateString()}${current.requires_consent ? ' · consent required' : ''}`
     : 'Not published';
+  const open = () => router.push({ pathname: '/settings/policies/[kind]', params: { kind } });
+  // The Publish button is the row's only action; a pressable row around it would nest <button>s on web.
+  const showPublish = !scheduled && !current;
   return (
     <ListRow
       icon="shield"
       title={policyKindLabel(kind)}
       subtitle={subtitle}
-      chevron
+      chevron={!showPublish}
       trailing={
         scheduled ? (
           <Badge label={`Version ${scheduled.version} scheduled ${new Date(scheduled.effective_at).toLocaleDateString()}`} tone="info" />
-        ) : !current ? (
-          <Button title="Publish" variant="outline" size="sm" onPress={() => router.push({ pathname: '/settings/policies/[kind]', params: { kind } })} />
+        ) : showPublish ? (
+          <Button title="Publish" variant="outline" size="sm" onPress={open} />
         ) : undefined
       }
-      onPress={() => router.push({ pathname: '/settings/policies/[kind]', params: { kind } })}
+      onPress={showPublish ? undefined : open}
     />
   );
 }
