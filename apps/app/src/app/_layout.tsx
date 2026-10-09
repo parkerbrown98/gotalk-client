@@ -14,6 +14,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo } from 'react';
 
+import { DesktopFrame } from '@/components/title-bar';
 import { shouldRetry } from '@/lib/api';
 import { authManager, useAuthHydrated } from '@/lib/auth';
 import { FeedSyncHost } from '@/lib/feeds';
@@ -106,7 +107,9 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <RealtimeHost />
         <FeedSyncHost />
-        <Navigation />
+        <DesktopFrame>
+          <Navigation />
+        </DesktopFrame>
       </QueryClientProvider>
     </GotalkThemeProvider>
   );

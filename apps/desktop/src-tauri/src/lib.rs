@@ -40,6 +40,24 @@ pub fn run() {
     let builder = builder.plugin(tauri_plugin_global_shortcut::Builder::new().build());
     builder
         .invoke_handler(tauri::generate_handler![secret_get, secret_set, secret_delete])
+        .setup(|app| {
+            // The main window is created here (it has `create: false`) so its frame can differ per OS.
+            let config = app
+                .config()
+                .app
+                .windows
+                .iter()
+                .find(|w| w.label == "main")
+                .ok_or("tauri.conf.json has no main window")?
+                .clone();
+            let builder = tauri::WebviewWindowBuilder::from_config(app.handle(), &config)?;
+            // macOS keeps its traffic lights, overlaid on the web title bar (titleBarStyle: Overlay).
+            // Elsewhere the native frame goes and the web title bar draws its own window controls.
+            #[cfg(all(desktop, not(target_os = "macos")))]
+            let builder = builder.decorations(false);
+            builder.build()?;
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running the Gotalk desktop app");
 }

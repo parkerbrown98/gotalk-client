@@ -159,6 +159,11 @@ suffix (`v0.1.0-beta.1`) are marked as pre-releases. Bump `version` in
   launch splash (glyph and loading bar) before the JS bundle runs, and `hideSplash` in
   `apps/app/src/lib/splash.ts` fades it out once fonts and saved sessions load (or the root error
   boundary renders). It must stay HTML and CSS only, because the CSP blocks inline scripts.
+- The window has no native title bar. `DesktopFrame` in `apps/app/src/components/title-bar.tsx` draws a
+  40px bar (drag to move, double-click to maximize) matching the mockups' window chrome. macOS keeps its
+  traffic lights over the bar (`titleBarStyle: Overlay` and `trafficLightPosition` in `tauri.conf.json`);
+  Windows and Linux get web-drawn minimize, maximize and close buttons. The main window has
+  `create: false` and is built in `src-tauri/src/lib.rs`, which turns off decorations outside macOS.
 - The CSP allows `connect-src` to any `https:`/`wss:` origin (plus `http:`/`ws:` for local servers),
   because users choose their own instance. Scripts are limited to `'self'`.
 - Debug the webview on Windows by launching with
