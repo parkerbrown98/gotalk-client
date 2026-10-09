@@ -3,7 +3,7 @@
 This document lays out the phases for the official Gotalk client in
 [`repos/gotalk-client`](../repos/gotalk-client/README.md). It is the client counterpart to
 [backend-plan.md](./backend-plan.md); backend phases 1–5 are already delivered, so the client can work
-against a complete API. Phase 7 (topic feeds) depends on backend Phase 6.
+against a complete API. Phase 7 (topic feeds) uses backend Phase 6, which has also landed.
 
 ## Architecture (decided)
 
@@ -591,8 +591,8 @@ Known gaps and decisions:
 
 ## Phase 7 — Topic feeds
 
-Status: not started. Blocked on backend Phase 6 (feed, vote and read-tracking endpoints); run
-`pnpm api:sync` once they land.
+Status: not started. Backend Phase 6 (feed, vote and read-tracking endpoints) has landed; start with
+`pnpm api:sync`. The server's *Phase 6 status* in the backend plan describes the exact contract.
 
 Goal: a Reddit-style feed of forum topics for a place and for the whole instance, with several sort orders,
 where topics the person has already opened look different from the ones they have not.
@@ -613,14 +613,16 @@ Scope:
     see only the public instance feed. Each card carries a place chip.
   - Cards show the title, a short plain-text excerpt, forum and place chips, author, relative time, reply
     count, tags and badges (pinned, solved, locked, NSFW). Wide screens put the vote column to the left;
-    phones put votes and replies in a footer row. NSFW topics are collapsed until the person opts in.
-  - Infinite scroll with a virtualized list on the API's cursor paging, pull to refresh on phones, scroll
-    position kept when coming back from a topic, and a refresh control instead of live insertion (the
-    backend defers live feed updates).
+    phones put votes and replies in a footer row. The API leaves NSFW boards (and, on instance feeds, NSFW
+    places) out unless `nsfw=true`; once the person opts in, NSFW cards stay collapsed until tapped.
+  - Infinite scroll with a virtualized list on the API's cursor paging (`next_cursor`), dropping topics
+    whose ID is already loaded (a score change can move a topic across the cursor), pull to refresh on
+    phones, scroll position kept when coming back from a topic, and a refresh control instead of live
+    insertion (the backend defers live feed updates).
 - **Sorting:** Hot (default), New, Active, Top with a time window (hour, day, week, month, year, all),
   Rising and Controversial, as a pill bar on wide screens and a scrollable row on phones. The choice is
   remembered per instance and scope in the settings store and kept in the URL (`?sort=top&t=week`) so
-  links and reloads reproduce it. The advertised `sorts` list decides which options appear. Controversial
+  links and reloads reproduce it. The instance's advertised `feed.sorts` and `feed.windows` decide which options appear. Controversial
   and the vote UI are hidden when the place has voting off or the instance does not advertise
   `features.topic_votes`.
 - **Filters:** forum, tag, Solved/Unsolved, a Hide read toggle, and a pinned-first switch on place feeds.
@@ -638,8 +640,9 @@ Scope:
     replies since the last open show a "N new" badge. Color or weight never carries the state alone: the
     accessibility label says "unread", "read" or "read, 3 new replies".
   - Mark as unread from the card menu (a long-press sheet on phones), and "Mark all as read" in the feed
-    header menu with a confirmation, which sends the loaded cursor as `before` so topics the person has not
-    seen yet are untouched.
+    header menu with a confirmation, which calls `POST /places/{place}/feed/read` with the first page's
+    `as_of` as `before`, so topics with activity since the feed loaded stay unread. The Home feed has no
+    bulk endpoint; it marks the loaded topics with `POST /feed/read`.
   - The forum topic list from Phase 3 adopts the same `viewer` data, so its unread dot and the feed never
     disagree.
   - Gateway `TOPIC_READ_STATE_UPDATE` events write into the same caches, so a topic opened on another device
@@ -648,7 +651,7 @@ Scope:
     AsyncStorage/localStorage, capped at a few thousand with the oldest dropped) lets public browsing dim
     opened topics. When someone signs in, the record is imported with `POST /feed/read`. While signed in
     and offline, opens are queued in a persisted per-instance queue and replayed in batches of the
-    advertised limit, with the usual backoff and `Retry-After` handling.
+    advertised `feed.read_batch`, with the usual backoff and `Retry-After` handling.
 - **Place settings:** a Voting switch in General for people with Manage place, written to the
   `voting_enabled` place setting.
 - **`@gotalk/core`:** feed query-key and cache helpers (merge pages, patch one topic everywhere), a
@@ -656,7 +659,8 @@ Scope:
   serialization, score formatting, and `describeTopicReadState` for labels.
 - **Tests:** sort and URL round-trips, cache patching across feed and forum list queries, optimistic vote
   and read with rollback, new-reply badge rules, the local record cap, import on sign-in, queue replay
-  after offline, "mark all as read" cursor handling, and gateway event handling.
+  after offline, "mark all as read" with `as_of`, duplicate IDs across pages, and gateway event handling
+  (including the `all: true` form sent after a place is marked read).
 
 Verify (to do):
 
