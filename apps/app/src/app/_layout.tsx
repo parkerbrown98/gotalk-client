@@ -2,26 +2,27 @@ import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-goog
 import { theme as baseTheme } from '@gotalk/tokens';
 import { ThemeProvider as GotalkThemeProvider, typeStyle, useTheme } from '@gotalk/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { DarkTheme, Stack, ThemeProvider as NavigationThemeProvider } from 'expo-router';
+import {
+  DarkTheme,
+  ErrorBoundary as RouterErrorBoundary,
+  type ErrorBoundaryProps,
+  Stack,
+  ThemeProvider as NavigationThemeProvider,
+} from 'expo-router';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo } from 'react';
-import { Platform } from 'react-native';
 
 import { shouldRetry } from '@/lib/api';
 import { authManager, useAuthHydrated } from '@/lib/auth';
 import { FeedSyncHost } from '@/lib/feeds';
 import { useInstancesHydrated } from '@/lib/instances';
 import { RealtimeHost } from '@/lib/realtime';
+import { hideSplash } from '@/lib/splash';
 
+// On web the canvas color and splash come from public/index.html, so they show before this bundle runs.
 SplashScreen.preventAutoHideAsync();
-
-// The SPA export has no custom HTML shell, so paint the canvas from JS to avoid overscroll flashes.
-if (Platform.OS === 'web' && typeof document !== 'undefined') {
-  document.documentElement.style.backgroundColor = baseTheme.colors.canvas;
-  document.documentElement.style.colorScheme = 'dark';
-}
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: shouldRetry } } });
 
@@ -76,6 +77,12 @@ function Navigation() {
   );
 }
 
+/** A failure while starting up must not stay hidden behind the splash. */
+export function ErrorBoundary(props: ErrorBoundaryProps) {
+  useEffect(() => hideSplash(), []);
+  return <RouterErrorBoundary {...props} />;
+}
+
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     [baseTheme.fontFaces['400']]: Inter_400Regular,
@@ -89,7 +96,7 @@ export default function RootLayout() {
   const stored = instancesReady && authReady;
 
   useEffect(() => {
-    if (ready && stored) SplashScreen.hideAsync();
+    if (ready && stored) hideSplash();
   }, [ready, stored]);
 
   if (!ready || !stored) return null;

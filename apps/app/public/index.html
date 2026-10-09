@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="%LANG_ISO_CODE%">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>%WEB_TITLE%</title>
+    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      /* These styles make the body full-height */
+      html,
+      body {
+        height: 100%;
+      }
+      /* These styles disable body scrolling if you are using <ScrollView> */
+      body {
+        overflow: hidden;
+      }
+      /* These styles make the root element full-height */
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+    <!--
+      Painted before the JS bundle runs so the window is never blank. The app fades it out once fonts
+      and saved sessions have loaded (src/lib/splash.ts). Colors mirror @gotalk/tokens; the CSP allows
+      inline styles but not inline scripts, so this must stay HTML and CSS only.
+    -->
+    <style id="gotalk-splash-style">
+      html {
+        background-color: #07080a;
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+      }
+      #gotalk-splash {
+        position: fixed;
+        inset: 0;
+        /* Above the app's first frame while it fades, but below dev error overlays. */
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        background-color: #07080a;
+        opacity: 1;
+        transition: opacity 220ms ease-out;
+      }
+      #gotalk-splash.gotalk-splash-hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #gotalk-splash svg {
+        width: 76px;
+        height: auto;
+        animation: gotalk-splash-in 360ms ease-out both;
+      }
+      .gotalk-splash-track {
+        position: relative;
+        width: 96px;
+        height: 2px;
+        overflow: hidden;
+        border-radius: 1px;
+        background-color: #242728;
+        /* Fast starts never show the bar, so a quick launch reads as a single clean frame. */
+        animation: gotalk-splash-in 240ms ease-out 400ms both;
+      }
+      .gotalk-splash-bar {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 40%;
+        border-radius: 1px;
+        background-color: rgba(255, 255, 255, 0.72);
+        animation: gotalk-splash-slide 1.1s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+      }
+      @keyframes gotalk-splash-in {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes gotalk-splash-slide {
+        from {
+          left: -40%;
+        }
+        to {
+          left: 100%;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #gotalk-splash,
+        #gotalk-splash svg,
+        .gotalk-splash-track {
+          transition: none;
+          animation: none;
+        }
+        .gotalk-splash-bar {
+          animation: none;
+          left: 0;
+          width: 100%;
+          opacity: 0.4;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Use static rendering with Expo Router to support running without JavaScript. -->
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+    <!-- Kept outside #root so React never renders over it; src/lib/splash.ts removes it. -->
+    <div id="gotalk-splash" role="status" aria-live="polite" aria-label="Loading Gotalk">
+      <!-- The splash glyph from docs/brand/glyph.svg. -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="222 222 580 610" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="gotalk-splash-red" x1="0.15" y1="0.1" x2="0.85" y2="0.95">
+            <stop offset="0" stop-color="#ff5757" />
+            <stop offset="1" stop-color="#a1131a" />
+          </linearGradient>
+          <mask id="gotalk-splash-eyes" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+            <rect width="1024" height="1024" fill="#fff" />
+            <g stroke="#000" stroke-width="54" stroke-linecap="round" fill="none">
+              <line x1="408" y1="356" x2="408" y2="452" />
+              <line x1="624" y1="356" x2="624" y2="452" />
+            </g>
+          </mask>
+          <clipPath id="gotalk-splash-bubble">
+            <path d="M372 232H652A140 140 0 0 1 792 372V572A140 140 0 0 1 652 712H470L250 818Q232 826 238 806L292 650A140 140 0 0 1 232 572V372A140 140 0 0 1 372 232Z" />
+          </clipPath>
+        </defs>
+        <g mask="url(#gotalk-splash-eyes)">
+          <path d="M372 232H652A140 140 0 0 1 792 372V572A140 140 0 0 1 652 712H470L250 818Q232 826 238 806L292 650A140 140 0 0 1 232 572V372A140 140 0 0 1 372 232Z" fill="url(#gotalk-splash-red)" />
+          <path d="M556 180C548 290 542 350 526 392C512 428 478 452 476 466C474 480 514 486 524 504C536 566 544 660 556 860H900V180Z" fill="#000" opacity="0.2" clip-path="url(#gotalk-splash-bubble)" />
+        </g>
+      </svg>
+      <div class="gotalk-splash-track" aria-hidden="true"><div class="gotalk-splash-bar"></div></div>
+    </div>
+    <!-- The root element for your Expo app. -->
+    <div id="root"></div>
+  </body>
+</html>

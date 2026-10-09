@@ -74,7 +74,8 @@ Components read the active theme through `useTheme()` from `@gotalk/ui`; nothing
 automatically. `tokens.css` makes the same values available to plain HTML/CSS.
 
 When DESIGN.md changes, update `packages/tokens/src`, then `packages/ui`, then the native config
-(`apps/app/app.json`, `apps/desktop/src-tauri/tauri.conf.json`), which hold the canvas color as a literal.
+(`apps/app/app.json`, `apps/desktop/src-tauri/tauri.conf.json`) and the web shell
+(`apps/app/public/index.html`), which hold the canvas color as a literal.
 
 ## Accounts and token storage
 
@@ -154,6 +155,10 @@ suffix (`v0.1.0-beta.1`) are marked as pre-releases. Bump `version` in
 ## Desktop notes
 
 - The window loads the static web export. Deep routes fall back to `index.html`, so reloads work.
+- `apps/app/public/index.html` is the HTML shell for the web export and dev server. It paints the
+  launch splash (glyph and loading bar) before the JS bundle runs, and `hideSplash` in
+  `apps/app/src/lib/splash.ts` fades it out once fonts and saved sessions load (or the root error
+  boundary renders). It must stay HTML and CSS only, because the CSP blocks inline scripts.
 - The CSP allows `connect-src` to any `https:`/`wss:` origin (plus `http:`/`ws:` for local servers),
   because users choose their own instance. Scripts are limited to `'self'`.
 - Debug the webview on Windows by launching with
