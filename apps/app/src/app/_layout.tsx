@@ -14,6 +14,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo } from 'react';
 
+import { DesktopContextMenu } from '@/components/context-menu';
 import { DesktopFrame } from '@/components/title-bar';
 import { shouldRetry } from '@/lib/api';
 import { authManager, useAuthHydrated } from '@/lib/auth';
@@ -110,6 +111,7 @@ export default function RootLayout() {
         <DesktopFrame>
           <Navigation />
         </DesktopFrame>
+        <DesktopContextMenu />
       </QueryClientProvider>
     </GotalkThemeProvider>
   );

@@ -3,6 +3,7 @@ import { Avatar, Icon, Text, typeStyle, useTheme } from '@gotalk/ui';
 import { createContext, memo, useContext, useRef, useState, type ReactNode } from 'react';
 import { Platform, Pressable, TextInput, View, type TextStyle } from 'react-native';
 
+import { contextMenu } from '@/components/context-menu';
 import { Chip } from '@/components/forum';
 import { Markdown } from '@/components/markdown';
 import type { Anchor } from '@/components/menu';
@@ -262,6 +263,7 @@ export const MessageRow = memo(function MessageRow({ message, continued, highlig
         accessibilityLabel={`${name}, ${clockTime(message.created_at)}: ${previewText(message.content, 200)}`}
         onLongPress={scope.hover ? undefined : () => scope.openActions(message)}
         delayLongPress={350}
+        {...contextMenu((anchor) => scope.openActions(message, anchor))}
         style={{
           flexDirection: 'row',
           gap: 12,

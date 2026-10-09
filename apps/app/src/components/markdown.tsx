@@ -1,7 +1,10 @@
 import { parseMarkdown, type Block, type Inline } from '@gotalk/core';
 import { Text, useTheme, typeStyle } from '@gotalk/ui';
 import { memo, useMemo, type ReactNode } from 'react';
-import { Linking, Platform, ScrollView, Text as RNText, View, type TextStyle } from 'react-native';
+import { Platform, ScrollView, Text as RNText, View, type TextStyle } from 'react-native';
+
+import { externalLink } from '@/components/context-menu';
+import { openExternal } from '@/lib/desktop';
 
 type Theme = ReturnType<typeof useTheme>;
 
@@ -49,7 +52,7 @@ function Inlines({ nodes, onMention }: { nodes: Inline[]; onMention?: (username:
             );
           case 'link':
             return (
-              <RNText key={i} accessibilityRole="link" onPress={() => void Linking.openURL(n.href)} style={{ color: c.onDark, textDecorationLine: 'underline' }}>
+              <RNText key={i} accessibilityRole="link" onPress={() => openExternal(n.href)} {...externalLink(n.href)} style={{ color: c.onDark, textDecorationLine: 'underline' }}>
                 <Inlines nodes={n.children} onMention={onMention} />
               </RNText>
             );

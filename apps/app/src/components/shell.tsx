@@ -1,11 +1,12 @@
 import { Icon, NavRow, Text, useTheme } from '@gotalk/ui';
 import { router, usePathname } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SidebarCallPanel } from '@/components/call-bar';
 import { ChannelList } from '@/components/channel-list';
+import { contextMenu } from '@/components/context-menu';
 import { ConversationNavRow, NewConversationDialog } from '@/components/conversations';
 import { CreateBoardDialog } from '@/components/create-board-dialog';
 import { InstanceIcon } from '@/components/instance-summary';
@@ -112,7 +113,8 @@ export function PlaceSidebar({ slug }: { slug: string }) {
   const boardNodes = boardTree(useBoards(slug, access.isMember).data ?? []);
   const channels = useChannels(slug, access.isMember).data ?? [];
   const menu = usePlaceMenu(place);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const header = useRef<View>(null);
+  const [menuAt, setMenuAt] = useState<{ left: number; top: number } | null>(null);
   const [newForum, setNewForum] = useState(false);
 
   const text = channels.filter((ch) => ch.kind === 'text');
@@ -127,10 +129,13 @@ export function PlaceSidebar({ slug }: { slug: string }) {
   return (
     <View style={{ width: 248, backgroundColor: c.surface, borderRightWidth: 1, borderRightColor: c.hairline }}>
       <Pressable
+        ref={header}
         accessibilityRole="button"
         accessibilityLabel={`${place?.name ?? 'Place'} menu`}
         disabled={menu.items.length === 0}
-        onPress={() => setMenuOpen(true)}
+        // Measured, so the menu sits under the header wherever the window chrome puts it.
+        onPress={() => header.current?.measureInWindow((x, y, _w, h) => setMenuAt({ left: x + 8, top: y + h - 8 }))}
+        {...(menu.items.length > 0 ? contextMenu((at) => setMenuAt({ left: at.left ?? 0, top: at.top ?? 0 })) : {})}
         style={{ height: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: c.hairline }}
       >
         <Text variant="bodyStrong" tone="onDark" numberOfLines={1} style={{ flex: 1 }}>
@@ -138,7 +143,7 @@ export function PlaceSidebar({ slug }: { slug: string }) {
         </Text>
         {menu.items.length > 0 ? <Icon name="chevronDown" size={16} color={c.mute} /> : null}
       </Pressable>
-      <PlaceMenuPopover items={menu.items} visible={menuOpen} onClose={() => setMenuOpen(false)} />
+      <PlaceMenuPopover items={menu.items} visible={!!menuAt} anchor={menuAt ?? { left: 0, top: 0 }} onClose={() => setMenuAt(null)} />
       {menu.dialogs}
       <CreateBoardDialog slug={slug} visible={newForum} onClose={() => setNewForum(false)} />
 

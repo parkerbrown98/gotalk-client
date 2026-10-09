@@ -2,8 +2,8 @@ import { bindingAccelerator, pressesBinding, releasesBinding, type KeyBinding } 
 import * as livekit from 'livekit-client';
 
 import type { VoicePlatformApi } from './voice-platform-types';
+import { isDesktop } from './desktop';
 
-const isDesktop = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 const hasDom = typeof document !== 'undefined';
 
 /** Remote audio plays through hidden elements; LiveKit routes them to the chosen speaker. */

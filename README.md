@@ -164,8 +164,25 @@ suffix (`v0.1.0-beta.1`) are marked as pre-releases. Bump `version` in
   traffic lights over the bar (`titleBarStyle: Overlay` and `trafficLightPosition` in `tauri.conf.json`);
   Windows and Linux get web-drawn minimize, maximize and close buttons. The main window has
   `create: false` and is built in `src-tauri/src/lib.rs`, which turns off decorations outside macOS.
+- The app should never feel like a web page. `apps/app/src/lib/desktop.ts` (`isDesktop`, `desktopOS`)
+  adds `gotalk-desktop` classes that `public/index.html` styles: text is only selectable in inputs and
+  `<Text selectable>` (mark message bodies, codes and other content selectable), controls use the arrow
+  cursor, images and links do not drag, and Windows and Linux get slim scrollbars. It also swallows
+  WebView2's browser shortcuts (reload, print, find and so on). Web links open in the default browser
+  through `openExternal`, and copy and paste go through the system clipboard (`src/lib/clipboard.ts`).
+- Right-click never shows the webview's menu. `DesktopContextMenu` in
+  `apps/app/src/components/context-menu.tsx` offers Cut, Copy, Paste and Select all in text fields, Copy
+  on selected text, and Open or Copy link on links marked with `externalLink(url)`. Components open their
+  own menus at the pointer with `{...contextMenu((anchor) => …)}` (messages, feed rows, members, the
+  place header, channel categories).
+- `src-tauri/src/lib.rs` appends `Gotalk/<version> (<os>)` to the webview's user agent, so the server and
+  Settings → Devices see "Gotalk for macOS" rather than a browser. It also turns off link previews
+  (macOS) and form suggestions (WebView2).
 - The CSP allows `connect-src` to any `https:`/`wss:` origin (plus `http:`/`ws:` for local servers),
-  because users choose their own instance. Scripts are limited to `'self'`.
+  because users choose their own instance. Scripts are limited to `'self'`. Styles allow
+  `'unsafe-inline'` because react-native-web and expo-font add `<style>` tags at runtime, so
+  `dangerousDisableAssetCspModification: ["style-src"]` stops Tauri adding a nonce there (a nonce makes
+  browsers ignore `'unsafe-inline'`, which left packaged builds unstyled).
 - Debug the webview on Windows by launching with
   `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9223` and opening `http://localhost:9223`.
 

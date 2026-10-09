@@ -108,8 +108,8 @@ export function PlaceMenuSheet({ items, visible, onClose }: { items: PlaceMenuIt
   );
 }
 
-/** Wide: a popover under the sidebar header. */
-export function PlaceMenuPopover({ items, visible, onClose }: { items: PlaceMenuItem[]; visible: boolean; onClose: () => void }) {
+/** Wide: a popover under the sidebar header, or at the pointer when right-clicked. */
+export function PlaceMenuPopover({ items, visible, anchor, onClose }: { items: PlaceMenuItem[]; visible: boolean; anchor: { left: number; top: number }; onClose: () => void }) {
   const theme = useTheme();
   const c = theme.colors;
   return (
@@ -118,8 +118,8 @@ export function PlaceMenuPopover({ items, visible, onClose }: { items: PlaceMenu
         <View
           style={{
             position: 'absolute',
-            left: 72,
-            top: 44,
+            left: anchor.left,
+            top: anchor.top,
             width: 232,
             padding: 6,
             gap: 2,

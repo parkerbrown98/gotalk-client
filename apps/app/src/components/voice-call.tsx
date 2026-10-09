@@ -13,6 +13,7 @@ import { VoiceSettingsDialog } from '@/components/voice-settings';
 import { useInstanceInfo } from '@/lib/api';
 import { useSession } from '@/lib/auth';
 import type { Channel } from '@/lib/chat';
+import { isDesktop } from '@/lib/desktop';
 import { failureMessage } from '@/lib/failure';
 import { useActiveInstance } from '@/lib/instances';
 import { goBack, useWide } from '@/lib/layout';
@@ -410,7 +411,7 @@ function CallNotices({ channelId }: { channelId: string }) {
     <View style={{ paddingHorizontal: 20, paddingTop: 12, gap: 8 }}>
       {blocked ? (
         <Pressable accessibilityRole="button" onPress={resumeAudio}>
-          <Notice tone="info" icon="volume" title="Your browser paused call audio.">
+          <Notice tone="info" icon="volume" title={isDesktop ? 'Call audio is paused.' : 'Your browser paused call audio.'}>
             Click here to hear the call.
           </Notice>
         </Pressable>

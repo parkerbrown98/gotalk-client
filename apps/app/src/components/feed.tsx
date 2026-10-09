@@ -13,15 +13,18 @@ import {
   type FeedTopic,
 } from '@gotalk/core';
 import { Badge, Button, Checkbox, Dialog, Icon, Notice, PillTabs, RadioOptions, Text, TextField, useTheme } from '@gotalk/ui';
-import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
 import { useMemo, useState, type ReactElement, type ReactNode } from 'react';
 import { ActivityIndicator, FlatList, Platform, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { contextMenu } from '@/components/context-menu';
 import { ActionList, Chip, Empty, messageFor, TagBadges } from '@/components/forum';
+import type { Anchor } from '@/components/menu';
 import { TitleBar } from '@/components/screen-frame';
 import { useSession } from '@/lib/auth';
+import { copyText } from '@/lib/clipboard';
+import { isDesktop } from '@/lib/desktop';
 import { useFeedActions, useFeedCapabilities } from '@/lib/feeds';
 import { type BoardNode } from '@/lib/forums';
 import { useWide } from '@/lib/layout';
@@ -124,8 +127,8 @@ export interface FeedCardProps {
   /** Signed out: this device remembers opening it. */
   locallyRead?: boolean;
   onOpen: () => void;
-  /** Absent when there is nothing to offer (signed out). */
-  onMenu?: () => void;
+  /** Absent when there is nothing to offer (signed out). Right-click on desktop passes where to open it. */
+  onMenu?: (anchor?: Anchor) => void;
 }
 
 /** One topic in a feed: feed-row and feed-row-read in DESIGN.md. */
@@ -154,7 +157,7 @@ export function FeedCard({ item, wide, showPlace, vote, locallyRead, onOpen, onM
     ) : null;
 
   const more = onMenu ? (
-    <Pressable accessibilityRole="button" accessibilityLabel={`More for ${item.title}`} hitSlop={8} onPress={onMenu} style={({ pressed }) => ({ width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: theme.radii.sm, backgroundColor: pressed ? c.surfaceElevated : 'transparent' })}>
+    <Pressable accessibilityRole="button" accessibilityLabel={`More for ${item.title}`} hitSlop={8} onPress={() => onMenu()} style={({ pressed }) => ({ width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: theme.radii.sm, backgroundColor: pressed ? c.surfaceElevated : 'transparent' })}>
       <Icon name="more" size={16} color={c.mute} />
     </Pressable>
   ) : null;
@@ -202,7 +205,8 @@ export function FeedCard({ item, wide, showPlace, vote, locallyRead, onOpen, onM
       accessibilityRole="link"
       accessibilityLabel={`${hidden ? 'NSFW topic' : item.title}, ${read.label}, ${replies}${vote !== 'off' ? `, score ${item.score}` : ''}`}
       onPress={onOpen}
-      onLongPress={onMenu}
+      onLongPress={onMenu ? () => onMenu() : undefined}
+      {...(onMenu ? contextMenu(onMenu) : {})}
       style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: c.hairline, backgroundColor: pressed ? c.surface : 'transparent' })}
     >
       {wide ? (
@@ -425,21 +429,22 @@ function FiltersForm({ onClose, filters, onChange, boards, canHideRead, showPinn
   );
 }
 
-/** The row menu: mark read or unread, open the forum, copy the link (web). */
-export function FeedItemMenu({ item, visible, onClose, onError }: { item: FeedTopic | null; visible: boolean; onClose: () => void; onError: (message: string) => void }) {
+/** The row menu: mark read or unread, open the forum, copy the link (web). A popover at `anchor` when right-clicked. */
+export function FeedItemMenu({ item, visible, anchor, onClose, onError }: { item: FeedTopic | null; visible: boolean; anchor?: Anchor; onClose: () => void; onError: (message: string) => void }) {
   const actions = useFeedActions();
   if (!item) return null;
   const read = item.viewer?.read ?? false;
   const path = `/places/${item.place.slug}/topics/${item.id}`;
-  const web = Platform.OS === 'web' && /^https?:$/.test(globalThis.location?.protocol ?? '');
+  // Only a hosted web build has an address of its own to link to; the desktop app's (Windows serves it from http://tauri.localhost) is not one.
+  const web = Platform.OS === 'web' && !isDesktop && /^https?:$/.test(globalThis.location?.protocol ?? '');
   const items = [
     read
       ? { key: 'unread', label: 'Mark as unread', icon: 'eye' as const, onPress: () => void actions.markUnread(item).catch((e) => onError(messageFor(e, 'Could not mark it unread. Try again.'))) }
       : { key: 'read', label: 'Mark as read', icon: 'check' as const, onPress: () => void actions.markRead(item).catch((e) => onError(messageFor(e, 'Could not mark it read. Try again.'))) },
     { key: 'forum', label: `Open ${item.board.name}`, icon: 'forum' as const, onPress: () => router.push({ pathname: '/places/[slug]/boards/[id]', params: { slug: item.place.slug, id: item.board_id } }) },
-    ...(web ? [{ key: 'copy', label: 'Copy link', icon: 'link' as const, onPress: () => void Clipboard.setStringAsync(`${globalThis.location.origin}${path}`) }] : []),
+    ...(web ? [{ key: 'copy', label: 'Copy link', icon: 'link' as const, onPress: () => void copyText(`${globalThis.location.origin}${path}`) }] : []),
   ];
-  return <ActionList items={items} visible={visible} onClose={onClose} />;
+  return <ActionList items={items} visible={visible} anchor={anchor} onClose={onClose} />;
 }
 
 /** A feed screen's frame: safe area and, on phones, a title bar. The list scrolls itself. */

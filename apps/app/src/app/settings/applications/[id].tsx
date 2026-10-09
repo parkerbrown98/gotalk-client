@@ -2,7 +2,6 @@ import { unwrap } from '@gotalk/api-client';
 import { hasPermission, normalizeCommandDrafts, validateCommandDrafts, type CommandDraft, type CommandOptionType } from '@gotalk/core';
 import { Avatar, Badge, Button, Checkbox, Dialog, Icon, ListCard, ListRow, Notice, PillTabs, Stack, Text, TextField, useTheme } from '@gotalk/ui';
 import { useQueries } from '@tanstack/react-query';
-import * as Clipboard from 'expo-clipboard';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Platform, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
@@ -10,6 +9,7 @@ import { ActivityIndicator, Platform, Pressable, ScrollView, View, useWindowDime
 import { SecretReveal } from '@/components/secret-reveal';
 import { SettingsPage } from '@/components/settings-page';
 import { useApiClient, useInstanceInfo, useMe } from '@/lib/api';
+import { copyText } from '@/lib/clipboard';
 import { useApplication, useApplicationActions, useApplicationCommands, type Application, type Command } from '@/lib/developer';
 import { failureMessage } from '@/lib/failure';
 import { useActiveInstance } from '@/lib/instances';
@@ -194,7 +194,7 @@ function BotSection({ application, canManage }: { application: Application; canM
           variant="tertiary"
           size="sm"
           onPress={async () => {
-            await Clipboard.setStringAsync(application.id);
+            await copyText(application.id);
             setCopied(true);
           }}
         />

@@ -1,9 +1,10 @@
 import { buildInviteLink } from '@gotalk/core';
 import { Button, Dialog, Notice, PillTabs, Stack, Text, useTheme } from '@gotalk/ui';
-import * as Clipboard from 'expo-clipboard';
 import { useEffect, useState } from 'react';
 import { Platform, Share, View } from 'react-native';
 
+import { copyText } from '@/lib/clipboard';
+import { isDesktop } from '@/lib/desktop';
 import { classifyFailure } from '@/lib/failure';
 import { useActiveInstance } from '@/lib/instances';
 import { useWide } from '@/lib/layout';
@@ -23,11 +24,11 @@ const USES = [
   { value: '100', label: '100' },
 ] as const;
 
-/** A link people can open to join. Web builds hosted over http(s) link to themselves; everything else uses gotalk://. */
+/** A link people can open to join. Web builds hosted over http(s) link to themselves; everything else, the desktop app included, uses gotalk://. */
 export function useInviteLink(invite: Pick<Invite, 'code'> | null): string | null {
   const active = useActiveInstance();
   if (!invite || !active) return null;
-  const hosted = Platform.OS === 'web' && /^https?:$/.test(globalThis.location?.protocol ?? '') ? globalThis.location.origin : null;
+  const hosted = Platform.OS === 'web' && !isDesktop && /^https?:$/.test(globalThis.location?.protocol ?? '') ? globalThis.location.origin : null;
   return buildInviteLink({ code: invite.code, instanceOrigin: active.origin, webClientOrigin: hosted });
 }
 
@@ -77,7 +78,7 @@ export function CreateInviteDialog({ place, visible, onClose }: CreateInviteDial
 
   async function copy() {
     if (!link) return;
-    await Clipboard.setStringAsync(link);
+    await copyText(link);
     setCopied(true);
   }
 

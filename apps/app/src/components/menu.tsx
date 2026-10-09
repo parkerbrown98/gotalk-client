@@ -58,6 +58,8 @@ export function MenuItem({
   leading,
   checked,
   danger,
+  disabled,
+  shortcut,
   onPress,
 }: {
   label: string;
@@ -66,6 +68,9 @@ export function MenuItem({
   leading?: ReactNode;
   checked?: boolean;
   danger?: boolean;
+  disabled?: boolean;
+  /** A keyboard shortcut shown at the trailing edge, like "⌘C". */
+  shortcut?: string;
   onPress: () => void;
 }) {
   const theme = useTheme();
@@ -73,7 +78,8 @@ export function MenuItem({
   return (
     <Pressable
       accessibilityRole="menuitem"
-      accessibilityState={checked === undefined ? undefined : { checked }}
+      accessibilityState={{ checked, disabled }}
+      disabled={disabled}
       onPress={onPress}
       style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => ({
         flexDirection: 'row',
@@ -82,7 +88,8 @@ export function MenuItem({
         paddingHorizontal: 10,
         paddingVertical: 7,
         borderRadius: theme.radii.sm,
-        backgroundColor: pressed || hovered ? c.surfaceCard : 'transparent',
+        opacity: disabled ? 0.4 : 1,
+        backgroundColor: !disabled && (pressed || hovered) ? c.surfaceCard : 'transparent',
       })}
     >
       {leading ?? (icon ? <Icon name={icon} size={16} color={danger ? c.accentRed : c.mute} /> : null)}
@@ -96,6 +103,11 @@ export function MenuItem({
           </Text>
         ) : null}
       </View>
+      {shortcut ? (
+        <Text variant="captionMd" tone="faint">
+          {shortcut}
+        </Text>
+      ) : null}
       {checked ? <Icon name="check" size={16} color={c.onDark} /> : null}
     </Pressable>
   );

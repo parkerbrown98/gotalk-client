@@ -9,6 +9,7 @@ import { InlineLink } from '@/components/inline-link';
 import { PasswordField } from '@/components/password-field';
 import { authManager, useAuthTarget, useRevokedNotice, useSession } from '@/lib/auth';
 import { useCountdown } from '@/lib/countdown';
+import { isDesktop } from '@/lib/desktop';
 import { resetTo } from '@/lib/layout';
 import { inviteHref, pendingInvite } from '@/lib/pending-invite';
 import { classifyFailure, type FailureKind } from '@/lib/failure';
@@ -108,7 +109,8 @@ export default function SignIn() {
             disabled={!login.trim() || !password || rateLimited || versionBlocked}
           />
           {versionBlocked ? (
-            Platform.OS === 'web' ? (
+            // Only a hosted web build picks up a newer client by reloading; the desktop app ships its own.
+            Platform.OS === 'web' && !isDesktop ? (
               <Button title="Reload the app" variant="tertiary" onPress={() => globalThis.location?.reload()} />
             ) : (
               <Button title="Use a different instance" variant="tertiary" onPress={() => router.replace('/connect')} />

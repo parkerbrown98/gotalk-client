@@ -1,11 +1,12 @@
 import { Text, useTheme } from '@gotalk/ui';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Platform, Pressable, View, type ViewProps } from 'react-native';
+import { Pressable, View, type ViewProps } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
 
-const isDesktop = Platform.OS === 'web' && typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
-const isMac = isDesktop && /Mac/.test(navigator.userAgent);
+import { desktopOS, isDesktop } from '@/lib/desktop';
+
+const isMac = desktopOS === 'macos';
 
 /** Matches the desktop window chrome in docs/mockups. */
 const HEIGHT = 40;

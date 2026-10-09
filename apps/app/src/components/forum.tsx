@@ -5,6 +5,7 @@ import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import { Composer } from '@/components/composer';
 import { Markdown } from '@/components/markdown';
+import { MenuItem, MenuPopover, MenuSeparator, type Anchor } from '@/components/menu';
 import { ReportDialog } from '@/components/moderation';
 import { failureMessage } from '@/lib/failure';
 import { useForumActions, usePostRevisions, type Post, type Topic, type WatchLevel } from '@/lib/forums';
@@ -402,7 +403,38 @@ export function PostItem({ post, topic, indent = 0, wide, userId, canModerate, c
 }
 
 /** Rows for a menu of topic actions, shown as a sheet or dialog. */
-export function ActionList({ items, visible, onClose }: { items: Array<{ key: string; label: string; icon: IconName; danger?: boolean; onPress: () => void }>; visible: boolean; onClose: () => void }) {
+/** Actions for something: a dialog list, or a popover menu at `anchor` (right-click on desktop). */
+export function ActionList({
+  items,
+  visible,
+  anchor,
+  onClose,
+}: {
+  items: { key: string; label: string; icon: IconName; danger?: boolean; onPress: () => void }[];
+  visible: boolean;
+  anchor?: Anchor;
+  onClose: () => void;
+}) {
+  if (anchor) {
+    return (
+      <MenuPopover visible={visible} onClose={onClose} anchor={anchor}>
+        {items.map((item) => (
+          <View key={item.key}>
+            {item.danger ? <MenuSeparator /> : null}
+            <MenuItem
+              label={item.label}
+              icon={item.icon}
+              danger={item.danger}
+              onPress={() => {
+                onClose();
+                item.onPress();
+              }}
+            />
+          </View>
+        ))}
+      </MenuPopover>
+    );
+  }
   return (
     <Dialog visible={visible} onClose={onClose}>
       <ListCard style={{ borderWidth: 0, backgroundColor: 'transparent' }}>

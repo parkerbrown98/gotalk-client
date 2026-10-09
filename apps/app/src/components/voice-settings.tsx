@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { MenuItem, MenuPopover, type Anchor } from '@/components/menu';
+import { isDesktop } from '@/lib/desktop';
 import { voicePlatform } from '@/lib/voice';
 import { platform } from '@/lib/voice-platform';
 import type { AudioDevice } from '@/lib/voice-platform-types';
@@ -149,7 +150,11 @@ function VoiceSettingsForm({ onClose }: { onClose: () => void }) {
       stopTest.current = await platform.startMicTest({ deviceId: settings.inputDeviceId, noiseSuppression: settings.noiseSuppression }, setLevel);
     } catch (e) {
       setLevel(null);
-      setProblem(e instanceof Error && e.name === 'NotAllowedError' ? "Gotalk can't use your microphone. Allow access in your browser or system settings." : 'Could not start your microphone.');
+      setProblem(
+        e instanceof Error && e.name === 'NotAllowedError'
+          ? `Gotalk can't use your microphone. Allow access in your ${isDesktop ? 'system' : 'browser or system'} settings.`
+          : 'Could not start your microphone.',
+      );
     }
   };
 

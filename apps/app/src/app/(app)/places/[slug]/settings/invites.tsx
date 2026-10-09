@@ -1,6 +1,5 @@
 import { describeInviteExpiry, describeInviteUses } from '@gotalk/core';
 import { Button, ListCard, Notice, Stack, Text, useTheme } from '@gotalk/ui';
-import * as Clipboard from 'expo-clipboard';
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Platform, Share, View } from 'react-native';
@@ -8,6 +7,7 @@ import { ActivityIndicator, Platform, Share, View } from 'react-native';
 import { CreateInviteDialog, useInviteLink } from '@/components/invite-dialog';
 import { PlaceSettingsPage, usePlaceSettings } from '@/components/place-settings';
 import { useSession } from '@/lib/auth';
+import { copyText } from '@/lib/clipboard';
 import { useWide } from '@/lib/layout';
 import { useInvites, usePlaceActions, type Invite } from '@/lib/places';
 
@@ -83,7 +83,7 @@ function InviteRow({ invite, slug, mine }: { invite: Invite; slug: string; mine:
         onPress={async () => {
           if (!link) return;
           if (Platform.OS === 'web' || wide) {
-            await Clipboard.setStringAsync(link);
+            await copyText(link);
             setCopied(true);
           } else await Share.share({ message: link });
         }}

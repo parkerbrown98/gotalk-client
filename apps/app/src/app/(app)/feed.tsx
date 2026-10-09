@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { ActiveFilters, FeedCard, FeedFrame, FeedItemMenu, FeedList, FiltersDialog, MarkAllDialog, SortBar, useVoteMode } from '@/components/feed';
+import type { Anchor } from '@/components/menu';
 import { useFeedActions, useFeedCapabilities, useInstanceFeed, useSortPreference } from '@/lib/feeds';
 import { useActiveInstance } from '@/lib/instances';
 import { useWide } from '@/lib/layout';
@@ -26,6 +27,7 @@ export default function HomeFeed() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [markAll, setMarkAll] = useState(false);
   const [menuItem, setMenuItem] = useState<FeedTopic | null>(null);
+  const [menuAnchor, setMenuAnchor] = useState<Anchor | undefined>(undefined);
   const [problem, setProblem] = useState<string | null>(null);
 
   const sorts = availableSorts(caps.sorts, caps.votes);
@@ -111,12 +113,15 @@ export default function HomeFeed() {
             showPlace
             vote={voteMode(item)}
             onOpen={() => router.push({ pathname: '/places/[slug]/topics/[id]', params: { slug: item.place.slug, id: item.id } })}
-            onMenu={() => setMenuItem(item)}
+            onMenu={(anchor) => {
+              setMenuAnchor(anchor);
+              setMenuItem(item);
+            }}
           />
         )}
       />
       <FiltersDialog visible={filtersOpen} onClose={() => setFiltersOpen(false)} filters={filters} onChange={change} canHideRead showPinned={false} />
-      <FeedItemMenu item={menuItem} visible={!!menuItem} onClose={() => setMenuItem(null)} onError={setProblem} />
+      <FeedItemMenu item={menuItem} visible={!!menuItem} anchor={menuAnchor} onClose={() => setMenuItem(null)} onError={setProblem} />
       <MarkAllDialog
         visible={markAll}
         onClose={() => setMarkAll(false)}

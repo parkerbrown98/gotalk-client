@@ -1,6 +1,5 @@
 import { clockTime, previewText, QUICK_REACTIONS, relativeTime, type Message } from '@gotalk/core';
 import { Button, Dialog, Icon, ListCard, ListRow, Notice, Text, TextField, useTheme, type IconName } from '@gotalk/ui';
-import * as Clipboard from 'expo-clipboard';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
@@ -8,6 +7,7 @@ import { Markdown } from '@/components/markdown';
 import { MenuItem, MenuPopover, MenuSeparator, type Anchor } from '@/components/menu';
 import type { ChatScope } from '@/components/chat-message';
 import { useMessageRevisions } from '@/lib/chat';
+import { copyText } from '@/lib/clipboard';
 import { failureMessage } from '@/lib/failure';
 
 /** The last non-null value, so a dialog keeps its content while it fades out. */
@@ -37,7 +37,7 @@ export function messageActions(
   if (m.thread) out.push({ key: 'thread', label: 'Open thread', icon: 'thread', onPress: () => scope.openThread(m) });
   else if (scope.can.thread) out.push({ key: 'thread', label: 'Start a thread', icon: 'thread', onPress: () => scope.startThread(m) });
   if (scope.can.pin) out.push({ key: 'pin', label: m.is_pinned ? 'Unpin message' : 'Pin message', icon: 'pin', onPress: () => handlers.pin(m, !m.is_pinned) });
-  out.push({ key: 'copy', label: 'Copy text', icon: 'copy', onPress: () => void Clipboard.setStringAsync(m.content) });
+  out.push({ key: 'copy', label: 'Copy text', icon: 'copy', onPress: () => void copyText(m.content) });
   // Reports go to a place's moderators, so direct messages have nobody to report to.
   if (!mine && m.author && handlers.report) {
     const report = handlers.report;

@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { ChannelFormDialog, ChannelMenu, useChannelMenu } from '@/components/channel-menu';
+import { contextMenu } from '@/components/context-menu';
 import type { Anchor } from '@/components/menu';
 import type { Channel } from '@/lib/chat';
 import { useVoiceStates } from '@/lib/voice';
@@ -43,6 +44,10 @@ function CategoryLabel({ category, all, slug, wide }: { category: Channel; all: 
             setOpen(true);
           });
         }}
+        {...contextMenu((at) => {
+          setAnchor(at);
+          setOpen(true);
+        })}
         style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingTop: 10, paddingBottom: 2 }}
       >
         {label}

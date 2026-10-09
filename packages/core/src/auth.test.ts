@@ -362,6 +362,11 @@ describe('devices', () => {
     expect(describeUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130.0 Safari/537.36 Edg/130.0').label).toBe('Edge on Windows');
     expect(describeUserAgent('Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0').label).toBe('Firefox on Linux');
     expect(describeUserAgent('Gotalk/0.1.0 (ios)')).toEqual({ label: 'Gotalk for iOS', kind: 'phone' });
+    expect(describeUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Gotalk/0.1.0 (macos)')).toEqual({ label: 'Gotalk for macOS', kind: 'desktop' });
+    expect(describeUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0 Gotalk/0.1.0 (windows)')).toEqual({ label: 'Gotalk for Windows', kind: 'desktop' });
+    expect(describeUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/605.1.15 (KHTML, like Gecko) Gotalk/0.1.0 (linux)')).toEqual({ label: 'Gotalk for Linux', kind: 'desktop' });
+    // A browser whose user agent merely mentions Gotalk elsewhere is still a browser.
+    expect(describeUserAgent('Mozilla/5.0 (X11; Linux x86_64) Firefox/130.0 MyGotalk/1.0 (linux)').label).toBe('Firefox on Linux');
     expect(describeUserAgent('')).toEqual({ label: 'Unknown device', kind: 'browser' });
   });
 

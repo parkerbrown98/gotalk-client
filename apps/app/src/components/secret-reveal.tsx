@@ -1,7 +1,8 @@
 import { Button, Dialog, Notice, Stack, Text, useTheme } from '@gotalk/ui';
-import * as Clipboard from 'expo-clipboard';
 import { useState } from 'react';
 import { Platform, View } from 'react-native';
+
+import { copyText } from '@/lib/clipboard';
 
 /** Shows a token or signing secret once, with a way to copy it. The server never returns it again. */
 export function SecretReveal({
@@ -51,7 +52,7 @@ export function SecretReveal({
           title={copied ? 'Copied' : 'Copy'}
           size="sm"
           onPress={async () => {
-            await Clipboard.setStringAsync(secret);
+            await copyText(secret);
             setCopied(true);
           }}
         />

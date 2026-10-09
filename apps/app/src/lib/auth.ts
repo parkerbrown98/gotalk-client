@@ -15,9 +15,9 @@ import { Platform } from 'react-native';
 import { useStore } from 'zustand';
 
 import { instancesStore, useActiveInstance } from './instances';
+import { isDesktop } from './desktop';
 
 const isWeb = Platform.OS === 'web';
-const isTauri = isWeb && typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
 /** iOS Keychain / Android Keystore. Items never leave this device or its backups. */
 const nativeSecrets: SecretStorage = {
@@ -33,7 +33,7 @@ const desktopSecrets: SecretStorage = {
   delete: async (key) => void (await invoke('secret_delete', { key })),
 };
 
-const secrets = !isWeb ? nativeSecrets : isTauri ? desktopSecrets : createLocalStorageSecrets();
+const secrets = !isWeb ? nativeSecrets : isDesktop ? desktopSecrets : createLocalStorageSecrets();
 
 /**
  * Credentials for every saved instance. Refresh tokens live in `secrets`; access tokens stay in

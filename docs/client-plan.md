@@ -134,8 +134,8 @@ Known gaps and decisions:
 - The server records an IP address and user agent per session but no location, so devices show the
   former.
 - Sign-in has no "forgot password" flow because the backend has none yet.
-- Phone builds identify themselves as `Gotalk/<version> (<os>)`; browsers and the desktop shell show as
-  their browser.
+- Phone builds identify themselves as `Gotalk/<version> (<os>)`, and the desktop app appends the same
+  token to its webview's user agent, so both show as "Gotalk for …"; browsers show as their browser.
 
 Mockups: [Sign in](./mockups/02-sign-in.html) (default, wrong credentials, rate limited, session revoked,
 API version mismatch), [Create an account](./mockups/03-register.html) (open, invite-only and closed

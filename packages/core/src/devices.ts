@@ -5,10 +5,19 @@ export interface DeviceDescription {
   kind: DeviceKind;
 }
 
+const APP_PLATFORMS: Record<string, DeviceDescription> = {
+  ios: { label: 'Gotalk for iOS', kind: 'phone' },
+  android: { label: 'Gotalk for Android', kind: 'phone' },
+  macos: { label: 'Gotalk for macOS', kind: 'desktop' },
+  windows: { label: 'Gotalk for Windows', kind: 'desktop' },
+  linux: { label: 'Gotalk for Linux', kind: 'desktop' },
+};
+
 /** Names the device behind a session from its stored `User-Agent`. */
 export function describeUserAgent(userAgent: string): DeviceDescription {
-  const app = /^Gotalk\/[\w.+-]+ \((ios|android)\)/i.exec(userAgent);
-  if (app) return { label: app[1]!.toLowerCase() === 'ios' ? 'Gotalk for iOS' : 'Gotalk for Android', kind: 'phone' };
+  // Phone builds send just this token; the desktop app appends it to its webview's user agent.
+  const app = /(?:^|\s)Gotalk\/[\w.+-]+ \((ios|android|macos|windows|linux)\)/i.exec(userAgent);
+  if (app) return APP_PLATFORMS[app[1]!.toLowerCase()]!;
 
   const os = /Windows/.test(userAgent)
     ? 'Windows'

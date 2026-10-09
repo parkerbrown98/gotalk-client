@@ -5,6 +5,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 
 import { ChatView } from '@/components/chat-view';
+import { contextMenu } from '@/components/context-menu';
 import { Markdown } from '@/components/markdown';
 import { MenuItem, MenuPopover, MenuSeparator, type Anchor } from '@/components/menu';
 import { MemberModerationDialog, ReportDialog } from '@/components/moderation';
@@ -89,6 +90,7 @@ export function MembersPanel({ slug }: { slug: string }) {
           const { pageX, pageY } = e.nativeEvent;
           setMenu({ userId: m.user.id, name: label, anchor: { left: pageX - 240, top: pageY + 8, flipAt: pageY - 8 } });
         }}
+        {...(self && !canModerate ? {} : contextMenu((anchor) => setMenu({ userId: m.user.id, name: label, anchor })))}
         style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 10, paddingVertical: 6, borderRadius: theme.radii.sm, backgroundColor: pressed ? theme.colors.surfaceCard : 'transparent' })}
       >
         <PresenceAvatar user={m.user} size={24} ring={theme.colors.surface} />
