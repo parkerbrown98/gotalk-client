@@ -1,6 +1,6 @@
 use keyring::Entry;
 
-const SERVICE: &str = "io.gotalk.desktop";
+const SERVICE: &str = "sh.gotalk.desktop";
 const KEY_PREFIX: &str = "gotalk.session.";
 
 /// The web app stores one refresh-token record per instance here. Only its own key space is reachable.

@@ -56,8 +56,8 @@ describe('invites', () => {
     expect(buildInviteLink({ code: 'k3Vq9Xz2Lm', instanceOrigin: 'https://woodworkers.example.org' })).toBe(
       'gotalk://invite/k3Vq9Xz2Lm?instance=https%3A%2F%2Fwoodworkers.example.org',
     );
-    expect(buildInviteLink({ code: 'abc', instanceOrigin: 'http://localhost:8080', webClientOrigin: 'https://app.gotalk.io/' })).toBe(
-      'https://app.gotalk.io/invite/abc?instance=http%3A%2F%2Flocalhost%3A8080',
+    expect(buildInviteLink({ code: 'abc', instanceOrigin: 'http://localhost:8080', webClientOrigin: 'https://app.gotalk.sh/' })).toBe(
+      'https://app.gotalk.sh/invite/abc?instance=http%3A%2F%2Flocalhost%3A8080',
     );
   });
 

@@ -10,7 +10,7 @@
     "backgroundColor": "#07080A",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "io.gotalk.app",
+      "bundleIdentifier": "sh.gotalk.app",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"
@@ -18,7 +18,7 @@
       }
     },
     "android": {
-      "package": "io.gotalk.app",
+      "package": "sh.gotalk.app",
       "adaptiveIcon": {
         "backgroundColor": "#07080A",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

@@ -763,4 +763,4 @@ Known gaps and decisions:
   - styling stays on plain `StyleSheet` + tokens, or moves to Unistyles/Tamagui (revisit when
     responsive variants get heavy)
   - Markdown renderer/editor library
-  - final app identifiers (`io.gotalk.app` / `io.gotalk.desktop` are placeholders)
+  - final app identifiers (`sh.gotalk.app` / `sh.gotalk.desktop` are placeholders)
