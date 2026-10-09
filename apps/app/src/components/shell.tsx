@@ -61,7 +61,7 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
       {children}
     </Pressable>
   );
-  const iconTile = (name: 'compass' | 'plus' | 'search' | 'bell' | 'forum' | 'arrowUp', dashed: boolean, isActive: boolean, count = 0) => (
+  const iconTile = (name: 'compass' | 'plus' | 'search' | 'bell' | 'forum' | 'home', dashed: boolean, isActive: boolean, count = 0) => (
     <View
       style={{
         width: 48,
@@ -83,7 +83,7 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
   return (
     <View style={{ width: 64, backgroundColor: c.canvas, borderRightWidth: 1, borderRightColor: c.hairline, paddingVertical: 12, alignItems: 'center' }}>
       <ScrollView contentContainerStyle={{ alignItems: 'center', gap: 10 }} showsVerticalScrollIndicator={false}>
-        {link('feed', 'Home: topics from your places', () => router.push('/feed'), pathname === '/feed', iconTile('arrowUp', false, pathname === '/feed'))}
+        {link('feed', 'Home: topics from your places', () => router.push('/feed'), pathname === '/feed', iconTile('home', false, pathname === '/feed'))}
         {link('messages', unreadMessages > 0 ? `Direct messages, ${unreadMessages} unread` : 'Direct messages', () => router.push('/messages'), inMessages, iconTile('forum', false, inMessages, unreadMessages))}
         {link('palette', 'Jump to a place or channel', onOpenPalette, false, iconTile('search', false, false))}
         {link('inbox', unread > 0 ? `Inbox, ${unread} unread` : 'Inbox', () => router.push('/inbox'), pathname === '/inbox', iconTile('bell', false, pathname === '/inbox', unread))}
