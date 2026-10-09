@@ -1,6 +1,6 @@
 import { conversationTitle, previewText, shortTime } from '@gotalk/core';
 import { unwrap, type Schemas } from '@gotalk/api-client';
-import { Avatar, Button, Dialog, Icon, NavRow, Notice, Text, TextField, typeStyle, useTheme } from '@gotalk/ui';
+import { Avatar, Button, Dialog, hoverTransition, Icon, NavRow, Notice, Text, TextField, typeStyle, useTheme, type PressState } from '@gotalk/ui';
 import { useQueries } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -64,7 +64,7 @@ export function ConversationListRow({ channel }: { channel: Channel }) {
       accessibilityRole="link"
       accessibilityLabel={`${title}${unread ? `, ${unread} unread` : ''}`}
       onPress={() => router.push({ pathname: '/messages/[id]', params: { id: channel.id } })}
-      style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: theme.space.md, paddingHorizontal: theme.space.lg, paddingVertical: theme.space.md, backgroundColor: pressed ? c.surface : 'transparent' })}
+      style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flexDirection: 'row', alignItems: 'center', gap: theme.space.md, paddingHorizontal: theme.space.lg, paddingVertical: theme.space.md, backgroundColor: pressed || hovered ? c.surface : 'transparent' })}
     >
       <ConversationAvatar channel={channel} size={44} />
       <View style={{ flex: 1, minWidth: 0 }}>
@@ -228,7 +228,7 @@ function NewConversationBody({ onClose, addTo }: { onClose: () => void; addTo?: 
                 setPicked((p) => [...p, cand.user]);
                 setQ('');
               }}
-              style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 12, paddingVertical: 10, borderTopWidth: i ? 1 : 0, borderTopColor: c.hairline, backgroundColor: pressed ? c.surfaceElevated : 'transparent' })}
+              style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 12, paddingVertical: 10, borderTopWidth: i ? 1 : 0, borderTopColor: c.hairline, backgroundColor: pressed || hovered ? c.surfaceElevated : 'transparent' })}
             >
               <Avatar name={cand.user.display_name} uri={cand.user.avatar_url} size={32} />
               <View style={{ flex: 1 }}>

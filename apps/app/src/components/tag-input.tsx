@@ -1,5 +1,5 @@
 import { isValidTag, LIMITS, normalizeTag } from '@gotalk/core';
-import { Badge, Icon, Text, useTheme, typeStyle } from '@gotalk/ui';
+import { Badge, hoverTransition, Icon, Text, typeStyle, useTheme, type PressState } from '@gotalk/ui';
 import { useState } from 'react';
 import { Platform, Pressable, TextInput, View, type TextStyle } from 'react-native';
 
@@ -72,7 +72,7 @@ export function TagInput({ slug, value, onChange }: TagInputProps) {
       {focused && options.length > 0 ? (
         <View accessibilityRole="menu" style={{ padding: 6, gap: 2, backgroundColor: c.surfaceElevated, borderColor: c.hairlineStrong, borderWidth: 1, borderRadius: theme.radii.md }}>
           {options.map((t) => (
-            <Pressable key={t.tag} accessibilityRole="menuitem" onPress={() => add(t.tag)} style={({ pressed }) => ({ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 8, paddingVertical: 6, borderRadius: theme.radii.sm, backgroundColor: pressed ? c.surfaceCard : 'transparent' })}>
+            <Pressable key={t.tag} accessibilityRole="menuitem" onPress={() => add(t.tag)} style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 8, paddingVertical: 6, borderRadius: theme.radii.sm, backgroundColor: pressed || hovered ? c.surfaceCard : 'transparent' })}>
               <Text variant="bodySm" tone="onDark">
                 {t.tag}
               </Text>

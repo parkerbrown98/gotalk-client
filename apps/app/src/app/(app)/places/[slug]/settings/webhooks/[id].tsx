@@ -1,5 +1,5 @@
 import { deliveryStatus, relativeTime, webhookHealth } from '@gotalk/core';
-import { Badge, Button, Card, Dialog, Icon, ListCard, Notice, PillTabs, Stack, Text, useTheme } from '@gotalk/ui';
+import { Badge, Button, Card, Dialog, hoverTransition, Icon, ListCard, Notice, PillTabs, Stack, Text, useTheme, type PressState } from '@gotalk/ui';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, ScrollView, View } from 'react-native';
@@ -162,7 +162,7 @@ function DeliveryRow({ delivery, onRedeliver }: { delivery: WebhookDelivery; onR
         accessibilityState={{ expanded: open }}
         accessibilityLabel={`${delivery.event}, ${status.label}. ${open ? 'Hide' : 'Show'} details`}
         onPress={() => setOpen((o) => !o)}
-        style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: theme.space.sm, paddingHorizontal: theme.space.lg, paddingVertical: theme.space.md, backgroundColor: pressed ? theme.colors.surfaceElevated : 'transparent' })}
+        style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: theme.space.sm, paddingHorizontal: theme.space.lg, paddingVertical: theme.space.md, backgroundColor: pressed || hovered ? theme.colors.surfaceElevated : 'transparent' })}
       >
         <Text variant="bodySm" tone="onDark" style={[mono, { flex: 1, minWidth: 120 }]}>
           {delivery.event}

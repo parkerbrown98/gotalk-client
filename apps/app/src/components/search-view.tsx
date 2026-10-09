@@ -1,5 +1,5 @@
 import { splitHighlights, relativeTime } from '@gotalk/core';
-import { Badge, Button, Checkbox, Notice, PillTabs, Stack, Text, TextField, useTheme } from '@gotalk/ui';
+import { Badge, Button, Checkbox, hoverTransition, Notice, PillTabs, Stack, Text, TextField, useTheme, type PressState } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
@@ -35,7 +35,7 @@ function Result({ result, slug, wide }: { result: SearchResult; slug: string; wi
     <Pressable
       accessibilityRole="link"
       onPress={() => router.push({ pathname: '/places/[slug]/topics/[id]', params: { slug, id: result.topic.id } })}
-      style={({ pressed }) => ({ gap: 4, paddingVertical: 14, paddingHorizontal: wide ? 0 : theme.space.lg, borderBottomWidth: 1, borderBottomColor: c.hairline, backgroundColor: pressed ? c.surface : 'transparent' })}
+      style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, gap: 4, paddingVertical: 14, paddingHorizontal: wide ? 0 : theme.space.lg, borderBottomWidth: 1, borderBottomColor: c.hairline, backgroundColor: pressed || hovered ? c.surface : 'transparent' })}
     >
       <Text variant="bodySmStrong" tone="onDark">
         {result.topic.title}

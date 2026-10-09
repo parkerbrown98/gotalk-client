@@ -1,6 +1,7 @@
-import { Icon, Text, useTheme, type IconName } from '@gotalk/ui';
+import { Icon, Text, hoverTransition, popoverEntering, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { useState, type ReactNode } from 'react';
 import { Modal, Pressable, View, useWindowDimensions } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 /** Where a popover opens, in window coordinates. Give `top` to open downward or `bottom` to open upward. */
 export interface Anchor {
@@ -25,8 +26,8 @@ export function MenuPopover({ visible, onClose, anchor, width = 232, children }:
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
       <Pressable accessibilityLabel="Close menu" onPress={onClose} style={{ flex: 1 }}>
+        {/* The outer view places the menu (and hides it until measured, for flipping); the inner one animates in. */}
         <View
-          accessibilityRole="menu"
           onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
           style={{
             position: 'absolute',
@@ -36,15 +37,22 @@ export function MenuPopover({ visible, onClose, anchor, width = 232, children }:
             bottom: anchor.bottom,
             opacity: anchor.top === undefined || height > 0 ? 1 : 0,
             width,
-            padding: 6,
-            gap: 2,
-            backgroundColor: c.surfaceElevated,
-            borderColor: c.hairlineStrong,
-            borderWidth: 1,
-            borderRadius: theme.radii.lg,
           }}
         >
-          {children}
+          <Animated.View
+            accessibilityRole="menu"
+            entering={popoverEntering}
+            style={{
+              padding: 6,
+              gap: 2,
+              backgroundColor: c.surfaceElevated,
+              borderColor: c.hairlineStrong,
+              borderWidth: 1,
+              borderRadius: theme.radii.lg,
+            }}
+          >
+            {children}
+          </Animated.View>
         </View>
       </Pressable>
     </Modal>
@@ -81,16 +89,19 @@ export function MenuItem({
       accessibilityState={{ checked, disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => ({
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        paddingHorizontal: 10,
-        paddingVertical: 7,
-        borderRadius: theme.radii.sm,
-        opacity: disabled ? 0.4 : 1,
-        backgroundColor: !disabled && (pressed || hovered) ? c.surfaceCard : 'transparent',
-      })}
+      style={({ pressed, hovered }: PressState) => [
+        {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 10,
+          paddingHorizontal: 10,
+          paddingVertical: 7,
+          borderRadius: theme.radii.sm,
+          opacity: disabled ? 0.4 : 1,
+          backgroundColor: !disabled && (pressed || hovered) ? c.surfaceCard : 'transparent',
+        },
+        hoverTransition,
+      ]}
     >
       {leading ?? (icon ? <Icon name={icon} size={16} color={danger ? c.accentRed : c.mute} /> : null)}
       <View style={{ flex: 1 }}>

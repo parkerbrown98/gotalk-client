@@ -1,5 +1,5 @@
 import { voiceStatesByChannel } from '@gotalk/core';
-import { Avatar, Icon, Text, useTheme } from '@gotalk/ui';
+import { Avatar, hoverTransition, Icon, Text, useTheme, type PressState } from '@gotalk/ui';
 import { router, usePathname } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
@@ -78,7 +78,7 @@ export function CallMiniBar() {
       accessibilityRole="link"
       accessibilityLabel={`In a call in ${call.channelName}. Open the call`}
       onPress={() => openCall(call)}
-      style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, height: 56, paddingHorizontal: 16, backgroundColor: pressed ? c.surfaceCard : c.surfaceElevated, borderTopWidth: 1, borderTopColor: c.hairline })}
+      style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flexDirection: 'row', alignItems: 'center', gap: 12, height: 56, paddingHorizontal: 16, backgroundColor: pressed || hovered ? c.surfaceCard : c.surfaceElevated, borderTopWidth: 1, borderTopColor: c.hairline })}
     >
       {talker ? (
         <View style={{ borderRadius: 999, borderWidth: 1, borderColor: c.accentGreen }}>

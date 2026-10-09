@@ -1,8 +1,9 @@
 import { bindingLabels, callDuration, gridColumns, micStatus, orderTiles, qualityLook, voiceStatesByChannel, type CallQuality } from '@gotalk/core';
-import { Avatar, Button, Dialog, Icon, Keycap, ListCard, ListRow, Notice, Stack, Text, useTheme, type IconName } from '@gotalk/ui';
+import { Avatar, Button, CSS_EASE_OUT, Dialog, hoverTransition, Icon, Keycap, ListCard, ListRow, motion, Notice, Stack, Text, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Platform, Pressable, ScrollView, View, type GestureResponderEvent, type ViewStyle } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChannelMenu, useChannelMenu } from '@/components/channel-menu';
@@ -52,7 +53,8 @@ export function CallControl({ icon, label, state, size = 44, disabled, onPress }
       accessibilityState={{ selected: state !== undefined, disabled: !!disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => ({
+      style={({ pressed, hovered }: PressState) => ({
+        ...hoverTransition,
         width: size,
         height: size,
         borderRadius: theme.radii.md,
@@ -60,7 +62,7 @@ export function CallControl({ icon, label, state, size = 44, disabled, onPress }
         justifyContent: 'center',
         borderWidth: 1,
         borderColor: state === 'on' ? c.hairlineStrong : 'transparent',
-        backgroundColor: state === 'on' || pressed ? c.surfaceCard : c.surfaceElevated,
+        backgroundColor: state === 'on' || pressed || hovered ? c.surfaceCard : c.surfaceElevated,
         opacity: disabled ? 0.5 : 1,
       })}
     >
@@ -78,7 +80,8 @@ export function LeaveControl({ compact, size = 44, onPress }: { compact?: boolea
       accessibilityRole="button"
       accessibilityLabel="Leave the call"
       onPress={onPress}
-      style={({ pressed }) => ({
+      style={({ pressed, hovered }: PressState) => ({
+        ...hoverTransition,
         height: size,
         minWidth: size,
         paddingHorizontal: compact ? 0 : 16,
@@ -87,7 +90,7 @@ export function LeaveControl({ compact, size = 44, onPress }: { compact?: boolea
         alignItems: 'center',
         justifyContent: 'center',
         gap: 8,
-        backgroundColor: pressed ? c.accentRedSoft : c.surfaceElevated,
+        backgroundColor: pressed || hovered ? c.accentRedSoft : c.surfaceElevated,
       })}
     >
       <Icon name="phoneOff" size={compact ? 18 : 20} color={c.accentRed} />
@@ -220,6 +223,8 @@ function NameRow({ tile, chip }: { tile: Tile; chip: boolean }) {
   );
 }
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
 /** One person in a call: their camera or avatar, a green hairline while they talk, and their mic state. */
 export function VoiceTile({ tile, speaking, avatarSize = 64, style, onPress }: { tile: Tile; speaking: boolean; avatarSize?: number; style?: ViewStyle; onPress?: (e: GestureResponderEvent) => void }) {
   const theme = useTheme();
@@ -227,7 +232,7 @@ export function VoiceTile({ tile, speaking, avatarSize = 64, style, onPress }: {
   const track = useVoice((s) => (tile.camera ? s.video[tile.userId]?.camera : undefined));
   const label = `${tile.isMe ? 'You' : tile.name}${tile.status === 'live' ? '' : `, ${tile.status}`}${speaking ? ', talking' : ''}${tile.connected ? '' : ', connecting'}`;
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityRole={onPress ? 'button' : undefined}
       accessibilityLabel={onPress ? `${label}. Voice actions` : label}
       disabled={!onPress}
@@ -245,13 +250,17 @@ export function VoiceTile({ tile, speaking, avatarSize = 64, style, onPress }: {
           opacity: tile.connected ? 1 : 0.5,
           // Keeps the avatar clear of the name row on short tiles.
           paddingBottom: track ? 0 : 20,
+          // The talking ring fades rather than flickers as voice activity comes and goes.
+          transitionProperty: 'borderColor',
+          transitionDuration: motion.close,
+          transitionTimingFunction: CSS_EASE_OUT,
         },
         style,
       ]}
     >
       {track ? <VideoSurface track={track} fit="cover" mirror={tile.isMe} /> : <Avatar name={tile.name} uri={tile.avatarUrl} size={avatarSize} />}
       <NameRow tile={tile} chip={!!track} />
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 

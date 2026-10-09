@@ -1,10 +1,11 @@
-import { Button, Dialog, Icon, ListCard, ListRow, Notice, Text, useTheme, type IconName } from '@gotalk/ui';
+import { Button, Dialog, ListCard, ListRow, Notice, Text, useTheme, type IconName } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
-import { Modal, Pressable, View } from 'react-native';
+import { View } from 'react-native';
 
 import { ChannelFormDialog } from '@/components/channel-menu';
 import { CreateInviteDialog } from '@/components/invite-dialog';
+import { MenuItem, MenuPopover, MenuSeparator } from '@/components/menu';
 import { usePlaceSettings } from '@/components/place-settings';
 import { useInstanceInfo } from '@/lib/api';
 import { classifyFailure } from '@/lib/failure';
@@ -110,53 +111,22 @@ export function PlaceMenuSheet({ items, visible, onClose }: { items: PlaceMenuIt
 
 /** Wide: a popover under the sidebar header, or at the pointer when right-clicked. */
 export function PlaceMenuPopover({ items, visible, anchor, onClose }: { items: PlaceMenuItem[]; visible: boolean; anchor: { left: number; top: number }; onClose: () => void }) {
-  const theme = useTheme();
-  const c = theme.colors;
   return (
-    <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
-      <Pressable accessibilityLabel="Close menu" onPress={onClose} style={{ flex: 1 }}>
-        <View
-          style={{
-            position: 'absolute',
-            left: anchor.left,
-            top: anchor.top,
-            width: 232,
-            padding: 6,
-            gap: 2,
-            backgroundColor: c.surfaceElevated,
-            borderColor: c.hairlineStrong,
-            borderWidth: 1,
-            borderRadius: theme.radii.lg,
-          }}
-        >
-          {items.map((item) => (
-            <View key={item.key}>
-              {item.danger ? <View style={{ height: 1, backgroundColor: c.hairline, marginVertical: 4 }} /> : null}
-              <Pressable
-                accessibilityRole="menuitem"
-                onPress={() => {
-                  onClose();
-                  item.onPress();
-                }}
-                style={({ pressed }) => ({
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 10,
-                  paddingHorizontal: 10,
-                  paddingVertical: 6,
-                  borderRadius: theme.radii.sm,
-                  backgroundColor: pressed ? c.surfaceCard : 'transparent',
-                })}
-              >
-                <Icon name={item.icon} size={16} color={item.danger ? c.accentRed : c.mute} />
-                <Text variant="bodySm" tone={item.danger ? 'danger' : 'default'}>
-                  {item.label}
-                </Text>
-              </Pressable>
-            </View>
-          ))}
+    <MenuPopover visible={visible} onClose={onClose} anchor={anchor}>
+      {items.map((item) => (
+        <View key={item.key}>
+          {item.danger ? <MenuSeparator /> : null}
+          <MenuItem
+            label={item.label}
+            icon={item.icon}
+            danger={item.danger}
+            onPress={() => {
+              onClose();
+              item.onPress();
+            }}
+          />
         </View>
-      </Pressable>
-    </Modal>
+      ))}
+    </MenuPopover>
   );
 }

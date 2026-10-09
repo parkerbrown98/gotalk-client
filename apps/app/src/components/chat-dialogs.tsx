@@ -1,5 +1,5 @@
 import { clockTime, previewText, QUICK_REACTIONS, relativeTime, type Message } from '@gotalk/core';
-import { Button, Dialog, Icon, ListCard, ListRow, Notice, Text, TextField, useTheme, type IconName } from '@gotalk/ui';
+import { Button, Dialog, hoverTransition, Icon, ListCard, ListRow, Notice, Text, TextField, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
@@ -145,7 +145,7 @@ export function ReactionPickerDialog({ visible, onClose, onPick, title = 'React'
               onClose();
               onPick(e);
             }}
-            style={({ pressed }) => ({ width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: theme.radii.md, backgroundColor: pressed ? theme.colors.surfaceCard : theme.colors.surface })}
+            style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: theme.radii.md, backgroundColor: pressed || hovered ? theme.colors.surfaceCard : theme.colors.surface })}
           >
             <Text variant="headingMd">{e}</Text>
           </Pressable>

@@ -18,7 +18,8 @@ export function InstanceIcon({ name, iconUrl, origin, size = 48 }: { name: strin
   const theme = useTheme();
   const uri = resolveIcon(iconUrl, origin);
   const box = { width: size, height: size, borderRadius: theme.radii.md };
-  if (uri) return <Image source={{ uri }} style={box} contentFit="cover" accessibilityIgnoresInvertColors />;
+  // A short fade as the image arrives, instead of it popping in over the placeholder.
+  if (uri) return <Image source={{ uri }} style={box} contentFit="cover" transition={150} accessibilityIgnoresInvertColors />;
   const accent = accentFor(theme.colors, name);
   return (
     <View style={[box, { backgroundColor: accent.bg, alignItems: 'center', justifyContent: 'center' }]}>

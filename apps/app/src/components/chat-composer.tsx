@@ -1,5 +1,5 @@
 import { commandQuery, completeMention, findMentionQuery, MESSAGE_LIMIT, parseCommand, validateMessage, type ChannelCommand, type Message, type ParsedCommand, type Selection } from '@gotalk/core';
-import { Avatar, Icon, Text, typeStyle, useTheme } from '@gotalk/ui';
+import { Avatar, hoverTransition, Icon, Text, typeStyle, useTheme, type PressState } from '@gotalk/ui';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, TextInput, View, type NativeSyntheticEvent, type TextInputKeyPressEventData, type TextStyle } from 'react-native';
 
@@ -174,7 +174,7 @@ export function ChatComposer({ channel, slug, placeholder, wide, replyTo, onClea
                   s.apply();
                   input.current?.focus();
                 }}
-                style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 8, paddingVertical: 6, borderRadius: theme.radii.sm, backgroundColor: pressed || i === 0 ? c.surfaceCard : 'transparent' })}
+                style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 8, paddingVertical: 6, borderRadius: theme.radii.sm, backgroundColor: pressed || hovered || i === 0 ? c.surfaceCard : 'transparent' })}
               >
                 {s.avatar ? <Avatar name={s.avatar.name} uri={s.avatar.uri} size={24} /> : <Icon name="command" size={16} color={c.mute} />}
                 <Text variant="bodySm" tone="onDark" numberOfLines={1}>
@@ -234,7 +234,7 @@ export function ChatComposer({ channel, slug, placeholder, wide, replyTo, onClea
           </Pressable>
           {hasText ? (
             wide ? (
-              <Pressable accessibilityRole="button" accessibilityLabel="Send" disabled={busy} onPress={() => void submit()} style={({ pressed }) => ({ height: 30, paddingHorizontal: 12, justifyContent: 'center', borderRadius: theme.radii.md, backgroundColor: pressed ? c.primaryPressed : c.primary })}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Send" disabled={busy} onPress={() => void submit()} style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, height: 30, paddingHorizontal: 12, justifyContent: 'center', borderRadius: theme.radii.md, backgroundColor: pressed || hovered ? c.primaryPressed : c.primary })}>
                 <Text variant="captionMd" tone="inverse" style={{ fontFamily: theme.fontFaces['500'] }}>
                   Send
                 </Text>

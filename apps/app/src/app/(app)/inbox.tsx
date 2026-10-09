@@ -1,5 +1,5 @@
 import { describeNotification, shortTime } from '@gotalk/core';
-import { Avatar, Button, Icon, ListCard, Notice, PillTabs, Text, useTheme } from '@gotalk/ui';
+import { Avatar, Button, hoverTransition, Icon, ListCard, Notice, PillTabs, Text, useTheme, type PressState } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
@@ -19,7 +19,7 @@ function Row({ n, onOpen, onDismiss }: { n: Notification; onOpen: () => void; on
         accessibilityRole="button"
         accessibilityLabel={`${n.read ? '' : 'Unread. '}${v.actor} ${v.action}`}
         onPress={onOpen}
-        style={({ pressed }) => ({ flex: 1, flexDirection: 'row', gap: theme.space.md, padding: theme.space.lg, backgroundColor: pressed ? c.surfaceElevated : 'transparent' })}
+        style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flex: 1, flexDirection: 'row', gap: theme.space.md, padding: theme.space.lg, backgroundColor: pressed || hovered ? c.surfaceElevated : 'transparent' })}
       >
         <View style={{ width: 8, height: 8, marginTop: 8, borderRadius: 4, backgroundColor: n.read ? 'transparent' : c.primary }} />
         {n.actor ? <Avatar name={n.actor.display_name} uri={n.actor.avatar_url} size={32} /> : (

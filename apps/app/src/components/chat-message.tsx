@@ -1,13 +1,17 @@
 import { clockTime, previewText, type Message } from '@gotalk/core';
-import { Avatar, Icon, Text, typeStyle, useTheme } from '@gotalk/ui';
+import { Avatar, hoverTransition, Icon, Text, typeStyle, useTheme, type PressState } from '@gotalk/ui';
 import { createContext, memo, useContext, useRef, useState, type ReactNode } from 'react';
 import { Platform, Pressable, TextInput, View, type TextStyle } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { contextMenu } from '@/components/context-menu';
 import { Chip } from '@/components/forum';
 import { Markdown } from '@/components/markdown';
 import type { Anchor } from '@/components/menu';
 import type { Channel, OutgoingMessage } from '@/lib/chat';
+
+// Shown on every message the pointer crosses, so it fades in fast rather than popping.
+const HOVER_BAR_ENTERING = FadeIn.duration(100);
 
 /** What a message row can do, provided once by the chat view instead of being passed to every row. */
 export interface ChatScope {
@@ -47,13 +51,12 @@ export function useChatScope(): ChatScope {
   return scope;
 }
 
-type HoverState = { pressed: boolean; hovered?: boolean };
-
 function HoverBar({ message, scope }: { message: Message; scope: ChatScope }) {
   const theme = useTheme();
   const c = theme.colors;
   const more = useRef<View>(null);
-  const look = ({ pressed, hovered }: HoverState) => ({
+  const look = ({ pressed, hovered }: PressState) => ({
+    ...hoverTransition,
     width: 28,
     height: 28,
     alignItems: 'center' as const,
@@ -67,7 +70,8 @@ function HoverBar({ message, scope }: { message: Message; scope: ChatScope }) {
     </Pressable>
   );
   return (
-    <View
+    <Animated.View
+      entering={HOVER_BAR_ENTERING}
       style={{
         position: 'absolute',
         right: scope.wide ? 20 : 12,
@@ -88,7 +92,7 @@ function HoverBar({ message, scope }: { message: Message; scope: ChatScope }) {
       <Pressable ref={more} accessibilityRole="button" accessibilityLabel="More actions" onPress={() => more.current?.measureInWindow((x, y, w, h) => scope.openActions(message, { left: x + w - 220, top: y + h + 4, flipAt: y }))} style={look}>
         <Icon name="more" size={16} color={c.body} />
       </Pressable>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -100,13 +104,14 @@ function SmallButton({ title, primary, disabled, onPress }: { title: string; pri
       accessibilityRole="button"
       disabled={disabled}
       onPress={onPress}
-      style={{
+      style={({ pressed, hovered }: PressState) => ({
+        ...hoverTransition,
         height: 28,
         paddingHorizontal: 10,
         justifyContent: 'center',
         borderRadius: theme.radii.md,
-        backgroundColor: primary ? c.primary : c.surfaceElevated,
-      }}
+        backgroundColor: primary ? (pressed || hovered ? c.primaryPressed : c.primary) : pressed || hovered ? c.surfaceCard : c.surfaceElevated,
+      })}
     >
       <Text variant="captionMd" tone={primary ? 'inverse' : 'onDark'} style={{ fontFamily: theme.fontFaces['500'] }}>
         {title}
@@ -265,6 +270,7 @@ export const MessageRow = memo(function MessageRow({ message, continued, highlig
         delayLongPress={350}
         {...contextMenu((anchor) => scope.openActions(message, anchor))}
         style={{
+          ...hoverTransition,
           flexDirection: 'row',
           gap: 12,
           paddingHorizontal: scope.wide ? 20 : 16,

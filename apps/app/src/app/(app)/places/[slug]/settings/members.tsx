@@ -1,5 +1,5 @@
 import { isTimedOut, timeLeft } from '@gotalk/core';
-import { Avatar, Badge, Button, ListCard, Notice, Stack, Text, TextField, useTheme } from '@gotalk/ui';
+import { Avatar, Badge, Button, hoverTransition, ListCard, Notice, Stack, Text, TextField, useTheme, type PressState } from '@gotalk/ui';
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
@@ -55,7 +55,7 @@ function MemberRow({ member, roles, owner, onPress }: { member: Member; roles: R
   const c = theme.colors;
   const name = memberName(member);
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={`${name}, actions`} onPress={onPress} style={({ pressed }) => ({ backgroundColor: pressed ? c.surfaceElevated : 'transparent' })}>
+    <Pressable accessibilityRole="button" accessibilityLabel={`${name}, actions`} onPress={onPress} style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, backgroundColor: pressed || hovered ? c.surfaceElevated : 'transparent' })}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space.md, paddingHorizontal: theme.space.lg, paddingVertical: theme.space.md }}>
         <Avatar name={member.user.display_name} uri={member.user.avatar_url} size={36} />
         <Stack gap="none" style={{ flex: 1 }}>

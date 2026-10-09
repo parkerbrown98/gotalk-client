@@ -15,9 +15,11 @@ import {
   type ViewProps,
   type ViewStyle,
 } from 'react-native';
+import Animated, { useReducedMotion } from 'react-native-reanimated';
 
 import { useTheme } from './theme.tsx';
 import { Icon, useElevated, type IconName } from './icons.tsx';
+import { CSS_EASE_OUT, hoverTransition, motion, type PressState } from './motion.ts';
 
 type Space = keyof Theme['space'];
 
@@ -157,6 +159,7 @@ export function Button({ title, variant = 'primary', size = 'md', loading, disab
   const theme = useTheme();
   const c = theme.colors;
   const elevated = useElevated();
+  const reduced = useReducedMotion();
   const soft = elevated ? c.surfaceCard : c.surfaceElevated;
   const looks: Record<ButtonVariant, { bg: string; bgPressed: string; fg: string; border: string }> = {
     primary: { bg: c.primary, bgPressed: c.primaryPressed, fg: c.onPrimary, border: 'transparent' },
@@ -174,26 +177,36 @@ export function Button({ title, variant = 'primary', size = 'md', loading, disab
       accessibilityState={{ disabled: !!inactive, busy: !!loading }}
       disabled={inactive}
       hitSlop={4}
+      pressRetentionOffset={16}
       {...rest}
-      style={({ pressed }) => [
-        {
-          minHeight: size === 'sm' ? 28 : theme.sizes.controlHeight,
-          paddingHorizontal: size === 'sm' ? 10 : variant === 'outline' ? 14 : theme.space.lg,
-          paddingVertical: size === 'sm' ? 2 : variant === 'outline' ? 6 : theme.space.sm,
-          borderRadius: theme.radii.md,
-          borderWidth: 1,
-          borderColor: look.border,
-          backgroundColor: disabled ? soft : pressed ? look.bgPressed : look.bg,
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'row',
-          gap: theme.space.sm,
-        },
-        style,
-      ]}
+      style={[{ borderRadius: theme.radii.md }, style]}
     >
-      {loading ? <ActivityIndicator size="small" color={fg} /> : null}
-      <RNText style={[typeStyle(theme, size === 'sm' ? 'captionMd' : 'buttonMd'), size === 'sm' ? { fontFamily: theme.fontFaces['500'] } : null, { color: fg }]}>{title}</RNText>
+      {({ pressed, hovered }: PressState) => (
+        // Hover lifts the fill (web and desktop); pressing also shrinks the button a touch so it reads as physical.
+        <Animated.View
+          style={{
+            flexGrow: 1,
+            minHeight: size === 'sm' ? 28 : theme.sizes.controlHeight,
+            paddingHorizontal: size === 'sm' ? 10 : variant === 'outline' ? 14 : theme.space.lg,
+            paddingVertical: size === 'sm' ? 2 : variant === 'outline' ? 6 : theme.space.sm,
+            borderRadius: theme.radii.md,
+            borderWidth: 1,
+            borderColor: look.border,
+            backgroundColor: disabled ? soft : (pressed || hovered) && !inactive ? look.bgPressed : look.bg,
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'row',
+            gap: theme.space.sm,
+            transform: [{ scale: pressed && !inactive && !reduced ? 0.97 : 1 }],
+            transitionProperty: ['transform', 'backgroundColor'],
+            transitionDuration: motion.press,
+            transitionTimingFunction: CSS_EASE_OUT,
+          }}
+        >
+          {loading ? <ActivityIndicator size="small" color={fg} /> : null}
+          <RNText style={[typeStyle(theme, size === 'sm' ? 'captionMd' : 'buttonMd'), size === 'sm' ? { fontFamily: theme.fontFaces['500'] } : null, { color: fg }]}>{title}</RNText>
+        </Animated.View>
+      )}
     </Pressable>
   );
 }
@@ -244,6 +257,7 @@ export function TextField({ label, error, hint, invalid, trailing, style, onFocu
         },
         multiline ? { minHeight: 84, textAlignVertical: 'top' } : null,
         Platform.OS === 'web' ? ({ outlineWidth: 0, outlineStyle: 'none' } as unknown as TextStyle) : null,
+        hoverTransition as TextStyle,
         style,
       ]}
     />

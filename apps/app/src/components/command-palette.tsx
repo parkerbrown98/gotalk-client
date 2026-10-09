@@ -1,12 +1,15 @@
-import { Icon, Keycap, Text, useTheme, type IconName } from '@gotalk/ui';
+import { Icon, Keycap, Text, popoverEntering, useTheme, type IconName } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Modal, Platform, Pressable, TextInput, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { useRouteSlug } from '@/components/shell';
 import { useActiveInstance } from '@/lib/instances';
 import { useBoards, useChannels, useMyPlaces } from '@/lib/places';
 import { typeStyle } from '@gotalk/ui';
+
+const backdropEntering = FadeIn.duration(140);
 
 interface Entry {
   key: string;
@@ -81,11 +84,15 @@ export function CommandPalette({ visible, onClose }: { visible: boolean; onClose
 
   let lastGroup = '';
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
-      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', paddingTop: 88 }}>
-        <Pressable accessibilityLabel="Close" onPress={onClose} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
-        <View
+    <Modal visible={visible} transparent animationType="none" onRequestClose={onClose} statusBarTranslucent>
+      <View style={{ flex: 1, alignItems: 'center', paddingTop: 88 }}>
+        <Animated.View entering={backdropEntering} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.55)' }}>
+          <Pressable accessibilityLabel="Close" onPress={onClose} style={{ flex: 1 }} />
+        </Animated.View>
+        {/* Opens quickly and closes instantly: it is summoned from the keyboard many times a session. */}
+        <Animated.View
           accessibilityViewIsModal
+          entering={popoverEntering}
           style={{ width: 620, maxWidth: '92%', backgroundColor: c.surface, borderColor: c.hairlineStrong, borderWidth: 1, borderRadius: theme.radii.xl, overflow: 'hidden' }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, height: 56, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: c.hairline }}>
@@ -168,7 +175,7 @@ export function CommandPalette({ visible, onClose }: { visible: boolean; onClose
               </Text>
             </View>
           </View>
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );

@@ -1,5 +1,5 @@
 import { conversationTitle, relativeTime, type Message } from '@gotalk/core';
-import { Avatar, Icon, Notice, Text, useTheme } from '@gotalk/ui';
+import { Avatar, hoverTransition, Icon, Notice, Text, useTheme, type PressState } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
@@ -91,7 +91,7 @@ export function MembersPanel({ slug }: { slug: string }) {
           setMenu({ userId: m.user.id, name: label, anchor: { left: pageX - 240, top: pageY + 8, flipAt: pageY - 8 } });
         }}
         {...(self && !canModerate ? {} : contextMenu((anchor) => setMenu({ userId: m.user.id, name: label, anchor })))}
-        style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 10, paddingVertical: 6, borderRadius: theme.radii.sm, backgroundColor: pressed ? theme.colors.surfaceCard : 'transparent' })}
+        style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 10, paddingVertical: 6, borderRadius: theme.radii.sm, backgroundColor: pressed || hovered ? theme.colors.surfaceCard : 'transparent' })}
       >
         <PresenceAvatar user={m.user} size={24} ring={theme.colors.surface} />
         <Text variant="bodySm" tone={dim ? 'muted' : 'default'} numberOfLines={1} style={{ flex: 1 }}>

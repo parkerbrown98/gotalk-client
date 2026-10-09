@@ -1,10 +1,12 @@
 import { Children, type ReactNode } from 'react';
 import { Image, Modal, Pressable, View, useWindowDimensions, type ViewStyle } from 'react-native';
 import { KeyboardAvoidingView, Platform } from 'react-native';
+import Animated, { useReducedMotion } from 'react-native-reanimated';
 
 import { accentFor } from './accent.ts';
 import { Text, type TextTone } from './components.tsx';
 import { ElevationContext, Icon, useElevated, type IconName } from './icons.tsx';
+import { dialogEntering, fadeEntering, fadeExiting, hoverTransition, motion, sheetEntering, sheetExiting, usePresence, type PressState } from './motion.ts';
 import { useTheme } from './theme.tsx';
 
 /** Rows separated by hairlines inside one bordered surface. */
@@ -76,7 +78,7 @@ export function ListRow({ title, subtitle, icon, leading, trailing, actions, ton
   );
   if (actions) {
     const main = onPress ? (
-      <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => ({ flex: 1, flexDirection: 'row', alignItems: 'center', gap: theme.space.md, backgroundColor: pressed ? c.surfaceElevated : 'transparent' })}>
+      <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed, hovered }: PressState) => [{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: theme.space.md, backgroundColor: pressed || hovered ? c.surfaceElevated : 'transparent' }, hoverTransition]}>
         {content}
       </Pressable>
     ) : (
@@ -99,7 +101,7 @@ export function ListRow({ title, subtitle, icon, leading, trailing, actions, ton
   );
   if (!onPress) return body;
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => ({ backgroundColor: pressed ? c.surfaceElevated : 'transparent' })}>
+    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed, hovered }: PressState) => [{ backgroundColor: pressed || hovered ? c.surfaceElevated : 'transparent' }, hoverTransition]}>
       {body}
     </Pressable>
   );
@@ -135,15 +137,19 @@ export function NavRow({ label, icon, leading, active, unread, count = 0, muted,
       accessibilityLabel={accessibilityLabel ?? `${label}${muted ? ', muted' : ''}${count > 0 ? `, ${count} unread` : unread && !muted ? ', unread' : ''}`}
       accessibilityState={{ selected: !!active }}
       onPress={onPress}
-      style={({ pressed }) => ({
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: theme.radii.sm,
-        backgroundColor: active || pressed ? c.surfaceCard : 'transparent',
-      })}
+      style={({ pressed, hovered }: PressState) => [
+        {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 10,
+          paddingHorizontal: 10,
+          paddingVertical: 6,
+          borderRadius: theme.radii.sm,
+          // Hover is one step quieter than the active row, so the selection still stands out.
+          backgroundColor: active || pressed ? c.surfaceCard : hovered ? c.surfaceElevated : 'transparent',
+        },
+        hoverTransition,
+      ]}
     >
       {leading ?? (icon ? <Icon name={icon} size={16} color={iconColor} /> : null)}
       <Text variant="bodySm" tone={bright ? 'onDark' : muted ? 'faint' : 'default'} numberOfLines={1} style={[{ flex: 1 }, unread && !muted ? { fontFamily: theme.fontFaces['500'] } : null]}>
@@ -187,31 +193,38 @@ export function Checkbox({ checked, onChange, disabled, description, children }:
       onPress={() => onChange(!checked)}
       style={{ flexDirection: 'row', gap: theme.space.md, alignItems: 'flex-start', opacity: disabled ? 0.5 : 1 }}
     >
-      <View
-        style={{
-          width: 18,
-          height: 18,
-          marginTop: 3,
-          borderRadius: theme.radii.xs,
-          borderWidth: 1,
-          borderColor: checked ? c.primary : c.hairlineStrong,
-          backgroundColor: checked ? c.primary : c.surfaceElevated,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {checked ? <Icon name="check" size={12} color={c.onPrimary} /> : null}
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text variant="bodySm" tone={description ? 'onDark' : 'default'}>
-          {children}
-        </Text>
-        {description ? (
-          <Text variant="captionMd" tone="muted">
-            {description}
-          </Text>
-        ) : null}
-      </View>
+      {({ hovered }: PressState) => (
+        <>
+          <View
+            style={[
+              {
+                width: 18,
+                height: 18,
+                marginTop: 3,
+                borderRadius: theme.radii.xs,
+                borderWidth: 1,
+                borderColor: checked ? c.primary : hovered && !disabled ? c.mute : c.hairlineStrong,
+                backgroundColor: checked ? c.primary : c.surfaceElevated,
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
+              hoverTransition,
+            ]}
+          >
+            {checked ? <Icon name="check" size={12} color={c.onPrimary} /> : null}
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text variant="bodySm" tone={description ? 'onDark' : 'default'}>
+              {children}
+            </Text>
+            {description ? (
+              <Text variant="captionMd" tone="muted">
+                {description}
+              </Text>
+            ) : null}
+          </View>
+        </>
+      )}
     </Pressable>
   );
 }
@@ -249,40 +262,51 @@ export function Dialog({ visible, onClose, children }: DialogProps) {
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const wide = width >= theme.breakpoints.tablet;
+  const reduced = useReducedMotion();
+  // The modal outlives `visible` briefly so the panel can animate out.
+  const present = usePresence(visible, motion.close + 100);
   const c = theme.colors;
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
+    <Modal visible={present} transparent animationType="none" onRequestClose={onClose} statusBarTranslucent>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: wide ? 'center' : 'flex-end', alignItems: wide ? 'center' : 'stretch' }}
+        style={{ flex: 1, justifyContent: wide ? 'center' : 'flex-end', alignItems: wide ? 'center' : 'stretch' }}
       >
-        <Pressable accessibilityLabel="Close" accessibilityRole="button" onPress={onClose} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
-        <ElevationContext.Provider value>
-          <View
-            accessibilityViewIsModal
-            style={[
-              {
-                backgroundColor: c.surfaceElevated,
-                borderColor: c.hairlineStrong,
-                borderWidth: 1,
-                gap: theme.space.lg,
-              },
-              wide
-                ? { width: 480, maxWidth: '92%', borderRadius: theme.radii.xl, padding: theme.space.xl }
-                : {
-                    borderBottomWidth: 0,
-                    borderTopLeftRadius: theme.radii.xl,
-                    borderTopRightRadius: theme.radii.xl,
-                    paddingHorizontal: theme.space.lg,
-                    paddingTop: theme.space.xl,
-                    paddingBottom: theme.space.xxl,
+        {visible ? (
+          <>
+            <Animated.View entering={fadeEntering} exiting={fadeExiting} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)' }}>
+              <Pressable accessibilityLabel="Close" accessibilityRole="button" onPress={onClose} style={{ flex: 1 }} />
+            </Animated.View>
+            <ElevationContext.Provider value>
+              <Animated.View
+                accessibilityViewIsModal
+                entering={reduced ? fadeEntering : wide ? dialogEntering : sheetEntering}
+                exiting={reduced || wide ? fadeExiting : sheetExiting}
+                style={[
+                  {
+                    backgroundColor: c.surfaceElevated,
+                    borderColor: c.hairlineStrong,
+                    borderWidth: 1,
+                    gap: theme.space.lg,
                   },
-            ]}
-          >
-            {wide ? null : <View style={{ alignSelf: 'center', width: 36, height: 4, borderRadius: 2, backgroundColor: c.stone, marginTop: -12 }} />}
-            {children}
-          </View>
-        </ElevationContext.Provider>
+                  wide
+                    ? { width: 480, maxWidth: '92%', borderRadius: theme.radii.xl, padding: theme.space.xl }
+                    : {
+                        borderBottomWidth: 0,
+                        borderTopLeftRadius: theme.radii.xl,
+                        borderTopRightRadius: theme.radii.xl,
+                        paddingHorizontal: theme.space.lg,
+                        paddingTop: theme.space.xl,
+                        paddingBottom: theme.space.xxl,
+                      },
+                ]}
+              >
+                {wide ? null : <View style={{ alignSelf: 'center', width: 36, height: 4, borderRadius: 2, backgroundColor: c.stone, marginTop: -12 }} />}
+                {children}
+              </Animated.View>
+            </ElevationContext.Provider>
+          </>
+        ) : null}
       </KeyboardAvoidingView>
     </Modal>
   );
@@ -333,16 +357,21 @@ export function PillTabs<T extends string>({ options, value, onChange }: PillTab
             accessibilityRole="tab"
             accessibilityState={{ selected: active }}
             onPress={() => onChange(o.value)}
-            style={{
-              paddingHorizontal: 10,
-              paddingVertical: 4,
-              borderRadius: theme.radii.full,
-              backgroundColor: active ? lifted : 'transparent',
-            }}
+            style={[
+              {
+                paddingHorizontal: 10,
+                paddingVertical: 4,
+                borderRadius: theme.radii.full,
+                backgroundColor: active ? lifted : 'transparent',
+              },
+              hoverTransition,
+            ]}
           >
-            <Text variant="bodySm" tone={active ? 'onDark' : 'default'}>
-              {o.label}
-            </Text>
+            {({ hovered }: PressState) => (
+              <Text variant="bodySm" tone={active || hovered ? 'onDark' : 'default'}>
+                {o.label}
+              </Text>
+            )}
           </Pressable>
         );
       })}
@@ -370,16 +399,19 @@ export function RadioOptions<T extends string>({ options, value, onChange }: Rad
             accessibilityRole="radio"
             accessibilityState={{ checked: on }}
             onPress={() => onChange(o.value)}
-            style={{
-              flexDirection: 'row',
-              gap: theme.space.md,
-              alignItems: 'flex-start',
-              padding: theme.space.md,
-              borderRadius: theme.radii.md,
-              borderWidth: 1,
-              borderColor: on ? c.hairlineStrong : c.hairline,
-              backgroundColor: on ? c.surfaceCard : c.surfaceElevated,
-            }}
+            style={({ hovered }: PressState) => [
+              {
+                flexDirection: 'row',
+                gap: theme.space.md,
+                alignItems: 'flex-start',
+                padding: theme.space.md,
+                borderRadius: theme.radii.md,
+                borderWidth: 1,
+                borderColor: on || hovered ? c.hairlineStrong : c.hairline,
+                backgroundColor: on ? c.surfaceCard : c.surfaceElevated,
+              },
+              hoverTransition,
+            ]}
           >
             <View
               style={{

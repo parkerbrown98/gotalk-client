@@ -1,7 +1,8 @@
-import { Icon, NavRow, Text, useTheme } from '@gotalk/ui';
+import { CSS_EASE_OUT, hoverTransition, Icon, motion, NavRow, Text, useTheme, type PressState } from '@gotalk/ui';
 import { router, usePathname } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
+import Animated, { useReducedMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SidebarCallPanel } from '@/components/call-bar';
@@ -51,32 +52,55 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
   const places = useMyPlaces().data ?? [];
   const unread = useUnreadCount().data ?? 0;
   const unreadMessages = useUnreadConversations();
+  const reduced = useReducedMotion();
   const inMessages = pathname === '/messages' || pathname.startsWith('/messages/');
   if (!active) return null;
 
-  const link = (key: string, label: string, onPress: () => void, isActive: boolean, children: React.ReactNode) => (
+  const link = (key: string, label: string, onPress: () => void, isActive: boolean, children: React.ReactNode | ((hovered: boolean) => React.ReactNode)) => (
     <Pressable key={key} accessibilityRole="link" accessibilityLabel={label} accessibilityState={{ selected: isActive }} onPress={onPress}>
-      {isActive ? (
-        <View style={{ position: 'absolute', left: -14, top: 8, bottom: 8, width: 3, borderTopRightRadius: 3, borderBottomRightRadius: 3, backgroundColor: c.onDark }} />
-      ) : null}
-      {children}
+      {({ hovered }: PressState) => (
+        <>
+          {/* On the rail's left edge: a short nub on hover that grows into the full bar for where you are. */}
+          <Animated.View
+            style={{
+              position: 'absolute',
+              left: -8,
+              top: 8,
+              bottom: 8,
+              width: 3,
+              borderTopRightRadius: 3,
+              borderBottomRightRadius: 3,
+              backgroundColor: c.onDark,
+              opacity: isActive || hovered ? 1 : 0,
+              transform: [{ scaleY: isActive ? 1 : 0.3 }],
+              transitionProperty: reduced ? 'opacity' : ['transform', 'opacity'],
+              transitionDuration: motion.open,
+              transitionTimingFunction: CSS_EASE_OUT,
+            }}
+          />
+          {typeof children === 'function' ? children(!!hovered) : children}
+        </>
+      )}
     </Pressable>
   );
-  const iconTile = (name: 'compass' | 'plus' | 'search' | 'bell' | 'forum' | 'home', dashed: boolean, isActive: boolean, count = 0) => (
+  const iconTile = (name: 'compass' | 'plus' | 'search' | 'bell' | 'forum' | 'home', dashed: boolean, isActive: boolean, count: number, hovered: boolean) => (
     <View
-      style={{
-        width: 48,
-        height: 48,
-        borderRadius: theme.radii.md,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: isActive ? c.surfaceElevated : 'transparent',
-        borderWidth: dashed ? 1 : 0,
-        borderStyle: 'dashed',
-        borderColor: c.hairlineStrong,
-      }}
+      style={[
+        {
+          width: 48,
+          height: 48,
+          borderRadius: theme.radii.md,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: isActive ? c.surfaceElevated : hovered ? c.surface : 'transparent',
+          borderWidth: dashed ? 1 : 0,
+          borderStyle: 'dashed',
+          borderColor: c.hairlineStrong,
+        },
+        hoverTransition,
+      ]}
     >
-      <Icon name={name} size={20} color={isActive ? c.onDark : c.mute} />
+      <Icon name={name} size={20} color={isActive || hovered ? c.onDark : c.mute} />
       <CountBadge count={count} style={{ position: 'absolute', right: -4, bottom: -4, borderWidth: 2, borderColor: c.canvas, boxSizing: 'content-box' }} />
     </View>
   );
@@ -84,15 +108,15 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
   return (
     <View style={{ width: 64, backgroundColor: c.canvas, borderRightWidth: 1, borderRightColor: c.hairline, paddingVertical: 12, alignItems: 'center' }}>
       <ScrollView contentContainerStyle={{ alignItems: 'center', gap: 10 }} showsVerticalScrollIndicator={false}>
-        {link('feed', 'Home: topics from your places', () => router.push('/feed'), pathname === '/feed', iconTile('home', false, pathname === '/feed'))}
-        {link('messages', unreadMessages > 0 ? `Direct messages, ${unreadMessages} unread` : 'Direct messages', () => router.push('/messages'), inMessages, iconTile('forum', false, inMessages, unreadMessages))}
-        {link('palette', 'Jump to a place or channel', onOpenPalette, false, iconTile('search', false, false))}
-        {link('inbox', unread > 0 ? `Inbox, ${unread} unread` : 'Inbox', () => router.push('/inbox'), pathname === '/inbox', iconTile('bell', false, pathname === '/inbox', unread))}
+        {link('feed', 'Home: topics from your places', () => router.push('/feed'), pathname === '/feed', (hovered) => iconTile('home', false, pathname === '/feed', 0, hovered))}
+        {link('messages', unreadMessages > 0 ? `Direct messages, ${unreadMessages} unread` : 'Direct messages', () => router.push('/messages'), inMessages, (hovered) => iconTile('forum', false, inMessages, unreadMessages, hovered))}
+        {link('palette', 'Jump to a place or channel', onOpenPalette, false, (hovered) => iconTile('search', false, false, 0, hovered))}
+        {link('inbox', unread > 0 ? `Inbox, ${unread} unread` : 'Inbox', () => router.push('/inbox'), pathname === '/inbox', (hovered) => iconTile('bell', false, pathname === '/inbox', unread, hovered))}
         {places.map((p) =>
           link(p.id, p.name, () => router.push({ pathname: '/places/[slug]', params: { slug: p.slug } }), p.slug === slug, <InstanceIcon name={p.name} iconUrl={p.icon_url} origin={active.origin} size={48} />),
         )}
-        {link('discover', 'Discover places', () => router.push('/discover'), pathname === '/discover', iconTile('compass', false, pathname === '/discover'))}
-        {link('new', 'Create a place', () => router.push('/places/new'), pathname === '/places/new', iconTile('plus', true, pathname === '/places/new'))}
+        {link('discover', 'Discover places', () => router.push('/discover'), pathname === '/discover', (hovered) => iconTile('compass', false, pathname === '/discover', 0, hovered))}
+        {link('new', 'Create a place', () => router.push('/places/new'), pathname === '/places/new', (hovered) => iconTile('plus', true, pathname === '/places/new', 0, hovered))}
       </ScrollView>
       {session ? (
         <Pressable accessibilityRole="link" accessibilityLabel="Account and instances" onPress={() => router.push('/you')} style={{ marginTop: 8 }}>
@@ -193,7 +217,7 @@ export function AccountFooter() {
         accessibilityRole="button"
         accessibilityLabel={`${name}, ${presenceLabels[status]}. Change status or open account settings`}
         onPress={() => setOpen(true)}
-        style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 8, padding: 8, borderTopWidth: 1, borderTopColor: c.hairline, backgroundColor: pressed ? c.surfaceElevated : 'transparent' })}
+        style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flexDirection: 'row', alignItems: 'center', gap: 8, padding: 8, borderTopWidth: 1, borderTopColor: c.hairline, backgroundColor: pressed || hovered ? c.surfaceElevated : 'transparent' })}
       >
         <PresenceAvatar user={{ id: session.userId, display_name: name, avatar_url: me?.avatar_url ?? session.avatarUrl }} size={32} ring={c.surface} />
         <View style={{ flex: 1 }}>

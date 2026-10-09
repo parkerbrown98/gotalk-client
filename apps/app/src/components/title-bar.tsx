@@ -1,4 +1,4 @@
-import { Text, useTheme } from '@gotalk/ui';
+import { hoverTransition, Text, useTheme, type PressState } from '@gotalk/ui';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Pressable, View, type ViewProps } from 'react-native';
@@ -18,7 +18,6 @@ const TRAFFIC_LIGHTS_INSET = 84;
 const dragRegion = { dataSet: { tauriDragRegion: 'deep' } } as unknown as ViewProps;
 
 type WindowState = { focused: boolean; maximized: boolean; fullscreen: boolean };
-type HoverState = { pressed: boolean; hovered?: boolean };
 
 function useWindowState(): WindowState {
   const [state, setState] = useState<WindowState>(() => ({ focused: document.hasFocus(), maximized: false, fullscreen: false }));
@@ -79,14 +78,15 @@ function WindowControls({ maximized }: { maximized: boolean }) {
           accessibilityLabel={label}
           focusable={false}
           onPress={() => void run()}
-          style={({ pressed, hovered }: HoverState) => ({
+          style={({ pressed, hovered }: PressState) => ({
+            ...hoverTransition,
             width: 46,
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: !(pressed || hovered) ? 'transparent' : kind === 'close' ? c.accentRed : pressed ? c.hairlineStrong : c.hairlineSoft,
           })}
         >
-          {({ pressed, hovered }: HoverState) => <Glyph kind={kind} color={pressed || hovered ? c.onDark : c.mute} />}
+          {({ pressed, hovered }: PressState) => <Glyph kind={kind} color={pressed || hovered ? c.onDark : c.mute} />}
         </Pressable>
       ))}
     </View>

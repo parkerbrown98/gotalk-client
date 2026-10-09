@@ -12,7 +12,7 @@ import {
   type FeedSort,
   type FeedTopic,
 } from '@gotalk/core';
-import { Badge, Button, Checkbox, Dialog, Icon, Notice, PillTabs, RadioOptions, Text, TextField, useTheme } from '@gotalk/ui';
+import { Badge, Button, Checkbox, Dialog, hoverTransition, Icon, Notice, PillTabs, RadioOptions, Text, TextField, useTheme, type PressState } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useMemo, useState, type ReactElement, type ReactNode } from 'react';
 import { ActivityIndicator, FlatList, Platform, Pressable, RefreshControl, ScrollView, View } from 'react-native';
@@ -81,13 +81,14 @@ export function VoteControl({ topic, mode, horizontal, onError }: { topic: Topic
         disabled={mode === 'own'}
         hitSlop={4}
         onPress={() => press(value)}
-        style={({ pressed }) => ({
+        style={({ pressed, hovered }: PressState) => ({
+          ...hoverTransition,
           width: 28,
           height: 28,
           borderRadius: theme.radii.sm,
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: on || (pressed && mode === 'on') ? c.surfaceElevated : 'transparent',
+          backgroundColor: on || ((pressed || hovered) && mode === 'on') ? c.surfaceElevated : 'transparent',
           opacity: mode === 'own' ? 0.5 : 1,
         })}
       >
@@ -157,7 +158,7 @@ export function FeedCard({ item, wide, showPlace, vote, locallyRead, onOpen, onM
     ) : null;
 
   const more = onMenu ? (
-    <Pressable accessibilityRole="button" accessibilityLabel={`More for ${item.title}`} hitSlop={8} onPress={() => onMenu()} style={({ pressed }) => ({ width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: theme.radii.sm, backgroundColor: pressed ? c.surfaceElevated : 'transparent' })}>
+    <Pressable accessibilityRole="button" accessibilityLabel={`More for ${item.title}`} hitSlop={8} onPress={() => onMenu()} style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: theme.radii.sm, backgroundColor: pressed || hovered ? c.surfaceElevated : 'transparent' })}>
       <Icon name="more" size={16} color={c.mute} />
     </Pressable>
   ) : null;
@@ -207,7 +208,7 @@ export function FeedCard({ item, wide, showPlace, vote, locallyRead, onOpen, onM
       onPress={onOpen}
       onLongPress={onMenu ? () => onMenu() : undefined}
       {...(onMenu ? contextMenu(onMenu) : {})}
-      style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: c.hairline, backgroundColor: pressed ? c.surface : 'transparent' })}
+      style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: c.hairline, backgroundColor: pressed || hovered ? c.surface : 'transparent' })}
     >
       {wide ? (
         <>

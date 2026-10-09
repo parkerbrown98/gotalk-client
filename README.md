@@ -73,6 +73,12 @@ Components read the active theme through `useTheme()` from `@gotalk/ui`; nothing
 `font-feature-settings` on web. The desktop app is the web build, so it shares the theme
 automatically. `tokens.css` makes the same values available to plain HTML/CSS.
 
+Motion lives in `packages/ui/src/motion.ts` and uses Reanimated. Hover (web and desktop) lifts a row or
+control one surface step, the same as pressing it; add `hoverTransition` and read `hovered` from
+`PressState` so the color fades instead of snapping. Buttons shrink slightly while pressed, dialogs and
+sheets animate in and out, menus fade in quickly, and frequent actions (tab and screen switches in the
+shell) do not animate. Every animation respects the system's reduced-motion setting.
+
 When DESIGN.md changes, update `packages/tokens/src`, then `packages/ui`, then the native config
 (`apps/app/app.json`, `apps/desktop/src-tauri/tauri.conf.json`) and the web shell
 (`apps/app/public/index.html`), which hold the canvas color as a literal.

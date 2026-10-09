@@ -5,6 +5,7 @@ import { FlashList, type FlashListRef } from '@shopify/flash-list';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, AppState, Platform, View } from 'react-native';
+import Animated, { useReducedMotion } from 'react-native-reanimated';
 
 import { ChatComposer } from '@/components/chat-composer';
 import { DeleteMessageDialog, MessageHistoryDialog, MessageMenu, MessageSheet, ReactionPickerDialog, StartThreadDialog, messageActions } from '@/components/chat-dialogs';
@@ -96,6 +97,23 @@ export interface ChatViewProps {
   onThreadStarted?: (thread: Channel, from: Message) => void;
   /** Scrolls to a message (for example from the pins panel); `seq` repeats a jump to the same one. */
   jump?: { id: string; seq: number } | null;
+}
+
+// Each dot brightens in turn, so "someone is typing" reads as live; with reduced motion they hold still.
+const TYPING_PULSE = { '0%': { opacity: 0.35 }, '30%': { opacity: 1 }, '60%': { opacity: 0.35 }, '100%': { opacity: 0.35 } };
+
+function TypingDot({ index, color }: { index: number; color: string }) {
+  const reduced = useReducedMotion();
+  return (
+    <Animated.View
+      style={[
+        { width: 4, height: 4, borderRadius: 2, backgroundColor: color, opacity: reduced ? 0.7 : 0.35 },
+        reduced
+          ? null
+          : { animationName: TYPING_PULSE, animationDuration: '1.2s', animationDelay: index * 160, animationIterationCount: 'infinite', animationTimingFunction: 'ease-in-out' },
+      ]}
+    />
+  );
 }
 
 /** A channel, thread or conversation: virtualized history that loads older pages upward, typing, and the composer. */
@@ -387,7 +405,7 @@ export function ChatView({ channel, slug, wide, placeholder, intro, starter, onO
             <>
               <View style={{ flexDirection: 'row', gap: 3 }}>
                 {[0, 1, 2].map((i) => (
-                  <View key={i} style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: c.mute }} />
+                  <TypingDot key={i} index={i} color={c.mute} />
                 ))}
               </View>
               <Text variant="captionMd" tone="muted" numberOfLines={1}>

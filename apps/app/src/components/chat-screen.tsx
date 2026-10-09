@@ -1,4 +1,4 @@
-import { Icon, useTheme, type IconName } from '@gotalk/ui';
+import { Icon, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -22,7 +22,7 @@ export function BarButton({ icon, label, active, size = 16, onPress }: { icon: I
   const bright = active ?? size > 16;
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={active === undefined ? undefined : { selected: active }} onPress={onPress} hitSlop={8}>
-      <Icon name={icon} size={size} color={bright ? theme.colors.onDark : theme.colors.mute} />
+      {({ hovered }: PressState) => <Icon name={icon} size={size} color={bright || hovered ? theme.colors.onDark : theme.colors.mute} />}
     </Pressable>
   );
 }

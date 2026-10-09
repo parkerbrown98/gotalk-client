@@ -1,5 +1,5 @@
 import { applyFormat, completeMention, findMentionQuery, LIMITS, type Format, type Selection } from '@gotalk/core';
-import { Avatar, Icon, Text, useTheme, typeStyle, type IconName } from '@gotalk/ui';
+import { Avatar, hoverTransition, Icon, Text, typeStyle, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { useState } from 'react';
 import { Platform, Pressable, TextInput, View, type NativeSyntheticEvent, type TextInputKeyPressEventData, type TextStyle } from 'react-native';
 
@@ -78,7 +78,7 @@ export function Composer({ value, onChange, slug, placeholder, minHeight = 120, 
               accessibilityLabel={t.label}
               disabled={mode !== 'write'}
               onPress={() => edit(applyFormat(value, sel, t.format))}
-              style={({ pressed }) => ({ minWidth: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: theme.radii.sm, opacity: mode === 'write' ? 1 : 0.4, backgroundColor: pressed ? c.surfaceCard : 'transparent' })}
+              style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, minWidth: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: theme.radii.sm, opacity: mode === 'write' ? 1 : 0.4, backgroundColor: pressed || hovered ? c.surfaceCard : 'transparent' })}
             >
               {t.icon ? (
                 <Icon name={t.icon} size={16} color={c.body} />
@@ -136,7 +136,7 @@ export function Composer({ value, onChange, slug, placeholder, minHeight = 120, 
                 key={m.user.id}
                 accessibilityRole="menuitem"
                 onPress={() => edit(completeMention(value, caret, mention, m.user.username))}
-                style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 8, paddingVertical: 6, borderRadius: theme.radii.sm, backgroundColor: pressed ? c.surfaceCard : 'transparent' })}
+                style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 8, paddingVertical: 6, borderRadius: theme.radii.sm, backgroundColor: pressed || hovered ? c.surfaceCard : 'transparent' })}
               >
                 <Avatar name={m.user.display_name} uri={m.user.avatar_url} size={24} />
                 <Text variant="bodySm" tone="onDark">

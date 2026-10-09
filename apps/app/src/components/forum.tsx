@@ -1,5 +1,5 @@
 import { describeTopicReadState, QUICK_REACTIONS, relativeTime, shortTime, validatePost } from '@gotalk/core';
-import { Avatar, Badge, Button, Dialog, Icon, ListCard, ListRow, Notice, RadioOptions, Text, useTheme, type IconName } from '@gotalk/ui';
+import { Avatar, Badge, Button, Dialog, hoverTransition, Icon, ListCard, ListRow, Notice, RadioOptions, Text, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
@@ -23,7 +23,8 @@ export function Chip({ label, icon, on, onPress, accessibilityLabel }: { label?:
       accessibilityState={on === undefined ? undefined : { selected: on }}
       disabled={!onPress}
       onPress={onPress}
-      style={({ pressed }) => ({
+      style={({ pressed, hovered }: PressState) => ({
+        ...hoverTransition,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
@@ -32,7 +33,7 @@ export function Chip({ label, icon, on, onPress, accessibilityLabel }: { label?:
         borderRadius: theme.radii.full,
         borderWidth: 1,
         borderColor: on ? c.hairlineStrong : c.hairline,
-        backgroundColor: on || pressed ? c.surfaceElevated : 'transparent',
+        backgroundColor: on || pressed || hovered ? c.surfaceElevated : 'transparent',
       })}
     >
       {icon ? <Icon name={icon} size={14} color={on ? c.onDark : c.body} /> : null}
@@ -135,7 +136,7 @@ export function TopicRow({ topic, wide, onPress }: { topic: Topic; wide: boolean
       accessibilityRole="link"
       accessibilityLabel={`${topic.title}, ${topic.viewer ? read.label : unread ? 'unread' : 'read'}, ${topic.reply_count} ${topic.reply_count === 1 ? 'reply' : 'replies'}`}
       onPress={onPress}
-      style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'flex-start', gap: theme.space.md, paddingHorizontal: wide ? 24 : theme.space.lg, paddingVertical: 12, backgroundColor: pressed ? c.surface : 'transparent' })}
+      style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flexDirection: 'row', alignItems: 'flex-start', gap: theme.space.md, paddingHorizontal: wide ? 24 : theme.space.lg, paddingVertical: 12, backgroundColor: pressed || hovered ? c.surface : 'transparent' })}
     >
       <View style={{ width: 8, height: 8, marginTop: 8, borderRadius: 4, backgroundColor: unread ? c.primary : 'transparent' }} />
       {wide ? <Avatar name={topic.author.display_name} uri={topic.author.avatar_url} size={32} /> : null}
@@ -220,7 +221,7 @@ function ReactionPicker({ visible, onClose, onPick }: { visible: boolean; onClos
               onClose();
               onPick(e);
             }}
-            style={({ pressed }) => ({ width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: theme.radii.md, backgroundColor: pressed ? theme.colors.surfaceCard : theme.colors.surface })}
+            style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: theme.radii.md, backgroundColor: pressed || hovered ? theme.colors.surfaceCard : theme.colors.surface })}
           >
             <Text variant="headingMd">{e}</Text>
           </Pressable>
