@@ -3,7 +3,7 @@
 This document lays out the phases for the official Gotalk client in
 [`repos/gotalk-client`](../repos/gotalk-client/README.md). It is the client counterpart to
 [backend-plan.md](./backend-plan.md); backend phases 1–5 are already delivered, so the client can work
-against a complete API.
+against a complete API. Phase 7 (topic feeds) depends on backend Phase 6.
 
 ## Architecture (decided)
 
@@ -372,7 +372,7 @@ Known gaps and decisions:
 - Creating voice channels and setting their user limit arrived with voice in Phase 5; per-role channel
   permissions come with the overwrite editors in Phase 6. Moving a channel into or out of a category is done
   from its settings rather than by dragging.
-- Do not disturb changes only how others see you until push notifications arrive (Phase 7).
+- Do not disturb changes only how others see you until push notifications arrive (Phase 8).
 - Gateway events update the per-query caches directly; a normalized entity cache was not needed.
 
 ## Phase 5 — Voice & video
@@ -589,11 +589,102 @@ Known gaps and decisions:
 - Role colors offer none and the four accents from `DESIGN.md`; roles given other colors through the API
   keep them until changed.
 
-## Phase 7 — Distribution & polish
+## Phase 7 — Topic feeds
+
+Status: not started. Blocked on backend Phase 6 (feed, vote and read-tracking endpoints); run
+`pnpm api:sync` once they land.
+
+Goal: a Reddit-style feed of forum topics for a place and for the whole instance, with several sort orders,
+where topics the person has already opened look different from the ones they have not.
+
+Mockups: none yet. Per the design process, a new `17-feeds.html` comes first, covering the place feed and
+the instance Home feed at wide and phone widths: feed card (with and without votes, read and unread, new
+replies, pinned, solved, NSFW), the sort bar and the Top time window, filters, "mark all as read", empty,
+loading, offline and signed-out states. Any value `DESIGN.md` lacks (for example a muted read-title
+treatment or a vote control) is added to `DESIGN.md` and the tokens first.
+
+Scope:
+
+- **Feed screens:**
+  - **Place feed** (`places/[slug]/feed`): a Feed row at the top of the place sidebar and the phone place
+    screen, above the forum tree. It covers every forum the person can read, with a forum filter.
+  - **Home feed** (a Home entry above the places in the rail, and a Home tab on phones): topics from the
+    places the person has joined, with a switch to All public topics on the instance. Signed-out visitors
+    see only the public instance feed. Each card carries a place chip.
+  - Cards show the title, a short plain-text excerpt, forum and place chips, author, relative time, reply
+    count, tags and badges (pinned, solved, locked, NSFW). Wide screens put the vote column to the left;
+    phones put votes and replies in a footer row. NSFW topics are collapsed until the person opts in.
+  - Infinite scroll with a virtualized list on the API's cursor paging, pull to refresh on phones, scroll
+    position kept when coming back from a topic, and a refresh control instead of live insertion (the
+    backend defers live feed updates).
+- **Sorting:** Hot (default), New, Active, Top with a time window (hour, day, week, month, year, all),
+  Rising and Controversial, as a pill bar on wide screens and a scrollable row on phones. The choice is
+  remembered per instance and scope in the settings store and kept in the URL (`?sort=top&t=week`) so
+  links and reloads reproduce it. The advertised `sorts` list decides which options appear. Controversial
+  and the vote UI are hidden when the place has voting off or the instance does not advertise
+  `features.topic_votes`.
+- **Filters:** forum, tag, Solved/Unsolved, a Hide read toggle, and a pinned-first switch on place feeds.
+  Filters live in the URL too, and the sort bar shows when any are active.
+- **Voting:** up and down arrows with the score between them, optimistic with rollback on error, changing
+  or clearing a vote, disabled on your own topics, and a sign-in prompt when signed out. Large scores
+  shorten to `1.2k`. The vote and score also appear in the topic view header, kept in sync with the feed
+  through the shared query cache.
+- **Read state:**
+  - Opening a topic from anywhere (feed, forum list, search, inbox, a link) calls `PUT /topics/{id}/read`.
+    Scrolling past a card in the feed never marks it.
+  - The change is applied optimistically to every cached copy of the topic (feed pages, forum topic lists,
+    the topic itself), so the card is already restyled when the person navigates back.
+  - Unread cards use the stronger title weight; read cards use the muted text token. Read topics that gained
+    replies since the last open show a "N new" badge. Color or weight never carries the state alone: the
+    accessibility label says "unread", "read" or "read, 3 new replies".
+  - Mark as unread from the card menu (a long-press sheet on phones), and "Mark all as read" in the feed
+    header menu with a confirmation, which sends the loaded cursor as `before` so topics the person has not
+    seen yet are untouched.
+  - The forum topic list from Phase 3 adopts the same `viewer` data, so its unread dot and the feed never
+    disagree.
+  - Gateway `TOPIC_READ_STATE_UPDATE` events write into the same caches, so a topic opened on another device
+    updates here. After a gateway gap the visible feed pages are refetched.
+  - **Signed out and offline:** a local read record per instance (a set of topic IDs in
+    AsyncStorage/localStorage, capped at a few thousand with the oldest dropped) lets public browsing dim
+    opened topics. When someone signs in, the record is imported with `POST /feed/read`. While signed in
+    and offline, opens are queued in a persisted per-instance queue and replayed in batches of the
+    advertised limit, with the usual backoff and `Retry-After` handling.
+- **Place settings:** a Voting switch in General for people with Manage place, written to the
+  `voting_enabled` place setting.
+- **`@gotalk/core`:** feed query-key and cache helpers (merge pages, patch one topic everywhere), a
+  framework-agnostic read-state store with the local record and offline queue, sort and filter parsing and
+  serialization, score formatting, and `describeTopicReadState` for labels.
+- **Tests:** sort and URL round-trips, cache patching across feed and forum list queries, optimistic vote
+  and read with rollback, new-reply badge rules, the local record cap, import on sign-in, queue replay
+  after offline, "mark all as read" cursor handling, and gateway event handling.
+
+Verify (to do):
+
+- a scripted Chromium run against a local server on fresh data at wide and phone widths, with an owner
+  and a member: every sort and window orders a seeded place correctly, the cursor does not repeat or skip
+  topics while votes change, open a topic and go back (restyled, no flash), a reply from someone else
+  produces the "N new" badge, mark unread, Hide read, mark all as read, a second browser updating live
+  through the gateway, offline opens replayed, and a signed-out visit followed by sign-in importing the
+  local record
+- the instance Home feed with two places, a muted place left out, and a private forum never appearing for
+  a non-member
+- not yet exercised: iOS, Android and Tauri builds, scroll restoration on a device, and screen readers
+
+Known gaps and decisions (planned):
+
+- Voting is new in the client; reactions stay as they are and the client does not mix them into the score.
+- Per-forum unread counts in the sidebar stay out: the API reports unread per topic only, so the feed shows
+  state per card.
+- Excerpts are plain text. Thumbnails and link previews wait for attachments.
+- No live "N new topics" banner until the backend offers feed events.
+- Read state for signed-out visitors lives on the device only and is not shared between browsers.
+- Saved topics, custom multi-place feeds and a per-forum default sort are not planned.
+
+## Phase 8 — Distribution & polish
 
 - **Push notifications:** a small Gotalk-operated push relay (APNs/FCM), web push for the web app, and
   native notifications on desktop. Blocked on the backend's push subscription endpoints (backend
-  Phase 6).
+  Phase 7).
 - **Release pipeline:**
   - CI runs typecheck, tests, and the web export on every change
   - Tauri build matrix (Windows/macOS/Linux) with signing
