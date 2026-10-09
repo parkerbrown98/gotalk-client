@@ -61,7 +61,7 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
       {children}
     </Pressable>
   );
-  const iconTile = (name: 'compass' | 'plus' | 'search' | 'bell' | 'forum', dashed: boolean, isActive: boolean, count = 0) => (
+  const iconTile = (name: 'compass' | 'plus' | 'search' | 'bell' | 'forum' | 'arrowUp', dashed: boolean, isActive: boolean, count = 0) => (
     <View
       style={{
         width: 48,
@@ -83,6 +83,7 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
   return (
     <View style={{ width: 64, backgroundColor: c.canvas, borderRightWidth: 1, borderRightColor: c.hairline, paddingVertical: 12, alignItems: 'center' }}>
       <ScrollView contentContainerStyle={{ alignItems: 'center', gap: 10 }} showsVerticalScrollIndicator={false}>
+        {link('feed', 'Home: topics from your places', () => router.push('/feed'), pathname === '/feed', iconTile('arrowUp', false, pathname === '/feed'))}
         {link('messages', unreadMessages > 0 ? `Direct messages, ${unreadMessages} unread` : 'Direct messages', () => router.push('/messages'), inMessages, iconTile('forum', false, inMessages, unreadMessages))}
         {link('palette', 'Jump to a place or channel', onOpenPalette, false, iconTile('search', false, false))}
         {link('inbox', unread > 0 ? `Inbox, ${unread} unread` : 'Inbox', () => router.push('/inbox'), pathname === '/inbox', iconTile('bell', false, pathname === '/inbox', unread))}
@@ -143,6 +144,7 @@ export function PlaceSidebar({ slug }: { slug: string }) {
 
       <ScrollView contentContainerStyle={{ padding: 8, gap: 2 }}>
         <NavRow label="Overview" icon="home" active={pathname === `/places/${slug}`} onPress={() => router.push({ pathname: '/places/[slug]', params: { slug } })} />
+        {access.isMember || place?.visibility === 'public' ? <NavRow label="Feed" icon="arrowUp" active={pathname === `/places/${slug}/feed`} onPress={() => router.push({ pathname: '/places/[slug]/feed', params: { slug } })} /> : null}
         {access.isMember ? <NavRow label="Search" icon="search" active={pathname === `/places/${slug}/search`} onPress={() => router.push({ pathname: '/places/[slug]/search', params: { slug } })} /> : null}
         {boardNodes.length > 0 ? section('Forums') : null}
         {boardNodes.map(({ board: b, depth }) => (
@@ -251,7 +253,7 @@ export function MessagesSidebar() {
   );
 }
 
-/** Phone tabs: places, direct messages, inbox, search and the account. */
+/** Phone tabs: the Home feed, places, direct messages, inbox, search and the account. */
 export function TabBar() {
   const theme = useTheme();
   const c = theme.colors;
@@ -261,7 +263,8 @@ export function TabBar() {
   const unreadMessages = useUnreadConversations();
   const inMessages = pathname === '/messages' || pathname.startsWith('/messages/');
   const tabs = [
-    { label: 'Places', icon: 'home', href: '/home', active: pathname !== '/you' && pathname !== '/inbox' && pathname !== '/search' && !inMessages, count: 0 },
+    { label: 'Home', icon: 'arrowUp', href: '/feed', active: pathname === '/feed', count: 0 },
+    { label: 'Places', icon: 'home', href: '/home', active: pathname !== '/you' && pathname !== '/inbox' && pathname !== '/search' && pathname !== '/feed' && !inMessages, count: 0 },
     { label: 'Messages', icon: 'forum', href: '/messages', active: inMessages, count: unreadMessages },
     { label: 'Inbox', icon: 'bell', href: '/inbox', active: pathname === '/inbox', count: unread },
     { label: 'Search', icon: 'search', href: '/search', active: pathname === '/search', count: 0 },

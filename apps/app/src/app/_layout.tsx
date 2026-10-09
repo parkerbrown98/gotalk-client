@@ -11,6 +11,7 @@ import { Platform } from 'react-native';
 
 import { shouldRetry } from '@/lib/api';
 import { authManager, useAuthHydrated } from '@/lib/auth';
+import { FeedSyncHost } from '@/lib/feeds';
 import { useInstancesHydrated } from '@/lib/instances';
 import { RealtimeHost } from '@/lib/realtime';
 
@@ -69,6 +70,7 @@ function Navigation() {
         <Stack.Screen name="settings" options={{ headerShown: false }} />
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
         <Stack.Screen name="invite/[code]" options={{ headerShown: false }} />
+        <Stack.Screen name="explore" options={{ headerShown: false }} />
       </Stack>
     </NavigationThemeProvider>
   );
@@ -96,6 +98,7 @@ export default function RootLayout() {
     <GotalkThemeProvider>
       <QueryClientProvider client={queryClient}>
         <RealtimeHost />
+        <FeedSyncHost />
         <Navigation />
       </QueryClientProvider>
     </GotalkThemeProvider>

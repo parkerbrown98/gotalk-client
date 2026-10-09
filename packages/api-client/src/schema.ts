@@ -524,6 +524,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Topics across the caller's places (home) or public topics on the whole instance (all), ranked by sort */
+        get: operations["instance-feed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/feed/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Record opens of several topics at once, e.g. replayed after being offline */
+        post: operations["mark-feed-topics-read"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/instance": {
         parameters: {
             query?: never;
@@ -768,6 +802,40 @@ export interface paths {
         put?: never;
         /** Create a text channel, voice channel or category (MANAGE_CHANNELS) */
         post: operations["create-channel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/places/{place}/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Topics from every board of a place the caller can read, ranked by sort */
+        get: operations["place-feed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/places/{place}/feed/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark every topic in a place (or a board) read, up to before; at most the 5000 most recently active */
+        post: operations["mark-place-feed-read"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1430,10 +1498,11 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Record the caller's read position (never moves backwards) */
+        /** Record that the caller opened the topic and, with post_number, their read position (never moves backwards) */
         put: operations["mark-topic-read"];
         post?: never;
-        delete?: never;
+        /** Mark a topic as not opened; the read position is kept */
+        delete: operations["mark-topic-unread"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1469,6 +1538,24 @@ export interface paths {
         put: operations["set-topic-subscription"];
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/topics/{topicID}/vote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Vote a topic up or down, replacing an earlier vote (ADD_REACTIONS; not on your own topics) */
+        put: operations["vote-topic"];
+        post?: never;
+        /** Withdraw the caller's vote */
+        delete: operations["remove-topic-vote"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2491,11 +2578,15 @@ export interface components {
             /** @description Applications with bot accounts and slash commands */
             bots: boolean;
             chat: boolean;
+            /** @description Ranked topic feeds per place (/places/{place}/feed) and instance-wide (/feed) */
+            feed: boolean;
             forums: boolean;
             /** @description Versioned policy documents and consent records */
             policies: boolean;
             /** @enum {string} */
             search: "none" | "postgres" | "meilisearch";
+            /** @description Topics can be voted up and down (places can turn it off) */
+            topic_votes: boolean;
             /** @description Moderation statistics at /transparency */
             transparency: boolean;
             /** @description Voice and video channels are available (a LiveKit server is configured) */
@@ -2503,10 +2594,127 @@ export interface components {
             /** @description Places can send signed events to external URLs */
             webhooks: boolean;
         };
+        FeedBoard: {
+            /** Format: uuid */
+            id: string;
+            is_nsfw: boolean;
+            name: string;
+            slug: string;
+        };
+        FeedInfo: {
+            default_window: string;
+            /** Format: int64 */
+            excerpt_length: number;
+            /**
+             * Format: int64
+             * @description Most topics one mark-all-read call touches
+             */
+            mark_all_read_limit: number;
+            /** Format: int64 */
+            max_page_size: number;
+            /**
+             * Format: int64
+             * @description Default items per page
+             */
+            page_size: number;
+            /**
+             * Format: int64
+             * @description Most topic IDs one POST /feed/read accepts
+             */
+            read_batch: number;
+            /** @description Supported sort orders, default first */
+            sorts: string[] | null;
+            /** @description Time windows of the top and controversial sorts */
+            windows: string[] | null;
+        };
+        FeedItem: {
+            /** @description null if the author deleted their account */
+            author: components["schemas"]["User"];
+            board: components["schemas"]["FeedBoard"];
+            /** Format: uuid */
+            board_id: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: int32 */
+            downvotes: number;
+            /** @description Plain text from the opening post (no Markdown or HTML), at most 280 characters */
+            excerpt: string;
+            /** Format: uuid */
+            id: string;
+            is_archived: boolean;
+            is_locked: boolean;
+            /** @description The board, one of its parents, or the place is marked NSFW */
+            is_nsfw: boolean;
+            is_pinned: boolean;
+            /** Format: date-time */
+            last_post_at: string;
+            /** Format: int32 */
+            last_post_number: number;
+            last_poster: components["schemas"]["User"];
+            /** Format: int32 */
+            last_read_post_number?: number;
+            place: components["schemas"]["FeedPlace"];
+            /** Format: uuid */
+            place_id: string;
+            /**
+             * Format: int32
+             * @description Live posts, including the opening post
+             */
+            post_count: number;
+            /** Format: int32 */
+            reply_count: number;
+            /**
+             * Format: int32
+             * @description Up minus down votes, or reactions on the opening post when the place has voting off
+             */
+            score: number;
+            /** @description URL-friendly title; canonical URLs combine it with the ID */
+            slug: string;
+            /** Format: uuid */
+            solution_post_id: string | null;
+            /** @enum {string} */
+            subscription?: "watching" | "normal" | "muted";
+            tags: string[] | null;
+            title: string;
+            /**
+             * Format: int32
+             * @description Posts after the caller's read position
+             */
+            unread_count?: number;
+            /** Format: int32 */
+            upvotes: number;
+            /** @description The caller's state; present only for authenticated requests */
+            viewer?: components["schemas"]["TopicViewer"];
+        };
+        FeedPage: {
+            /**
+             * Format: date-time
+             * @description When the first page was loaded; pass as before to mark the feed read
+             */
+            as_of: string;
+            items: components["schemas"]["FeedItem"][] | null;
+            /** @description Pass as cursor to get the next page; absent on the last page */
+            next_cursor?: string;
+            /** @description With pinned=first, the place's pinned topics (first page only) */
+            pinned?: components["schemas"]["FeedItem"][] | null;
+            sort: string;
+            /** @description Time window, for top and controversial */
+            t?: string;
+        };
+        FeedPlace: {
+            icon_url: string | null;
+            /** Format: uuid */
+            id: string;
+            is_nsfw: boolean;
+            name: string;
+            slug: string;
+            voting_enabled: boolean;
+        };
         Instance: {
             api: components["schemas"]["APIInfo"];
             description: string;
             features: components["schemas"]["Features"];
+            feed: components["schemas"]["FeedInfo"];
             icon_url: string | null;
             limits: components["schemas"]["Limits"];
             name: string;
@@ -2610,6 +2818,29 @@ export interface components {
             /** @description Username or email address */
             login: string;
             password: string;
+        };
+        MarkFeedReadRequest: {
+            /**
+             * Format: date-time
+             * @description Skip topics with activity after this time, usually the feed's as_of (default now)
+             */
+            before?: string;
+            /**
+             * Format: uuid
+             * @description Only this board or category and the boards under it
+             */
+            board_id?: string;
+        };
+        MarkFeedReadResult: {
+            /**
+             * Format: int64
+             * @description Topics marked read
+             */
+            marked: number;
+        };
+        MarkTopicsReadRequest: {
+            /** @description Topics the caller opened; unknown or hidden topics are skipped */
+            topic_ids: string[] | null;
         };
         Member: {
             /** Format: date-time */
@@ -2855,6 +3086,8 @@ export interface components {
             slug: string;
             /** @enum {string} */
             visibility: "public" | "invite_only" | "private";
+            /** @description Topics can be voted up and down; when off, feeds rank by reactions on opening posts */
+            voting_enabled: boolean;
         };
         PlaceRef: {
             /** Format: uuid */
@@ -3000,9 +3233,9 @@ export interface components {
         ReadRequest: {
             /**
              * Format: int32
-             * @description Highest post number the user has read
+             * @description Highest post number the user has read; omit to only record that the topic was opened
              */
-            post_number: number;
+            post_number?: number;
         };
         RefreshRequest: {
             refresh_token: string;
@@ -3266,6 +3499,8 @@ export interface components {
             board_id: string;
             /** Format: date-time */
             created_at: string;
+            /** Format: int32 */
+            downvotes: number;
             /** Format: uuid */
             id: string;
             is_archived: boolean;
@@ -3287,6 +3522,11 @@ export interface components {
             post_count: number;
             /** Format: int32 */
             reply_count: number;
+            /**
+             * Format: int32
+             * @description Up minus down votes, or reactions on the opening post when the place has voting off
+             */
+            score: number;
             /** @description URL-friendly title; canonical URLs combine it with the ID */
             slug: string;
             /** Format: uuid */
@@ -3300,6 +3540,24 @@ export interface components {
              * @description Posts after the caller's read position
              */
             unread_count?: number;
+            /** Format: int32 */
+            upvotes: number;
+            /** @description The caller's state; present only for authenticated requests */
+            viewer?: components["schemas"]["TopicViewer"];
+        };
+        TopicReadState: {
+            has_new_replies: boolean;
+            /** Format: int32 */
+            last_read_post_number: number | null;
+            /** Format: int32 */
+            new_reply_count: number;
+            /** Format: uuid */
+            place_id: string;
+            read: boolean;
+            /** Format: uuid */
+            topic_id: string;
+            /** Format: int32 */
+            unread_count: number;
         };
         TopicRef: {
             /** Format: uuid */
@@ -3308,6 +3566,34 @@ export interface components {
             solved: boolean;
             tags: string[] | null;
             title: string;
+        };
+        TopicViewer: {
+            /** @description Posts arrived after the caller last opened the topic */
+            has_new_replies: boolean;
+            /**
+             * Format: int32
+             * @description How far the caller has read; null if never
+             */
+            last_read_post_number: number | null;
+            /**
+             * Format: int32
+             * @description How many posts arrived after the caller last opened the topic
+             */
+            new_reply_count: number;
+            /** @description The caller has opened this topic and not marked it unread since */
+            read: boolean;
+            /** @enum {string} */
+            subscription: "watching" | "normal" | "muted";
+            /**
+             * Format: int32
+             * @description Posts after the caller's read position
+             */
+            unread_count: number;
+            /**
+             * Format: int32
+             * @description The caller's vote: 1, -1, or 0 for none
+             */
+            vote: number;
         };
         TopicWithPost: {
             post: components["schemas"]["Post"];
@@ -3405,6 +3691,8 @@ export interface components {
             slug?: string;
             /** @enum {string} */
             visibility?: "public" | "invite_only" | "private";
+            /** @description Turn topic voting on or off */
+            voting_enabled?: boolean;
         };
         UpdateTopicRequest: {
             /**
@@ -3549,6 +3837,14 @@ export interface components {
              * @description Round-trip time to the media server
              */
             rtt_ms?: number;
+        };
+        VoteRequest: {
+            /**
+             * Format: int32
+             * @description 1 to vote up, -1 to vote down
+             * @enum {integer}
+             */
+            value: 1 | -1;
         };
         WarningRequest: {
             reason: string;
@@ -5743,6 +6039,105 @@ export interface operations {
             };
         };
     };
+    "instance-feed": {
+        parameters: {
+            query?: {
+                /** @description hot weighs score and replies against age; active is the latest reply first; rising is the fastest-growing topics of the last 48 hours; controversial has many votes split between up and down */
+                sort?: "hot" | "new" | "active" | "top" | "rising" | "controversial";
+                /** @description Time window for top and controversial (default week) */
+                t?: "hour" | "day" | "week" | "month" | "year" | "all";
+                tag?: string;
+                /** @description Only topics with (true) or without (false) an accepted answer */
+                solved?: "true" | "false";
+                /** @description Leave out topics the caller opened that have no new posts since */
+                hide_read?: boolean;
+                /** @description Include NSFW boards (and, on instance feeds, NSFW places) */
+                nsfw?: boolean;
+                /** @description Include archived topics */
+                include_archived?: boolean;
+                limit?: number;
+                /** @description next_cursor from the previous page; the other parameters must stay the same */
+                cursor?: string;
+                /** @description home: places the caller joined (default when signed in); all: public topics on the instance (default otherwise) */
+                scope?: "home" | "all";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedPage"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "mark-feed-topics-read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarkTopicsReadRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopicReadState"][] | null;
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "get-instance": {
         parameters: {
             query?: never;
@@ -6930,6 +7325,113 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Channel"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "place-feed": {
+        parameters: {
+            query?: {
+                /** @description hot weighs score and replies against age; active is the latest reply first; rising is the fastest-growing topics of the last 48 hours; controversial has many votes split between up and down */
+                sort?: "hot" | "new" | "active" | "top" | "rising" | "controversial";
+                /** @description Time window for top and controversial (default week) */
+                t?: "hour" | "day" | "week" | "month" | "year" | "all";
+                tag?: string;
+                /** @description Only topics with (true) or without (false) an accepted answer */
+                solved?: "true" | "false";
+                /** @description Leave out topics the caller opened that have no new posts since */
+                hide_read?: boolean;
+                /** @description Include NSFW boards (and, on instance feeds, NSFW places) */
+                nsfw?: boolean;
+                /** @description Include archived topics */
+                include_archived?: boolean;
+                limit?: number;
+                /** @description next_cursor from the previous page; the other parameters must stay the same */
+                cursor?: string;
+                /** @description Only this board or category and the boards under it */
+                board?: string;
+                /** @description first returns pinned topics separately on the first page */
+                pinned?: "inline" | "first";
+            };
+            header?: never;
+            path: {
+                /** @description Place ID or slug */
+                place: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedPage"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "mark-place-feed-read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Place ID or slug */
+                place: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["MarkFeedReadRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarkFeedReadResult"];
                 };
             };
             /** @description Unauthorized */
@@ -9572,11 +10074,58 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: {
+        requestBody?: {
             content: {
                 "application/json": components["schemas"]["ReadRequest"];
             };
         };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "mark-topic-unread": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topicID: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description No Content */
             204: {
@@ -9737,6 +10286,108 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "vote-topic": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topicID: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VoteRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Topic"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "remove-topic-vote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topicID: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Topic"];
+                };
             };
             /** @description Unauthorized */
             401: {

@@ -26,6 +26,7 @@ import {
   type MessagePages,
 } from './chat';
 import { connectionStore } from './connection';
+import { applyMarkAll, applyReadState, feedKeys } from './feeds';
 import { useActiveInstance } from './instances';
 import { attachVoice, leaveVoice, onVoiceServerUpdate, onVoiceSpeaking, onVoiceState, voiceKeys } from './voice';
 
@@ -256,7 +257,7 @@ function startConnection(qc: QueryClient, inst: string, gatewayUrl: string, apiB
     );
     if (disposed) return;
     requestPresence(watched.keys());
-    await invalidate(qc, placeChannels, dms, ['channel', inst], ['pins', inst], ['receipts', inst], ['notifications-unread', inst], ['notifications', inst], ['places', inst], voiceKeys.all(inst));
+    await invalidate(qc, placeChannels, dms, ['channel', inst], ['pins', inst], ['receipts', inst], ['notifications-unread', inst], ['notifications', inst], ['places', inst], voiceKeys.all(inst), feedKeys.all(inst), ['topics', inst]);
     await actions.flushQueued();
   }
 
@@ -337,6 +338,10 @@ function startConnection(qc: QueryClient, inst: string, gatewayUrl: string, apiB
       list ? [...list.filter((r) => r.user_id !== e.user_id), { user_id: e.user_id, last_read_message_id: e.last_read_message_id, updated_at: new Date().toISOString() }] : list,
     ),
   );
+  gateway.on('TOPIC_READ_STATE_UPDATE', (e) => {
+    for (const state of e.topics ?? []) applyReadState(qc, inst, state);
+    if (e.all && e.place_id && e.before) applyMarkAll(qc, inst, e.place_id, e.before);
+  });
   gateway.on('NOTIFICATION_CREATE', (n) => {
     if (!n.read) qc.setQueryData<number>(['notifications-unread', inst], (count) => (typeof count === 'number' ? count + 1 : count));
     void qc.invalidateQueries({ queryKey: ['notifications', inst] });
@@ -405,19 +410,4 @@ export function RealtimeHost(): null {
   return null;
 }
 
-/** False while the browser says it has no network; native targets rely on the gateway alone. */
-export function useOnline(): boolean {
-  const [online, setOnline] = useState(() => Platform.OS !== 'web' || typeof navigator === 'undefined' || navigator.onLine !== false);
-  useEffect(() => {
-    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
-    const on = () => setOnline(true);
-    const off = () => setOnline(false);
-    window.addEventListener('online', on);
-    window.addEventListener('offline', off);
-    return () => {
-      window.removeEventListener('online', on);
-      window.removeEventListener('offline', off);
-    };
-  }, []);
-  return online;
-}
+export { useOnline } from './connection';

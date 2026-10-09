@@ -19,7 +19,7 @@ the client discovers it via `/.well-known/gotalk-instance` and `GET /api/v1/inst
 | `packages/tokens` | Design tokens from [DESIGN.md](DESIGN.md) (colors, spacing, radii, Inter type scale, breakpoints) → one typed dark theme and `dist/tokens.css` (`--gt-*` CSS variables for non-React surfaces such as server-rendered pages) |
 | `packages/ui` | `ThemeProvider`/`useTheme` and primitives (`Text`, `Button`, `TextField`, `Card`, `Stack`, `Screen`, `Badge`) built on React Native |
 | `packages/api-client` | Typed REST client generated from the server's OpenAPI document (`openapi-typescript` + `openapi-fetch`) |
-| `packages/core` | Framework-agnostic client logic: instance discovery, API compatibility checks, saved-instance store, auth, Markdown, chat helpers |
+| `packages/core` | Framework-agnostic client logic: instance discovery, API compatibility checks, saved-instance store, auth, Markdown, chat and feed helpers |
 | `packages/gateway` | Framework-agnostic WebSocket client for the real-time gateway: identify, heartbeats, reconnects, close codes, catch-up after a gap |
 | `apps/app` | Expo Router app (mobile + web) |
 | `apps/desktop` | Tauri shell |
@@ -108,6 +108,18 @@ paging because that is what the API provides. Post text goes through `parseMarkd
 (`marked` lexer, converted to a closed tree) and the `Markdown` component renders that tree, so raw HTML
 is shown as text and only http(s) and mailto links open. Drafts are stored on the server under
 `topic:<board id>` and `reply:<topic id>[:<post id>]` and are removed once the post is sent.
+
+## Topic feeds
+
+Feeds live at `(app)/feed` (Home: the person's places, or every public topic with `?scope=all`),
+`(app)/places/[slug]/feed`, and `explore` for signed-out visitors. They use the server's cursor paging in a
+virtualized list. Sort, window and filters are kept in the URL; the sort is also remembered per instance
+and feed. `apps/app/src/lib/feeds.ts` holds the queries and every feed mutation. Votes and read changes
+are applied first to every cached copy of the topic (feeds, forum lists, the topic itself) and rolled
+back if the server refuses. Opening a topic from anywhere records it as read. Signed out, opened topics
+are remembered on the device and imported after sign-in. Opens that fail offline are queued and sent
+later (`FeedSyncHost`). The pure parts (URL parsing, optimistic transforms, page patching, the read record
+and queue) are in `@gotalk/core` `feeds.ts`.
 
 ## Real-time and chat
 

@@ -155,6 +155,7 @@ export default function PlaceScreen() {
           </Stack>
         ) : (
           <View>
+            {access.isMember || place.visibility === 'public' ? <NavRow label="Feed" icon="arrowUp" onPress={() => router.push({ pathname: '/places/[slug]/feed', params: { slug: place.slug } })} /> : null}
             {access.isMember ? <NavRow label="Search" icon="search" onPress={() => router.push({ pathname: '/places/[slug]/search', params: { slug: place.slug } })} /> : null}
             {boardNodes.length > 0 ? section('Forums') : null}
             {boardNodes.map(({ board: b, depth }) => (

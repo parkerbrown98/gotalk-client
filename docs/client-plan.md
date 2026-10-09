@@ -3,7 +3,7 @@
 This document lays out the phases for the official Gotalk client in
 [`repos/gotalk-client`](../repos/gotalk-client/README.md). It is the client counterpart to
 [backend-plan.md](./backend-plan.md); backend phases 1–5 are already delivered, so the client can work
-against a complete API. Phase 7 (topic feeds) uses backend Phase 6, which has also landed.
+against a complete API. Phase 7 (topic feeds) uses backend Phase 6.
 
 ## Architecture (decided)
 
@@ -589,100 +589,133 @@ Known gaps and decisions:
 - Role colors offer none and the four accents from `DESIGN.md`; roles given other colors through the API
   keep them until changed.
 
-## Phase 7 — Topic feeds
-
-Status: not started. Backend Phase 6 (feed, vote and read-tracking endpoints) has landed; start with
-`pnpm api:sync`. The server's *Phase 6 status* in the backend plan describes the exact contract.
+## Phase 7 — Topic feeds ✅
 
 Goal: a Reddit-style feed of forum topics for a place and for the whole instance, with several sort orders,
 where topics the person has already opened look different from the ones they have not.
 
-Mockups: none yet. Per the design process, a new `17-feeds.html` comes first, covering the place feed and
-the instance Home feed at wide and phone widths: feed card (with and without votes, read and unread, new
-replies, pinned, solved, NSFW), the sort bar and the Top time window, filters, "mark all as read", empty,
-loading, offline and signed-out states. Any value `DESIGN.md` lacks (for example a muted read-title
-treatment or a vote control) is added to `DESIGN.md` and the tokens first.
+Mockups: [Topic feeds](./mockups/17-feeds.html) (Home and place feeds at desktop and phone widths, rows
+that are unread, read, and read with new replies, votes, NSFW collapsed, Top with a time window, filters,
+pinned topics lifted out, the row menu, mark all as read, the reconnect, empty and loading states, and
+signed-out Explore) is the reference for these screens. `DESIGN.md` gained `feed-row` / `feed-row-read`
+and `vote-control` / `vote-control-active`, built from existing tokens. It needed no new ones: read titles
+drop to `mute` and regular weight, and a vote lifts its square one surface step rather than using an accent
+color.
 
-Scope:
+Delivered:
 
-- **Feed screens:**
-  - **Place feed** (`places/[slug]/feed`): a Feed row at the top of the place sidebar and the phone place
-    screen, above the forum tree. It covers every forum the person can read, with a forum filter.
-  - **Home feed** (a Home entry above the places in the rail, and a Home tab on phones): topics from the
-    places the person has joined, with a switch to All public topics on the instance. Signed-out visitors
-    see only the public instance feed. Each card carries a place chip.
-  - Cards show the title, a short plain-text excerpt, forum and place chips, author, relative time, reply
-    count, tags and badges (pinned, solved, locked, NSFW). Wide screens put the vote column to the left;
-    phones put votes and replies in a footer row. The API leaves NSFW boards (and, on instance feeds, NSFW
-    places) out unless `nsfw=true`; once the person opts in, NSFW cards stay collapsed until tapped.
-  - Infinite scroll with a virtualized list on the API's cursor paging (`next_cursor`), dropping topics
-    whose ID is already loaded (a score change can move a topic across the cursor), pull to refresh on
-    phones, scroll position kept when coming back from a topic, and a refresh control instead of live
-    insertion (the backend defers live feed updates).
-- **Sorting:** Hot (default), New, Active, Top with a time window (hour, day, week, month, year, all),
-  Rising and Controversial, as a pill bar on wide screens and a scrollable row on phones. The choice is
-  remembered per instance and scope in the settings store and kept in the URL (`?sort=top&t=week`) so
-  links and reloads reproduce it. The instance's advertised `feed.sorts` and `feed.windows` decide which options appear. Controversial
-  and the vote UI are hidden when the place has voting off or the instance does not advertise
-  `features.topic_votes`.
-- **Filters:** forum, tag, Solved/Unsolved, a Hide read toggle, and a pinned-first switch on place feeds.
-  Filters live in the URL too, and the sort bar shows when any are active.
-- **Voting:** up and down arrows with the score between them, optimistic with rollback on error, changing
-  or clearing a vote, disabled on your own topics, and a sign-in prompt when signed out. Large scores
-  shorten to `1.2k`. The vote and score also appear in the topic view header, kept in sync with the feed
-  through the shared query cache.
-- **Read state:**
-  - Opening a topic from anywhere (feed, forum list, search, inbox, a link) calls `PUT /topics/{id}/read`.
-    Scrolling past a card in the feed never marks it.
-  - The change is applied optimistically to every cached copy of the topic (feed pages, forum topic lists,
-    the topic itself), so the card is already restyled when the person navigates back.
-  - Unread cards use the stronger title weight; read cards use the muted text token. Read topics that gained
-    replies since the last open show a "N new" badge. Color or weight never carries the state alone: the
-    accessibility label says "unread", "read" or "read, 3 new replies".
-  - Mark as unread from the card menu (a long-press sheet on phones), and "Mark all as read" in the feed
-    header menu with a confirmation, which calls `POST /places/{place}/feed/read` with the first page's
-    `as_of` as `before`, so topics with activity since the feed loaded stay unread. The Home feed has no
-    bulk endpoint; it marks the loaded topics with `POST /feed/read`.
-  - The forum topic list from Phase 3 adopts the same `viewer` data, so its unread dot and the feed never
-    disagree.
-  - Gateway `TOPIC_READ_STATE_UPDATE` events write into the same caches, so a topic opened on another device
-    updates here. After a gateway gap the visible feed pages are refetched.
-  - **Signed out and offline:** a local read record per instance (a set of topic IDs in
-    AsyncStorage/localStorage, capped at a few thousand with the oldest dropped) lets public browsing dim
-    opened topics. When someone signs in, the record is imported with `POST /feed/read`. While signed in
-    and offline, opens are queued in a persisted per-instance queue and replayed in batches of the
-    advertised `feed.read_batch`, with the usual backoff and `Retry-After` handling.
-- **Place settings:** a Voting switch in General for people with Manage place, written to the
-  `voting_enabled` place setting.
-- **`@gotalk/core`:** feed query-key and cache helpers (merge pages, patch one topic everywhere), a
-  framework-agnostic read-state store with the local record and offline queue, sort and filter parsing and
-  serialization, score formatting, and `describeTopicReadState` for labels.
-- **Tests:** sort and URL round-trips, cache patching across feed and forum list queries, optimistic vote
-  and read with rollback, new-reply badge rules, the local record cap, import on sign-in, queue replay
-  after offline, "mark all as read" with `as_of`, duplicate IDs across pages, and gateway event handling
-  (including the `all: true` form sent after a place is marked read).
+- **Feed screens** (`components/feed.tsx`):
+  - **Place feed** (`places/[slug]/feed`): a Feed row under Overview in the place sidebar and on the phone
+    place screen, for members and for anyone in a public place. It covers every forum the person can read,
+    with a forum filter (a category includes its forums).
+  - **Home feed** (`/feed`): a Home entry at the top of the rail and a Home tab first on phones (the tab bar
+    now has six tabs). It shows topics from the person's places, with a switch to "All of {instance}".
+    Every row names its place.
+  - **Explore** (`/explore`, `/explore/topics/[id]`): signed-out browsing of public topics, reached from
+    "Browse public topics" on the sign-in screen. The topic view is read-only and ends with Sign in and
+    Create an account. Signed-in people are sent to the matching signed-in screen.
+  - **Rows:** title, a plain-text excerpt (two lines), forum (and place) names, author, age, reply count,
+    and badges (N new, pinned, locked, solved, NSFW, tags). Wide screens put the vote column on the left;
+    phones put votes and replies in a footer. NSFW topics only come back when Show NSFW is on, and then stay
+    collapsed until tapped.
+  - **List:** a virtualized `FlatList` over the cursor pages. Topics already loaded are dropped when a
+    score change moves them across the cursor (`feedItemsOf`). More pages load as the end scrolls into view
+    (with a Load more button on wide screens), and phones have pull to refresh. Feeds stay mounted under
+    the topic in the stack, so going back keeps the scroll position. There is no live insertion of new
+    topics.
+- **Sorting:** Hot, New, Active, Top, Rising and Controversial as pills (a sideways-scrolling row on
+  phones), plus a time-window chip for Top and Controversial. The instance's `feed.sorts` decides what is
+  offered. Controversial and every vote control disappear when `features.topic_votes` is missing or the
+  place has voting off. The sort and window are kept in the URL (`?sort=top&t=all`) and remembered on the
+  device per instance and per feed (home, all, place, explore). A link that names a sort always wins.
+- **Filters:** a dialog (a sheet on phones) with forum (place feeds), tag, All/Solved/Unsolved, Hide read
+  (signed in), Pinned first (place feeds, which lifts pinned topics above the ranking on the first page)
+  and Show NSFW. It applies on Done. Active filters show as removable tags under the sort bar, the Filters
+  button counts them, and they live in the URL.
+- **Voting** (`VoteControl`): up and down with the score between them (`1.2k` above a thousand). Pressing
+  the active arrow clears the vote. Votes apply to every cached copy at once and roll back with a message
+  when the server refuses. Your own topics show the score with the arrows off; signed out, the arrows go
+  to sign in. The topic view header carries the same control.
+- **Read state** (`lib/feeds.ts`):
+  - Opening a topic from anywhere records it (`PUT /topics/{id}/read`) when the topic screen mounts, on top
+    of the read position Phase 3 already sends. Scrolling past a row never marks it.
+  - Opens, votes, Mark as read / unread and server read states are applied to every cached copy of the
+    topic (feed pages, forum topic lists, the topic itself) through `patchTopicEverywhere`. The row is
+    restyled before the person navigates back.
+  - Unread rows keep the white, medium-weight title; read rows drop to the muted title. Read topics with
+    replies since the last open add an "N new" badge from the server's `new_reply_count`. The label reads
+    "unread", "read" or "read, N new replies" (`describeTopicReadState`).
+  - The row menu (the … button, or a long press) offers Mark as unread or Mark as read, Open {forum}, and
+    Copy link on the web.
+  - **Mark all as read** asks first. On a place feed it calls `POST /places/{place}/feed/read` with the
+    first page's `as_of` (and the forum filter), patches the loaded rows, and refetches so topics active
+    since then stay unread. On the Home feed it marks the loaded unread topics in batches of
+    `feed.read_batch`.
+  - The Phase 3 forum topic list reads the same `viewer` object: its dot means not opened yet, plus the same
+    "N new" badge.
+  - `TOPIC_READ_STATE_UPDATE` events patch the caches (the `all: true` form patches the place and
+    refetches). After a gateway gap, feeds and topic lists are refetched with the rest.
+  - **Signed out:** opened topics are kept in a per-instance record on the device (`createFeedReadStore`
+    in `@gotalk/core`, at most 2,000, oldest dropped) and dim the rows in Explore. After sign-in,
+    `FeedSyncHost` imports them with `POST /feed/read` and forgets them.
+  - **Offline:** an open that fails for lack of a connection (or a 5xx) is queued on the device and sent
+    through `POST /feed/read` once the app is online and signed in. Rate limiting waits for `Retry-After`;
+    other refusals drop the queued opens.
+- **Place settings:** a Topic voting checkbox in General (Manage place), saved as soon as it changes
+  (`voting_enabled`), shown when the instance supports votes.
+- **`@gotalk/core`** (`feeds.ts`): sort and filter parsing and URL serialization with defaults left out,
+  the API query per scope, offered sorts, score formatting, read-state descriptions, optimistic vote / open
+  / unread / all-read transforms, server read states, page patching and de-duplication, the mark-all cut-off,
+  and the persisted read record and open queue. `@gotalk/gateway` types `TOPIC_READ_STATE_UPDATE`.
+- **Backend addition:** the viewer and read-state objects gained `new_reply_count` (posts since the last
+  open), because `unread_count` counts from the read position and overstated "N new". It is covered in the
+  server's feed test.
+- **Tests:** 17 new in `@gotalk/core`: URL round trips and invalid values, remembered sorts, API queries
+  per scope, offered sorts, score formatting, read descriptions (including signed out), every optimistic
+  transform, page patching and de-duplication, the mark-all cut-off, the read record cap, the queue, and
+  persistence that survives writes made before hydration.
 
-Verify (to do):
+Verified:
 
-- a scripted Chromium run against a local server on fresh data at wide and phone widths, with an owner
-  and a member: every sort and window orders a seeded place correctly, the cursor does not repeat or skip
-  topics while votes change, open a topic and go back (restyled, no flash), a reply from someone else
-  produces the "N new" badge, mark unread, Hide read, mark all as read, a second browser updating live
-  through the gateway, offline opens replayed, and a signed-out visit followed by sign-in importing the
-  local record
-- the instance Home feed with two places, a muted place left out, and a private forum never appearing for
-  a non-member
-- not yet exercised: iOS, Android and Tauri builds, scroll restoration on a device, and screen readers
+- typecheck and unit tests across the workspace (core 154), the web export, and `expo lint` clean for the
+  new and changed code
+- a scripted Chromium run against a local server with seeded data (two public places, a Q&A forum, an NSFW
+  forum, votes, replies and a pinned topic) at 1280px and 390px:
+  - signed out: Explore lists public topics without the NSFW forum; votes ask to sign in. Opening a topic
+    shows it read-only and dims it on return, and the record survives in local storage. Signing in as a
+    member imports it (the topic reads as read on the server) and clears the record.
+  - as a member:
+    - Hot, New and Top with All time order the seeded topics correctly (every sort's ordering is
+      covered by the server's tests). Own topics show the score with disabled arrows.
+    - Voting up, switching to down, clearing and voting again match the server, and the arrow press does
+      not open the topic.
+    - Opening an unread topic restyles it on return, and Mark as unread works.
+    - Hide read keeps read topics with new replies. Forum filter and pinned-first lift the pinned topic.
+    - NSFW stays collapsed until shown. Sort, window and filters land in the URL, and the remembered sort
+      comes back on the next visit.
+    - "N new" counts replies since the open. Mark all as read leaves a topic that got a reply after the
+      feed loaded as "1 new".
+    - Home shows only the member's places; All adds the other public place.
+    - A read made in another session restyles the row live through the gateway.
+    - An open made while offline is queued on the device and reaches the server after reconnecting.
+  - as the owner: turning Topic voting off removes the votes and Controversial from the place feed. The
+    board topic list shows the same read, unread and "N new" states as the feed.
+- not yet exercised: iOS, Android and Tauri builds, pull to refresh and long press on a device, a muted place
+  leaving Home in the client (covered by the server's tests), screen readers, and feeds long enough to
+  repeat a topic across pages
 
-Known gaps and decisions (planned):
+Known gaps and decisions:
 
-- Voting is new in the client; reactions stay as they are and the client does not mix them into the score.
-- Per-forum unread counts in the sidebar stay out: the API reports unread per topic only, so the feed shows
-  state per card.
-- Excerpts are plain text. Thumbnails and link previews wait for attachments.
-- No live "N new topics" banner until the backend offers feed events.
-- Read state for signed-out visitors lives on the device only and is not shared between browsers.
-- Saved topics, custom multi-place feeds and a per-forum default sort are not planned.
+- Only the sort and window are remembered per feed; filters live in the URL.
+- Hide read is not offered signed out (the server ignores it without an account), and the local read
+  record is per device, not shared between browsers.
+- The Home feed's Mark all as read covers the loaded topics only; the API has no instance-wide endpoint.
+- Copy link copies the web client's address and is offered on the web only; there are no server-rendered
+  topic pages to link to yet.
+- Voting stays separate from reactions; the client does not add reactions into the score.
+- The phone tab bar has six tabs. Merging Search into the Home tab is the obvious way back to five.
+- Per-forum unread counts in the sidebar, live "N new topics" banners, thumbnails, saved topics, custom
+  multi-place feeds and a per-forum default sort remain out of scope.
 
 ## Phase 8 — Distribution & polish
 

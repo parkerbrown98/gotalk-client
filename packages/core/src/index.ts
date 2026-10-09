@@ -5,6 +5,7 @@ export * from './composer.ts';
 export * from './devices.ts';
 export * from './developer.ts';
 export * from './discovery.ts';
+export * from './feeds.ts';
 export * from './instances.ts';
 export * from './markdown.ts';
 export * from './moderation.ts';

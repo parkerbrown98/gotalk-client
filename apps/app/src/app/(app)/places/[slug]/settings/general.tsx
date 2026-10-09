@@ -1,11 +1,12 @@
-import { Button, Dialog, Notice, Stack, Text, TextField, useTheme } from '@gotalk/ui';
+import { Button, Checkbox, Dialog, Notice, Stack, Text, TextField, useTheme } from '@gotalk/ui';
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 
 import { PlaceForm } from '@/components/place-form';
 import { PlaceSettingsPage, sectionHref, usePlaceSettings } from '@/components/place-settings';
-import { classifyFailure } from '@/lib/failure';
+import { classifyFailure, failureMessage } from '@/lib/failure';
+import { useFeedActions, useFeedCapabilities } from '@/lib/feeds';
 import { resetTo } from '@/lib/layout';
 import { usePlaceActions } from '@/lib/places';
 
@@ -18,6 +19,10 @@ export default function PlaceGeneralSettings() {
   const [typed, setTyped] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const feedActions = useFeedActions();
+  const caps = useFeedCapabilities();
+  const [voting, setVoting] = useState<boolean | null>(null);
+  const [votingError, setVotingError] = useState<string | null>(null);
 
   if (!place) return null;
   if (!access.can('MANAGE_PLACE')) return <Redirect href={{ pathname: '/places/[slug]/settings', params: { slug: place.slug } }} />;
@@ -53,6 +58,26 @@ export default function PlaceGeneralSettings() {
           }}
           onSecondary={() => resetTo(sectionHref(place.slug, 'general'))}
         />
+        {caps.votes ? (
+          <View style={{ borderTopWidth: 1, borderTopColor: theme.colors.hairline, paddingTop: theme.space.lg, gap: theme.space.md }}>
+            <Checkbox
+              checked={voting ?? place.voting_enabled}
+              disabled={voting !== null}
+              onChange={(next) => {
+                setVoting(next);
+                setVotingError(null);
+                feedActions
+                  .setVoting(place.slug, next)
+                  .catch((e) => setVotingError(failureMessage(e, 'Could not change voting. Try again.')))
+                  .finally(() => setVoting(null));
+              }}
+              description="Members can vote topics up and down, and feeds can sort by controversy. When off, feeds rank topics by reactions on their opening post. Saved right away."
+            >
+              Topic voting
+            </Checkbox>
+            {votingError ? <Notice tone="danger">{votingError}</Notice> : null}
+          </View>
+        ) : null}
         {access.isOwner ? (
           <View style={{ borderTopWidth: 1, borderTopColor: theme.colors.hairline, paddingTop: theme.space.lg, gap: theme.space.md }}>
             <Stack gap="none">

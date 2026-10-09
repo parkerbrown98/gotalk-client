@@ -1,4 +1,6 @@
 import type { ConnectionState } from '@gotalk/gateway';
+import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import { useStore } from 'zustand';
 import { createStore } from 'zustand/vanilla';
 
@@ -27,4 +29,21 @@ export function useConnection<T>(selector: (s: ConnectionInfo) => T): T {
 /** True while events arrive live, so polling can stop. */
 export function useGatewayReady(): boolean {
   return useConnection((s) => s.state === 'ready');
+}
+
+/** False while the browser says it has no network; native targets rely on the gateway alone. */
+export function useOnline(): boolean {
+  const [online, setOnline] = useState(() => Platform.OS !== 'web' || typeof navigator === 'undefined' || navigator.onLine !== false);
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    const on = () => setOnline(true);
+    const off = () => setOnline(false);
+    window.addEventListener('online', on);
+    window.addEventListener('offline', off);
+    return () => {
+      window.removeEventListener('online', on);
+      window.removeEventListener('offline', off);
+    };
+  }, []);
+  return online;
 }

@@ -241,6 +241,30 @@ components:
     textColor: "{colors.on-dark}"
     typography: "{typography.body-sm}"
     rounded: "{rounded.full}"
+  feed-row:
+    backgroundColor: "transparent"
+    textColor: "{colors.on-dark}"
+    typography: "{typography.body-strong}"
+    rounded: "{rounded.none}"
+    padding: 12px 16px
+  feed-row-read:
+    backgroundColor: "transparent"
+    textColor: "{colors.mute}"
+    typography: "{typography.body-md}"
+    rounded: "{rounded.none}"
+    padding: 12px 16px
+  vote-control:
+    backgroundColor: "transparent"
+    textColor: "{colors.mute}"
+    typography: "{typography.body-sm-strong}"
+    rounded: "{rounded.sm}"
+    size: 28px
+  vote-control-active:
+    backgroundColor: "{colors.surface-elevated}"
+    textColor: "{colors.on-dark}"
+    typography: "{typography.body-sm-strong}"
+    rounded: "{rounded.sm}"
+    size: 28px
   badge-pro:
     backgroundColor: "{colors.surface-elevated}"
     textColor: "{colors.on-dark-mute}"
@@ -515,6 +539,21 @@ There is no traditional photography. Visual elements are limited to:
 **`badge-info-soft`** — translucent info chip
 - Background `{colors.accent-blue-soft}`, text `{colors.accent-blue}`, type `{typography.caption-sm}`, padding `2px 8px`, rounded `{rounded.xs}`.
 - Rare "New" / "Beta" inline tag.
+
+### Feeds (Gotalk addition)
+
+Built from the existing vocabulary; no new tokens.
+
+**`feed-row`** + **`feed-row-read`** — one topic in a ranked feed
+- Default (not opened yet): transparent background, title in `{typography.body-strong}` `{colors.on-dark}`, padding `12px 16px`, separated by a 1px `{colors.hairline}` rule.
+- Read: the title drops to `{typography.body-md}` `{colors.mute}`; everything else stays. A read topic that gained replies keeps the read title and adds a `{component.badge-info-soft}` "N new" tag, the system's existing "New" chip.
+- Below the title: a one- or two-line excerpt in `{typography.body-sm}` `{colors.mute}`, then forum and place names, author and age in `{typography.caption-md}` `{colors.mute}`, with tag and state badges.
+- Weight and color never carry the read state alone; the row's accessible label says "unread", "read" or "read, N new replies".
+
+**`vote-control`** + **`vote-control-active`** — up and down arrows with the score between them
+- Each arrow is a 28px square button, rounded `{rounded.sm}`, icon `{colors.mute}`; the score sits between them in `{typography.body-sm-strong}`.
+- Active (the person's own vote): the arrow's square flips to `{colors.surface-elevated}` and its icon to `{colors.on-dark}` — the same one-notch lift as `{component.pill-tab-active}`. No accent color marks a vote; the system keeps saturated color off chrome.
+- Wide screens put the control in a column left of the row; phones lay it out horizontally in the row's footer next to the reply count.
 
 ### Inputs & Forms
 

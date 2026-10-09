@@ -74,6 +74,11 @@ export interface GatewayEvents {
   CHANNEL_RECIPIENT_REMOVE: { channel_id: string; user_id: string };
   CHANNEL_READ: { channel_id: string; last_read_message_id: string | null; mention_count: number };
   READ_RECEIPT: { channel_id: string; user_id: string; last_read_message_id: string | null };
+  /**
+   * The user's forum read state changed on one of their sessions. After a place was marked read,
+   * `topics` is empty and `all` is set with the place, board and cut-off time.
+   */
+  TOPIC_READ_STATE_UPDATE: { topics: Schemas['TopicReadState'][]; all?: boolean; place_id?: string; board_id?: string | null; before?: string };
   NOTIFICATION_CREATE: Schemas['Notification'];
   PRESENCE_UPDATE: { user_id: string; status: VisibleStatus };
   PLACE_JOIN: { place_id: string };

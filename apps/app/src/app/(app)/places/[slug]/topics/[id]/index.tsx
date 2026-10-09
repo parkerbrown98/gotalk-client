@@ -5,11 +5,13 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
+import { VoteControl, useVoteMode } from '@/components/feed';
 import { ActionList, Empty, messageFor, PostItem, TagBadges, WatchButton } from '@/components/forum';
 import { ReplyForm } from '@/components/reply-form';
 import { ScreenFrame } from '@/components/screen-frame';
 import { TagInput } from '@/components/tag-input';
 import { useMe } from '@/lib/api';
+import { useFeedActions } from '@/lib/feeds';
 import { useForumActions, usePosts, useTopic, type Post, type Topic } from '@/lib/forums';
 import { goBack, useWide } from '@/lib/layout';
 import { useBoardAccess, useBoards, usePlace, usePlaceAccess } from '@/lib/places';
@@ -73,7 +75,10 @@ export default function TopicScreen() {
   const board = useBoards(slug, access.isMember).data?.find((b) => b.id === topic?.board_id);
   const boardAccess = useBoardAccess(board);
   const actions = useForumActions();
+  const feedActions = useFeedActions();
+  const voteMode = useVoteMode();
   const [replyTo, setReplyTo] = useState<Post | undefined>();
+  const [voteProblem, setVoteProblem] = useState<string | null>(null);
   const [layout, setLayout] = useState<'threaded' | 'flat'>('threaded');
   const [menu, setMenu] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -89,6 +94,11 @@ export default function TopicScreen() {
   const isAuthor = !!me && topic?.author.id === me.id;
   const canReply = !!topic && !topic.is_archived && (!topic.is_locked || canModerate) && boardAccess.can('REPLY_TO_TOPICS');
   const canReact = boardAccess.can('ADD_REACTIONS');
+
+  // However the topic was reached (a feed, a forum, search, the inbox, a link), opening it marks it read.
+  useEffect(() => {
+    if (topic?.id) feedActions.opened(topic.id);
+  }, [topic?.id, feedActions]);
 
   // Opening or reading further records the position, so the topic list stops showing it as unread.
   const highest = posts.reduce((n, p) => Math.max(n, p.post_number), 0);
@@ -149,23 +159,31 @@ export default function TopicScreen() {
   );
 
   const heading = (
-    <Stack gap="sm">
-      <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: theme.space.md }}>
-        <Text variant={wide ? 'headingXl' : 'headingMd'} accessibilityRole="header" style={{ flexShrink: 1 }}>
-          {topic.title}
-        </Text>
-        {topic.solution_post_id ? <Badge label="Solved" tone="success" /> : null}
-        {topic.is_locked ? <Badge label="Locked" /> : null}
-        {topic.is_archived ? <Badge label="Archived" /> : null}
-        {topic.is_pinned ? <Badge label="Pinned" /> : null}
-      </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: theme.space.sm }}>
-        <TagBadges tags={topic.tags} />
-        <Text variant="captionMd" tone="muted">
-          Started by {topic.author.display_name} · {topic.reply_count} {topic.reply_count === 1 ? 'reply' : 'replies'}
-        </Text>
-      </View>
-    </Stack>
+    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: theme.space.md }}>
+      <Stack gap="sm" style={{ flex: 1 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: theme.space.md }}>
+          <Text variant={wide ? 'headingXl' : 'headingMd'} accessibilityRole="header" style={{ flexShrink: 1 }}>
+            {topic.title}
+          </Text>
+          {topic.solution_post_id ? <Badge label="Solved" tone="success" /> : null}
+          {topic.is_locked ? <Badge label="Locked" /> : null}
+          {topic.is_archived ? <Badge label="Archived" /> : null}
+          {topic.is_pinned ? <Badge label="Pinned" /> : null}
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: theme.space.sm }}>
+          <TagBadges tags={topic.tags} />
+          <Text variant="captionMd" tone="muted">
+            Started by {topic.author.display_name} · {topic.reply_count} {topic.reply_count === 1 ? 'reply' : 'replies'}
+          </Text>
+        </View>
+        {voteProblem ? (
+          <Text variant="captionMd" tone="danger">
+            {voteProblem}
+          </Text>
+        ) : null}
+      </Stack>
+      <VoteControl topic={topic} mode={voteMode(topic, place?.voting_enabled)} horizontal={!wide} onError={setVoteProblem} />
+    </View>
   );
 
   const controls = (

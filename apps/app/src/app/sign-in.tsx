@@ -117,6 +117,9 @@ export default function SignIn() {
           <Text variant="bodySm" tone="muted" style={{ textAlign: 'center' }}>
             New here? <InlineLink onPress={() => router.push('/register')}>Create an account</InlineLink>
           </Text>
+          <Text variant="bodySm" tone="muted" style={{ textAlign: 'center' }}>
+            Just looking? <InlineLink onPress={() => router.push('/explore')}>Browse public topics</InlineLink>
+          </Text>
         </Stack>
       </Stack>
     </AuthLayout>

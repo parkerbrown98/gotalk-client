@@ -1,4 +1,4 @@
-import { QUICK_REACTIONS, relativeTime, shortTime, validatePost } from '@gotalk/core';
+import { describeTopicReadState, QUICK_REACTIONS, relativeTime, shortTime, validatePost } from '@gotalk/core';
 import { Avatar, Badge, Button, Dialog, Icon, ListCard, ListRow, Notice, RadioOptions, Text, useTheme, type IconName } from '@gotalk/ui';
 import { useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
@@ -106,17 +106,22 @@ export function WatchButton({ scope, level, onChange }: { scope: 'board' | 'topi
   );
 }
 
-/** A topic in a board's list: unread dot, title, tags, replies and last activity. */
+/**
+ * A topic in a board's list: unread dot, title, tags, replies and last activity. It reads the same
+ * `viewer` state as feeds: the dot means not opened yet, and "N new" marks replies since the last open.
+ */
 export function TopicRow({ topic, wide, onPress }: { topic: Topic; wide: boolean; onPress: () => void }) {
   const theme = useTheme();
   const c = theme.colors;
-  const unread = (topic.unread_count ?? 0) > 0;
+  const read = describeTopicReadState(topic);
+  const unread = topic.viewer ? read.state === 'unread' : (topic.unread_count ?? 0) > 0;
   const solved = !!topic.solution_post_id;
   const meta = (
     <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: theme.space.sm }}>
       <Text variant="captionMd" tone="muted">
         {topic.author.display_name}
       </Text>
+      {read.state === 'new' ? <Badge label={`${read.newCount} new`} tone="info" /> : null}
       {topic.is_pinned ? <Badge label="Pinned" /> : null}
       {topic.is_locked ? <Badge label="Locked" /> : null}
       {topic.is_archived ? <Badge label="Archived" /> : null}
@@ -127,7 +132,7 @@ export function TopicRow({ topic, wide, onPress }: { topic: Topic; wide: boolean
   return (
     <Pressable
       accessibilityRole="link"
-      accessibilityLabel={`${unread ? 'Unread. ' : ''}${topic.title}, ${topic.reply_count} ${topic.reply_count === 1 ? 'reply' : 'replies'}`}
+      accessibilityLabel={`${topic.title}, ${topic.viewer ? read.label : unread ? 'unread' : 'read'}, ${topic.reply_count} ${topic.reply_count === 1 ? 'reply' : 'replies'}`}
       onPress={onPress}
       style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'flex-start', gap: theme.space.md, paddingHorizontal: wide ? 24 : theme.space.lg, paddingVertical: 12, backgroundColor: pressed ? c.surface : 'transparent' })}
     >
