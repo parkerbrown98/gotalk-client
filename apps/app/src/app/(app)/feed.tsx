@@ -2,7 +2,7 @@ import { activeFilterCount, availableSorts, feedParams, parseFeedParams, type Fe
 import { Button, Icon, Notice, PillTabs, Stack, Text, useTheme } from '@gotalk/ui';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { ActiveFilters, FeedCard, FeedFrame, FeedItemMenu, FeedList, FiltersDialog, MarkAllDialog, SortBar, useVoteMode } from '@/components/feed';
 import { useFeedActions, useFeedCapabilities, useInstanceFeed, useSortPreference } from '@/lib/feeds';
@@ -53,6 +53,7 @@ export default function HomeFeed() {
           {scopes}
           <View style={{ flex: 1 }} />
           {markAllButton}
+          <Button title="Search" variant="tertiary" size="sm" onPress={() => router.push('/search')} />
         </View>
       ) : (
         <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>{scopes}</View>
@@ -91,7 +92,14 @@ export default function HomeFeed() {
   );
 
   return (
-    <FeedFrame title="Home">
+    <FeedFrame
+      title="Home"
+      end={
+        <Pressable accessibilityRole="button" accessibilityLabel="Search your places" hitSlop={12} onPress={() => router.push('/search')}>
+          <Icon name="search" size={20} color={c.onDark} />
+        </Pressable>
+      }
+    >
       <FeedList
         feed={feed}
         header={header}

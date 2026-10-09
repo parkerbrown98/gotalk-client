@@ -21,6 +21,7 @@
     alert: '<path d="M12 4 2.500 20h19L12 4Z"/><path d="M12 10v4.500M12 17.500v.01"/>',
     info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/>',
     home: '<path d="m3 11 9-7 9 7v9h-6v-6H9v6H3v-9Z"/>',
+    grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
     compass: '<circle cx="12" cy="12" r="9"/><path d="m15.500 8.500-2 5-5 2 2-5 5-2Z"/>',
     mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
     micOff: '<path d="M9 9V6a3 3 0 0 1 5.700-1.300M15 10v1a3 3 0 0 1-4.500 2.600M5 11a7 7 0 0 0 11 5.700M12 18v3M3 3l18 18"/>',

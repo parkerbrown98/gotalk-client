@@ -151,7 +151,8 @@ Delivered:
 
 - **Responsive shell** (`apps/app/src/app/(app)`): from the `tablet` breakpoint (768px) a place rail, the
   open place's sidebar (forums, chat, voice) and the content; on phones a stack with a bottom tab bar.
-  The tab bar has Places, Inbox, Search and You (the last two arrived in Phase 3).
+  The tab bar has Places, Inbox, Search and You (the last two arrived in Phase 3; Phase 7 moved Search
+  into the Home tab).
 - **Places:**
   - discover with debounced search, "Open to join" filter, paging, and one white button on the best match
   - create (the address fills in from the name), view by slug, join and leave
@@ -186,7 +187,7 @@ Known gaps and decisions:
   association files; invite links today open the hosted web client or the `gotalk://` scheme.
 - Request-to-join does not exist in the API, so the mockup's "Request to join" became "Invite only".
 - The overview shows member, forum and channel counts only: unread counts, pinned items and activity
-  summaries need forums and chat.
+  summaries need forums and chat. (Phase 7 put the place's feed under these counts, on the same page.)
 
 Mockups: [App shell and places](./mockups/05-shell-places.html) and
 [Create and manage places](./mockups/09-places-manage.html) (create, settings, invites, place menu,
@@ -220,7 +221,7 @@ Delivered:
 - **Markdown** (`@gotalk/core` `parseMarkdown`, `apps/app` `Markdown`): `marked` lexes the text and the
   result is converted to a closed tree that the renderer walks, so raw HTML is shown as text, only
   http(s) and mailto links open, and images become links. The policy viewer uses it too.
-- **Search** (`places/[slug]/search`, phone Search tab): words, phrases and exclusions with author,
+- **Search** (`places/[slug]/search`, and on phones `/search`, opened from Home since Phase 7): words, phrases and exclusions with author,
   tag, forum, answered state, dates, opening posts only and sort, paging, and highlighted snippets.
 - **Inbox:** replies, mentions, accepted answers, reactions and new topics with read and unread, mark
   all read, dismiss, and links into the topic. An unread count shows on the rail bell and the phone tab;
@@ -605,11 +606,18 @@ color.
 Delivered:
 
 - **Feed screens** (`components/feed.tsx`):
-  - **Place feed** (`places/[slug]/feed`): a Feed row under Overview in the place sidebar and on the phone
-    place screen, for members and for anyone in a public place. It covers every forum the person can read,
-    with a forum filter (a category includes its forums).
-  - **Home feed** (`/feed`): a Home entry at the top of the rail and a Home tab first on phones (the tab bar
-    now has six tabs). It shows topics from the person's places, with a switch to "All of {instance}".
+  - **Place page** (`places/[slug]`): the feed and the old overview are one page. The place's header (icon,
+    name, description, members / forums / channels / since, Join or the invitation notice, and for members
+    Mark all as read and Invite people) sits on top of the place's feed, which covers every forum the person
+    can read, with a forum filter (a category includes its forums). Opening a place lands here; the sidebar
+    has a single Home row (house icon) for it, and `places/[slug]/feed` redirects here with its filters. Phones have no
+    sidebar, so a Feed / Forums and chat switch under the header shows the forum and channel list instead
+    of the feed. Members, and anyone in a public place, get the feed; others see the header only.
+  - **Home feed** (`/feed`): a Home entry at the top of the rail and a Home tab first on phones. It shows
+    topics from the person's places, with a switch to "All of {instance}". Search moved in here: a search
+    button in the Home title bar (a Search button in the header on wide screens) opens the place search,
+    which keeps the Home tab highlighted and goes back to the feed. That brings the tab bar back to five tabs:
+    Home, Places, Messages, Inbox and You.
     Every row names its place.
   - **Explore** (`/explore`, `/explore/topics/[id]`): signed-out browsing of public topics, reached from
     "Browse public topics" on the sign-in screen. The topic view is read-only and ends with Sign in and
@@ -700,6 +708,11 @@ Verified:
     - An open made while offline is queued on the device and reaches the server after reconnecting.
   - as the owner: turning Topic voting off removes the votes and Controversial from the place feed. The
     board topic list shows the same read, unread and "N new" states as the feed.
+- after merging the feed into the place page (1280px and 390px): the owner sees the header with counts,
+  Mark all as read and Invite people above the feed, and on a phone switches to Forums and chat.
+  `places/[slug]/feed?sort=new&hide_read=1` lands on the place page with both filters. A non-member of a
+  public place sees Join above the feed (and no Mark all as read); joining turns on the member header and
+  votes. A non-member of an invite-only place sees only the header and the invitation notice.
 - not yet exercised: iOS, Android and Tauri builds, pull to refresh and long press on a device, a muted place
   leaving Home in the client (covered by the server's tests), screen readers, and feeds long enough to
   repeat a topic across pages
@@ -713,7 +726,6 @@ Known gaps and decisions:
 - Copy link copies the web client's address and is offered on the web only; there are no server-rendered
   topic pages to link to yet.
 - Voting stays separate from reactions; the client does not add reactions into the score.
-- The phone tab bar has six tabs. Merging Search into the Home tab is the obvious way back to five.
 - Per-forum unread counts in the sidebar, live "N new topics" banners, thumbnails, saved topics, custom
   multi-place feeds and a per-forum default sort remain out of scope.
 

@@ -4,16 +4,17 @@ import { View } from 'react-native';
 
 import { ScreenFrame } from '@/components/screen-frame';
 import { SearchView } from '@/components/search-view';
+import { goBack } from '@/lib/layout';
 import { useMyPlaces } from '@/lib/places';
 
-/** The phone Search tab: pick one of the joined places, then search it. */
+/** Search, opened from the Home feed: pick one of the joined places, then search it. */
 export default function SearchTab() {
   const theme = useTheme();
   const places = useMyPlaces().data ?? [];
   const [chosen, setChosen] = useState<string | null>(null);
   const slug = chosen && places.some((p) => p.slug === chosen) ? chosen : places[0]?.slug;
   return (
-    <ScreenFrame title="Search" contentStyle={{ paddingVertical: theme.space.lg }}>
+    <ScreenFrame title="Search" onBack={() => goBack('/feed')} contentStyle={{ paddingVertical: theme.space.lg }}>
       {!slug ? (
         <View style={{ paddingHorizontal: theme.space.lg }}>
           <Notice tone="info" title="Join a place to search it.">

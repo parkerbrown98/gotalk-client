@@ -143,8 +143,7 @@ export function PlaceSidebar({ slug }: { slug: string }) {
       <CreateBoardDialog slug={slug} visible={newForum} onClose={() => setNewForum(false)} />
 
       <ScrollView contentContainerStyle={{ padding: 8, gap: 2 }}>
-        <NavRow label="Overview" icon="home" active={pathname === `/places/${slug}`} onPress={() => router.push({ pathname: '/places/[slug]', params: { slug } })} />
-        {access.isMember || place?.visibility === 'public' ? <NavRow label="Feed" icon="arrowUp" active={pathname === `/places/${slug}/feed`} onPress={() => router.push({ pathname: '/places/[slug]/feed', params: { slug } })} /> : null}
+        <NavRow label="Home" icon="home" active={pathname === `/places/${slug}`} onPress={() => router.push({ pathname: '/places/[slug]', params: { slug } })} />
         {access.isMember ? <NavRow label="Search" icon="search" active={pathname === `/places/${slug}/search`} onPress={() => router.push({ pathname: '/places/[slug]/search', params: { slug } })} /> : null}
         {boardNodes.length > 0 ? section('Forums') : null}
         {boardNodes.map(({ board: b, depth }) => (
@@ -253,7 +252,7 @@ export function MessagesSidebar() {
   );
 }
 
-/** Phone tabs: the Home feed, places, direct messages, inbox, search and the account. */
+/** Phone tabs: the Home feed (which also leads to search), places, direct messages, inbox and the account. */
 export function TabBar() {
   const theme = useTheme();
   const c = theme.colors;
@@ -263,11 +262,10 @@ export function TabBar() {
   const unreadMessages = useUnreadConversations();
   const inMessages = pathname === '/messages' || pathname.startsWith('/messages/');
   const tabs = [
-    { label: 'Home', icon: 'arrowUp', href: '/feed', active: pathname === '/feed', count: 0 },
-    { label: 'Places', icon: 'home', href: '/home', active: pathname !== '/you' && pathname !== '/inbox' && pathname !== '/search' && pathname !== '/feed' && !inMessages, count: 0 },
+    { label: 'Home', icon: 'home', href: '/feed', active: pathname === '/feed' || pathname === '/search', count: 0 },
+    { label: 'Places', icon: 'grid', href: '/home', active: pathname !== '/you' && pathname !== '/inbox' && pathname !== '/search' && pathname !== '/feed' && !inMessages, count: 0 },
     { label: 'Messages', icon: 'forum', href: '/messages', active: inMessages, count: unreadMessages },
     { label: 'Inbox', icon: 'bell', href: '/inbox', active: pathname === '/inbox', count: unread },
-    { label: 'Search', icon: 'search', href: '/search', active: pathname === '/search', count: 0 },
     { label: 'You', icon: 'user', href: '/you', active: pathname === '/you', count: 0 },
   ] as const;
   return (

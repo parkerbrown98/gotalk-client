@@ -112,7 +112,7 @@ is shown as text and only http(s) and mailto links open. Drafts are stored on th
 ## Topic feeds
 
 Feeds live at `(app)/feed` (Home: the person's places, or every public topic with `?scope=all`),
-`(app)/places/[slug]/feed`, and `explore` for signed-out visitors. They use the server's cursor paging in a
+each place's own page `(app)/places/[slug]` (its header on top of its feed; `…/feed` redirects there), and `explore` for signed-out visitors. They use the server's cursor paging in a
 virtualized list. Sort, window and filters are kept in the URL; the sort is also remembered per instance
 and feed. `apps/app/src/lib/feeds.ts` holds the queries and every feed mutation. Votes and read changes
 are applied first to every cached copy of the topic (feeds, forum lists, the topic itself) and rolled

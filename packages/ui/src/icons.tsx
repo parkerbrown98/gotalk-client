@@ -20,6 +20,7 @@ const shapes = {
   clock: [{ circle: [12, 12, 9] }, 'M12 7v5l3 2'],
   plus: ['M12 5v14M5 12h14'],
   home: ['m3 11 9-7 9 7v9h-6v-6H9v6H3v-9Z'],
+  grid: [{ rect: [4, 4, 7, 7, 1.5] }, { rect: [13, 4, 7, 7, 1.5] }, { rect: [4, 13, 7, 7, 1.5] }, { rect: [13, 13, 7, 7, 1.5] }],
   compass: [{ circle: [12, 12, 9] }, 'm15.5 8.5-2 5-5 2 2-5 5-2Z'],
   hash: ['M5 9h14M5 15h14M10 4 8 20M16 4l-2 16'],
   forum: ['M4 5h16v11H9l-5 4V5Z'],
