@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "gotalk",
     "userInterfaceStyle": "dark",
-    "backgroundColor": "#07080A",
+    "backgroundColor": "#0E0F11",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "sh.gotalk.app",
@@ -36,7 +36,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#07080A",
+          "backgroundColor": "#0E0F11",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }

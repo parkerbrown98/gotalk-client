@@ -1,30 +1,31 @@
 ---
 version: alpha
 name: Raycast-design-analysis
-属于: A dark-canvas developer-tools system that treats the marketing page like an extended product screenshot — pure-near-black background, command-palette mockups as the hero, Inter typography with the ss03 stylistic set turned on, and a single white CTA pill that doesn't break the inky atmosphere. The chrome reads like Raycast's own command-palette UI scaled up to a marketing page: monochrome dark surfaces with a faint surface ladder (#07080a → #0d0d0d → #101111), tight 6–10px radius on cards, hairline 1px borders in #242728, and rare splashes of saturated accent (Hacker News yellow, Slack red, Mac green, info blue) reserved for product-tile category illustrations. The signature visual moment is a red gradient hero wordmark — three diagonal red stripes laid across the very top of the home page like a launch-banner — paired with full-bleed product UI screenshots that show Raycast's actual command palette, store, and AI chat surfaces.
+属于: A dark-canvas developer-tools system that treats the marketing page like an extended product screenshot — pure-near-black background, command-palette mockups as the hero, Inter typography with the ss03 stylistic set turned on, and a single white CTA pill that doesn't break the inky atmosphere. The chrome reads like Raycast's own command-palette UI scaled up to a marketing page: monochrome dark surfaces with a faint surface ladder (#0e0f11 → #151619 → #1c1d21), tight 6–10px radius on cards, hairline 1px borders in #2e3135, and rare splashes of saturated accent (Hacker News yellow, Slack red, Mac green, info blue) reserved for product-tile category illustrations. The signature visual moment is a red gradient hero wordmark — three diagonal red stripes laid across the very top of the home page like a launch-banner — paired with full-bleed product UI screenshots that show Raycast's actual command palette, store, and AI chat surfaces.
 description: |
   Raycast's marketing system reads like an extended product screenshot. The chrome IS the in-product chrome at marketing scale: pure-near-black canvas, hairline 1px borders, command-palette-style cards, Inter typography with the ss03 stylistic set enabled site-wide, white CTA pill, and a small set of saturated category accent colors (yellow / red / green / blue) reserved for extension and feature illustrations. Section rhythm is generous (~96px) but the page never breaks tonal continuity — the whole site sits in one continuous dark mode.
 
 colors:
   primary: "#ffffff"
-  primary-pressed: "#e8e8e8"
+  primary-pressed: "#d9d9db"
   on-primary: "#000000"
   ink: "#f4f4f6"
-  body: "#cdcdcd"
-  charcoal: "#d3d3d4"
-  mute: "#9c9c9d"
-  ash: "#6a6b6c"
-  stone: "#434345"
+  body: "#d4d4d6"
+  charcoal: "#dadadc"
+  mute: "#a8a9ab"
+  ash: "#808184"
+  stone: "#515256"
   on-dark: "#ffffff"
-  on-dark-mute: "rgba(255,255,255,0.72)"
-  canvas: "#07080a"
-  surface: "#0d0d0d"
-  surface-elevated: "#101111"
-  surface-card: "#121212"
-  button-fg: "#18191a"
-  hairline: "#242728"
-  hairline-soft: "rgba(255,255,255,0.08)"
-  hairline-strong: "rgba(255,255,255,0.16)"
+  on-dark-mute: "rgba(255,255,255,0.78)"
+  canvas: "#0e0f11"
+  surface: "#151619"
+  surface-elevated: "#1c1d21"
+  surface-card: "#24262a"
+  surface-raised: "#2d2f34"
+  button-fg: "#292a2e"
+  hairline: "#2e3135"
+  hairline-soft: "rgba(255,255,255,0.09)"
+  hairline-strong: "rgba(255,255,255,0.24)"
   accent-blue: "#57c1ff"
   accent-blue-soft: "rgba(87,193,255,0.15)"
   accent-red: "#ff6161"
@@ -35,8 +36,8 @@ colors:
   accent-yellow-soft: "rgba(255,197,51,0.15)"
   hero-stripe-start: "#ff5757"
   hero-stripe-end: "#a1131a"
-  key-bg-start: "#121212"
-  key-bg-end: "#0d0d0d"
+  key-bg-start: "#24262a"
+  key-bg-end: "#151619"
 
 typography:
   display-xl:
@@ -353,17 +354,17 @@ components:
 
 ## Overview
 
-Raycast's marketing site reads like an extended product screenshot. The chrome IS the in-product command palette at marketing scale: pure near-black canvas (`{colors.canvas}` — `#07080a`), hairline 1px borders (`{colors.hairline}` — `#242728`), command-palette-style cards with rounded corners between 6 and 16px, Inter typography with the **ss03 stylistic set enabled site-wide** (a single character — the alternate `g` — that gives Raycast's typography its signature subtle distinction), a single white CTA pill that anchors every primary action, and small splashes of saturated accent reserved for category illustrations.
+Raycast's marketing site reads like an extended product screenshot. The chrome IS the in-product command palette at marketing scale: pure near-black canvas (`{colors.canvas}` — `#0e0f11`), hairline 1px borders (`{colors.hairline}` — `#2e3135`), command-palette-style cards with rounded corners between 6 and 16px, Inter typography with the **ss03 stylistic set enabled site-wide** (a single character — the alternate `g` — that gives Raycast's typography its signature subtle distinction), a single white CTA pill that anchors every primary action, and small splashes of saturated accent reserved for category illustrations.
 
-The system has effectively one surface mode — dark — with a faint three-step surface ladder (`{colors.canvas}` → `{colors.surface}` → `{colors.surface-elevated}` → `{colors.surface-card}`) carrying cards, in-card panels, and key-cap glyph backgrounds. The signature decorative moment is a **red diagonal-stripe gradient band** across the very top of the home page hero, used as a launch-banner motif behind the headline (the only time saturated red appears on chrome). Beyond that single moment, color in the chrome is reserved for category accents inside extension and feature illustrations: Hacker News yellow, Slack red, Linear green, info blue.
+The system has effectively one surface mode — dark — with a five-step surface ladder (`{colors.canvas}` → `{colors.surface}` → `{colors.surface-elevated}` → `{colors.surface-card}` → `{colors.surface-raised}`) carrying cards, in-card panels, and key-cap glyph backgrounds. The signature decorative moment is a **red diagonal-stripe gradient band** across the very top of the home page hero, used as a launch-banner motif behind the headline (the only time saturated red appears on chrome). Beyond that single moment, color in the chrome is reserved for category accents inside extension and feature illustrations: Hacker News yellow, Slack red, Linear green, info blue.
 
 The design philosophy is "the marketing page is the product." Section rhythm is generous (`{spacing.section}` 96px) but the page never breaks tonal continuity — the whole site sits in one continuous dark mode, full-bleed product UI screenshots show Raycast's actual command palette / store / AI chat surfaces, and the typography ligature settings (`ss03`) are inherited from the in-product app's text rendering.
 
 **Key Characteristics:**
-- Single dark surface mode with a 4-step surface ladder: `{colors.canvas}` (#07080a) → `{colors.surface}` (#0d0d0d) → `{colors.surface-elevated}` (#101111) → `{colors.surface-card}` (#121212)
+- Single dark surface mode with a 5-step surface ladder: `{colors.canvas}` (#0e0f11) → `{colors.surface}` (#151619) → `{colors.surface-elevated}` (#1c1d21) → `{colors.surface-card}` (#24262a) → `{colors.surface-raised}` (#2d2f34). Steps are wide enough that hover and active fills read clearly.
 - White CTA pill (`{colors.primary}` — #ffffff) is the universal primary action; everything else is monochrome dark
 - Inter typography with `font-feature-settings: "calt", "kern", "liga", "ss03"` enabled site-wide — the ss03 alternate `g` is part of the brand voice
-- Hairline 1px borders (`{colors.hairline}` — #242728) carry every card edge; there are no drop shadows in the system
+- Hairline 1px borders (`{colors.hairline}` — #2e3135) carry every card edge; there are no drop shadows in the system
 - Multi-radius card vocabulary: `{rounded.sm}` (6px) for keycaps, `{rounded.md}` (8px) for buttons and small cards, `{rounded.lg}` (10px) for feature cards, `{rounded.xl}` (16px) for hero command-palette mockup containers
 - Saturated category accents (`{colors.accent-yellow}` for Hacker News, `{colors.accent-red}` for Slack/Apple, `{colors.accent-green}` for productivity tools, `{colors.accent-blue}` for info) appear only inside extension tile imagery — never on chrome
 - Signature red diagonal-stripe gradient band at the very top of the hero — three angled stripes in `{colors.hero-stripe-start}` → `{colors.hero-stripe-end}`, used once per page maximum
@@ -374,28 +375,29 @@ The design philosophy is "the marketing page is the product." Section rhythm is 
 
 ### Brand & Accent
 - **White** (`{colors.primary}` — `#ffffff`): the universal primary CTA pill background. "Download" / "Install Extension" / "Get Pro" — every primary action carries it.
-- **White Pressed** (`{colors.primary-pressed}` — `#e8e8e8`): pressed-state for the primary pill — a single notch dimmer.
+- **White Pressed** (`{colors.primary-pressed}` — `#d9d9db`): pressed-state for the primary pill — a single notch dimmer.
 - **On Primary** (`{colors.on-primary}` — `#000000`): pure black text on the white CTA — the only place black appears as text in the system.
 
 ### Surface
-- **Canvas** (`{colors.canvas}` — `#07080a`): pure-near-black page background. The dominant surface across every page.
-- **Surface** (`{colors.surface}` — `#0d0d0d`): card and elevated panel background — one notch lighter than canvas.
-- **Surface Elevated** (`{colors.surface-elevated}` — `#101111`): button-tertiary fill, text-input fill, store-search-bar fill, pill-tab-active fill.
-- **Surface Card** (`{colors.surface-card}` — `#121212`): app-icon-tile background, keycap fill, command-palette row hover.
-- **Button FG (in-card)** (`{colors.button-fg}` — `#18191a`): rare deep-card variant used inside featured pricing tier card backgrounds.
-- **Hairline** (`{colors.hairline}` — `#242728`): the universal 1px card border. Carries every card edge across every page.
-- **Hairline Soft** (`{colors.hairline-soft}` — `rgba(255,255,255,0.08)`): even fainter border on translucent over-image overlays.
-- **Hairline Strong** (`{colors.hairline-strong}` — `rgba(255,255,255,0.16)`): stronger 1px divider where a regular hairline reads as too soft.
+- **Canvas** (`{colors.canvas}` — `#0e0f11`): pure-near-black page background. The dominant surface across every page.
+- **Surface** (`{colors.surface}` — `#151619`): card and elevated panel background — one notch lighter than canvas.
+- **Surface Elevated** (`{colors.surface-elevated}` — `#1c1d21`): button-tertiary fill, text-input fill, store-search-bar fill, pill-tab-active fill.
+- **Surface Card** (`{colors.surface-card}` — `#24262a`): app-icon-tile background, keycap fill, command-palette row hover.
+- **Surface Raised** (`{colors.surface-raised}` — `#2d2f34`): top rung; hover fill for controls that already sit on surface-card (e.g. tertiary buttons inside dialogs).
+- **Button FG (in-card)** (`{colors.button-fg}` — `#292a2e`): rare deep-card variant used inside featured pricing tier card backgrounds.
+- **Hairline** (`{colors.hairline}` — `#2e3135`): the universal 1px card border. Carries every card edge across every page.
+- **Hairline Soft** (`{colors.hairline-soft}` — `rgba(255,255,255,0.09)`): even fainter border on translucent over-image overlays.
+- **Hairline Strong** (`{colors.hairline-strong}` — `rgba(255,255,255,0.24)`): stronger 1px divider where a regular hairline reads as too soft.
 
 ### Text
 - **Ink** (`{colors.ink}` — `#f4f4f6`): primary headlines on dark canvas. Slightly off-white for tonal coherence with the near-black background.
-- **Body** (`{colors.body}` — `#cdcdcd`): default paragraph text and inline-link color.
-- **Charcoal** (`{colors.charcoal}` — `#d3d3d4`): subtly brighter body where ink reads too soft.
-- **Mute** (`{colors.mute}` — `#9c9c9d`): metadata, footer link text, secondary captions.
-- **Ash** (`{colors.ash}` — `#6a6b6c`): disabled-state text, lowest-emphasis utility.
-- **Stone** (`{colors.stone}` — `#434345`): least-emphasis caption text and disabled icon color.
+- **Body** (`{colors.body}` — `#d4d4d6`): default paragraph text and inline-link color.
+- **Charcoal** (`{colors.charcoal}` — `#dadadc`): subtly brighter body where ink reads too soft.
+- **Mute** (`{colors.mute}` — `#a8a9ab`): metadata, footer link text, secondary captions.
+- **Ash** (`{colors.ash}` — `#808184`): disabled-state text, lowest-emphasis utility.
+- **Stone** (`{colors.stone}` — `#515256`): least-emphasis caption text and disabled icon color.
 - **On Dark** (`{colors.on-dark}` — `#ffffff`): interactive-state primary text (button label, focused tab).
-- **On Dark Mute** (`{colors.on-dark-mute}` — `rgba(255,255,255,0.72)`): translucent secondary text on dark surfaces.
+- **On Dark Mute** (`{colors.on-dark-mute}` — `rgba(255,255,255,0.78)`): translucent secondary text on dark surfaces.
 
 ### Semantic
 - **Accent Blue** (`{colors.accent-blue}` — `#57c1ff`) + **Soft** (`{colors.accent-blue-soft}` — `rgba(87,193,255,0.15)`): info and informational badge — used inside feature illustrations and the rare "New" pill.
@@ -405,7 +407,7 @@ The design philosophy is "the marketing page is the product." Section rhythm is 
 
 ### Brand Gradient
 - **Hero Stripe Gradient** — three diagonal red stripes layered across the very top of the home page hero, fading from `{colors.hero-stripe-start}` (`#ff5757`) to `{colors.hero-stripe-end}` (`#a1131a`). The system's only chromatic gradient on chrome — used once per page maximum and reserved for hero launch-banner moments.
-- **Keycap Gradient** — the small key-glyph background uses a subtle linear-gradient from `{colors.key-bg-start}` (`#121212`) to `{colors.key-bg-end}` (`#0d0d0d`) that gives Raycast's keycap UI its slight 3D-key feel.
+- **Keycap Gradient** — the small key-glyph background uses a subtle linear-gradient from `{colors.key-bg-start}` (`#24262a`) to `{colors.key-bg-end}` (`#151619`) that gives Raycast's keycap UI its slight 3D-key feel.
 
 ## Typography
 
@@ -463,9 +465,9 @@ Whitespace is generous and the canvas is uninterrupted. Sections sit 96px apart 
 | Level | Treatment | Use |
 |---|---|---|
 | 0 — Flat | No border, no shadow | Default for canvas-on-canvas blocks, hero text, footer body |
-| 1 — Hairline border | 1px solid `{colors.hairline}` (#242728) | Every card on `{colors.surface}`, store extension card, pricing tier card |
+| 1 — Hairline border | 1px solid `{colors.hairline}` (#2e3135) | Every card on `{colors.surface}`, store extension card, pricing tier card |
 | 2 — Hairline strong | 1px solid `{colors.hairline-strong}` | Stronger inline divider, table-row separator on the comparison table |
-| 3 — Surface ladder elevation | `{colors.canvas}` → `{colors.surface}` → `{colors.surface-elevated}` → `{colors.surface-card}` | Multi-step background-color ladder used to create elevation without shadows |
+| 3 — Surface ladder elevation | `{colors.canvas}` → `{colors.surface}` → `{colors.surface-elevated}` → `{colors.surface-card}` → `{colors.surface-raised}` | Multi-step background-color ladder used to create elevation without shadows |
 
 The system has no drop-shadow elevation at all. Depth is built entirely from the surface-color ladder: each notch lighter on the dark scale reads as one step closer to the viewer.
 
@@ -501,7 +503,7 @@ There is no traditional photography. Visual elements are limited to:
 
 ## Components
 
-> **No hover states documented** per system policy. Each spec covers Default and Active/Pressed only.
+> **Hover and active (Gotalk addition):** hover and pressed fills step exactly one rung up the surface ladder from their container; the selected/active state steps one rung above hover so selection still stands out. Inside dialogs (which sit on `{colors.surface-elevated}`) controls start at `{colors.surface-card}` and hover to `{colors.surface-raised}`. Never use a hover fill equal to, or darker than, the container. Unselected tab labels sit at `{colors.mute}` and brighten to `{colors.on-dark}` on hover and selection.
 
 ### Buttons
 
@@ -639,7 +641,7 @@ Built from the existing vocabulary; no new tokens.
 ### Do
 - Render the entire site in one continuous dark mode. There is no light variant in the system.
 - Use `{colors.primary}` (white pill) for every primary CTA. There is no second primary color — white IS the brand action.
-- Build elevation from the surface-color ladder (`{colors.canvas}` → `{colors.surface}` → `{colors.surface-elevated}` → `{colors.surface-card}`), never from drop shadows.
+- Build elevation from the surface-color ladder (`{colors.canvas}` → `{colors.surface}` → `{colors.surface-elevated}` → `{colors.surface-card}` → `{colors.surface-raised}`), never from drop shadows.
 - Enable `font-feature-settings: "calt", "kern", "liga", "ss03"` on the body element. The ss03 alternate `g` is part of the brand identity.
 - Anchor a `{component.command-palette-card}` mockup as the hero's load-bearing visual. Real Raycast UI is the brand.
 - Use `{component.keycap}` glyphs inline to indicate keyboard shortcuts. Subtle key-bg gradient (`{colors.key-bg-start}` → `{colors.key-bg-end}`) is the brand's only "depth" decoration.
@@ -701,7 +703,6 @@ The only "imagery" in the system is in-product Raycast UI screenshots and small 
 ## Known Gaps
 
 - **Mobile screenshots not captured** — responsive behavior synthesizes Raycast's mobile pattern (hamburger drawer, single-column grid, hero downscale) from desktop evidence and the breakpoint stack.
-- **Hover states not documented** by system policy. Raycast's in-product app has rich hover behavior on command-palette rows that this document doesn't capture.
 - **In-product app chrome** (the actual Raycast launcher running on macOS) is referenced in marketing screenshots but not documented as a separate UI system here. The marketing site is documented; the in-product app surface is its own design system.
 - **Dark mode is the only mode** — no light variant exists in the captured surfaces.
 - **Form validation states** beyond the focused-input border treatment are not present in the captured surfaces.

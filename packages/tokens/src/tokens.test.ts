@@ -16,9 +16,9 @@ describe('theme', () => {
 
   it('matches the DESIGN.md surface ladder and primary action', () => {
     const c = theme.colors;
-    expect([c.canvas, c.surface, c.surfaceElevated, c.surfaceCard]).toEqual(['#07080a', '#0d0d0d', '#101111', '#121212']);
+    expect([c.canvas, c.surface, c.surfaceElevated, c.surfaceCard, c.surfaceRaised]).toEqual(['#0e0f11', '#151619', '#1c1d21', '#24262a', '#2d2f34']);
     expect(c.primary).toBe('#ffffff');
-    expect(c.hairline).toBe('#242728');
+    expect(c.hairline).toBe('#2e3135');
   });
 
   it('enables ss03 on every text style', () => {
@@ -29,7 +29,7 @@ describe('theme', () => {
 describe('css', () => {
   it('emits kebab-cased variables and px units', () => {
     const vars = toCssVariables(theme);
-    expect(vars['--gt-color-surface-elevated']).toBe('#101111');
+    expect(vars['--gt-color-surface-elevated']).toBe('#1c1d21');
     expect(vars['--gt-space-lg']).toBe('16px');
     expect(vars['--gt-radius-md']).toBe('8px');
     expect(vars['--gt-type-body-md-size']).toBe('16px');

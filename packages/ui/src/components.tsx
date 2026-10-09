@@ -160,12 +160,14 @@ export function Button({ title, variant = 'primary', size = 'md', loading, disab
   const c = theme.colors;
   const elevated = useElevated();
   const reduced = useReducedMotion();
+  // Fills always step up the ladder from the container, so hover stays visible inside dialogs too.
   const soft = elevated ? c.surfaceCard : c.surfaceElevated;
+  const softer = elevated ? c.surfaceRaised : c.surfaceCard;
   const looks: Record<ButtonVariant, { bg: string; bgPressed: string; fg: string; border: string }> = {
     primary: { bg: c.primary, bgPressed: c.primaryPressed, fg: c.onPrimary, border: 'transparent' },
-    secondary: { bg: 'transparent', bgPressed: c.surfaceElevated, fg: c.onDark, border: 'transparent' },
-    tertiary: { bg: soft, bgPressed: elevated ? c.surfaceElevated : c.surfaceCard, fg: c.onDark, border: 'transparent' },
-    outline: { bg: 'transparent', bgPressed: c.surfaceElevated, fg: c.onDark, border: c.hairlineStrong },
+    secondary: { bg: 'transparent', bgPressed: soft, fg: c.onDark, border: 'transparent' },
+    tertiary: { bg: soft, bgPressed: softer, fg: c.onDark, border: 'transparent' },
+    outline: { bg: 'transparent', bgPressed: soft, fg: c.onDark, border: c.hairlineStrong },
     danger: { bg: soft, bgPressed: c.accentRedSoft, fg: c.accentRed, border: 'transparent' },
   };
   const look = looks[variant];

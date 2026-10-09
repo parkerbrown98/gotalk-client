@@ -1,6 +1,6 @@
 /**
  * Colors from DESIGN.md. The system is dark-only: elevation comes from the surface ladder
- * (canvas → surface → surfaceElevated → surfaceCard), never from shadows. Saturated accents are
+ * (canvas → surface → surfaceElevated → surfaceCard → surfaceRaised), never from shadows. Saturated accents are
  * for status and illustrations, not for chrome.
  */
 export interface ColorTokens {
@@ -19,11 +19,13 @@ export interface ColorTokens {
   onDark: string;
   onDarkMute: string;
 
-  /** Surface ladder, darkest to lightest. */
+  /** Surface ladder, darkest to lightest. Hover and active fills step one rung up from their container. */
   canvas: string;
   surface: string;
   surfaceElevated: string;
   surfaceCard: string;
+  /** Top rung: hover over controls that already sit on `surfaceCard` (e.g. inside dialogs). */
+  surfaceRaised: string;
   buttonFg: string;
 
   /** 1px borders. */
@@ -43,27 +45,28 @@ export interface ColorTokens {
 
 export const colors: ColorTokens = {
   primary: '#ffffff',
-  primaryPressed: '#e8e8e8',
+  primaryPressed: '#d9d9db',
   onPrimary: '#000000',
 
   ink: '#f4f4f6',
-  body: '#cdcdcd',
-  charcoal: '#d3d3d4',
-  mute: '#9c9c9d',
-  ash: '#6a6b6c',
-  stone: '#434345',
+  body: '#d4d4d6',
+  charcoal: '#dadadc',
+  mute: '#a8a9ab',
+  ash: '#808184',
+  stone: '#515256',
   onDark: '#ffffff',
-  onDarkMute: 'rgba(255,255,255,0.72)',
+  onDarkMute: 'rgba(255,255,255,0.78)',
 
-  canvas: '#07080a',
-  surface: '#0d0d0d',
-  surfaceElevated: '#101111',
-  surfaceCard: '#121212',
-  buttonFg: '#18191a',
+  canvas: '#0e0f11',
+  surface: '#151619',
+  surfaceElevated: '#1c1d21',
+  surfaceCard: '#24262a',
+  surfaceRaised: '#2d2f34',
+  buttonFg: '#292a2e',
 
-  hairline: '#242728',
-  hairlineSoft: 'rgba(255,255,255,0.08)',
-  hairlineStrong: 'rgba(255,255,255,0.16)',
+  hairline: '#2e3135',
+  hairlineSoft: 'rgba(255,255,255,0.09)',
+  hairlineStrong: 'rgba(255,255,255,0.24)',
 
   accentBlue: '#57c1ff',
   accentBlueSoft: 'rgba(87,193,255,0.15)',
@@ -78,5 +81,5 @@ export const colors: ColorTokens = {
 /** Two-stop gradients. The hero stripe is allowed once per page; the keycap gradient is subtle depth. */
 export const gradients = {
   heroStripe: { start: '#ff5757', end: '#a1131a' },
-  keycap: { start: '#121212', end: '#0d0d0d' },
+  keycap: { start: '#24262a', end: '#151619' },
 } as const;

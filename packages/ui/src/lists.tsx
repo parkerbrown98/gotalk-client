@@ -368,7 +368,7 @@ export function PillTabs<T extends string>({ options, value, onChange }: PillTab
             ]}
           >
             {({ hovered }: PressState) => (
-              <Text variant="bodySm" tone={active || hovered ? 'onDark' : 'default'}>
+              <Text variant="bodySm" tone={active || hovered ? 'onDark' : 'muted'}>
                 {o.label}
               </Text>
             )}
