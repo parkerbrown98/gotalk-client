@@ -139,6 +139,18 @@ wide screens with a hovering pointer and on a long press elsewhere. Presence (on
 disturb, invisible) is chosen from the account row or the You tab, remembered per instance on the device,
 and sent when connecting.
 
+## Releases
+
+CI (`.github/workflows/ci.yml`) type-checks, tests and builds the web export, and lints the
+Tauri crate with `cargo clippy`, on every pull request and push to `main`.
+
+Pushing a `v*` tag runs `.github/workflows/release.yml`: it re-runs CI, builds desktop installers
+for macOS (arm64, x64), Linux and Windows, and publishes them to a GitHub release. Tags with a
+suffix (`v0.1.0-beta.1`) are marked as pre-releases. Bump `version` in
+`apps/desktop/src-tauri/tauri.conf.json`, `apps/desktop/src-tauri/Cargo.toml` and
+`apps/desktop/package.json` first; the workflow fails if the tag's version does not match
+`tauri.conf.json`. Installers are currently unsigned, so macOS and Windows show a warning on first launch.
+
 ## Desktop notes
 
 - The window loads the static web export. Deep routes fall back to `index.html`, so reloads work.

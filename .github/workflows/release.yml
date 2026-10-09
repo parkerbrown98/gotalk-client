@@ -1,0 +1,84 @@
+name: Release
+
+# Push a tag such as v0.1.0-beta.1 to publish desktop installers. Tags with a
+# pre-release suffix (-beta.N, -rc.N) are published as GitHub pre-releases.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  desktop:
+    name: desktop (${{ matrix.label }})
+    needs: ci
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { label: macOS arm64, os: macos-latest, args: "--target aarch64-apple-darwin", rust-target: aarch64-apple-darwin }
+          - { label: macOS x64, os: macos-latest, args: "--target x86_64-apple-darwin", rust-target: x86_64-apple-darwin }
+          - { label: Linux x64, os: ubuntu-22.04, args: "", rust-target: "" }
+          - { label: Windows x64, os: windows-latest, args: "", rust-target: "" }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check tag matches app version
+        shell: bash
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          conf=$(node -p "require('./apps/desktop/src-tauri/tauri.conf.json').version")
+          if [ "${tag%%-*}" != "$conf" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match version $conf in tauri.conf.json (and Cargo.toml / package.json). Bump them before tagging."
+            exit 1
+          fi
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libxdo-dev libssl-dev \
+            libayatana-appindicator3-dev librsvg2-dev libdbus-1-dev pkg-config
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust-target }}
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop/src-tauri
+          key: ${{ matrix.rust-target }}
+      - run: pnpm install --frozen-lockfile
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: apps/desktop
+          tauriScript: pnpm tauri
+          args: ${{ matrix.args }}
+          tagName: ${{ github.ref_name }}
+          releaseName: Gotalk ${{ github.ref_name }}
+          releaseBody: See the assets below to download and install Gotalk for your platform.
+          # Draft until every platform has uploaded; the publish job releases it.
+          releaseDraft: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+
+  publish:
+    needs: desktop
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release edit "$GITHUB_REF_NAME" --draft=false
