@@ -1,8 +1,8 @@
-import { Icon, Keycap, Text, popoverEntering, useTheme, type IconName } from '@gotalk/ui';
+import { Icon, Keycap, Text, popoverIn, useTheme, type IconName } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Modal, Platform, Pressable, TextInput, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
 
 import { useRouteSlug } from '@/components/shell';
 import { useActiveInstance } from '@/lib/instances';
@@ -38,6 +38,7 @@ export function useCommandPaletteShortcut(onOpen: () => void) {
 export function CommandPalette({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const theme = useTheme();
   const c = theme.colors;
+  const reduced = useReducedMotion();
   const active = useActiveInstance();
   const slug = useRouteSlug();
   const places = useMyPlaces().data ?? [];
@@ -92,8 +93,7 @@ export function CommandPalette({ visible, onClose }: { visible: boolean; onClose
         {/* Opens quickly and closes instantly: it is summoned from the keyboard many times a session. */}
         <Animated.View
           accessibilityViewIsModal
-          entering={popoverEntering}
-          style={{ width: 620, maxWidth: '92%', backgroundColor: c.surface, borderColor: c.hairlineStrong, borderWidth: 1, borderRadius: theme.radii.xl, overflow: 'hidden' }}
+          style={[{ width: 620, maxWidth: '92%', backgroundColor: c.surface, borderColor: c.hairlineStrong, borderWidth: 1, borderRadius: theme.radii.xl, overflow: 'hidden' }, reduced ? null : popoverIn]}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, height: 56, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: c.hairline }}>
             <Icon name="search" size={18} color={c.mute} />

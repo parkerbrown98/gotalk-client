@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Platform, type ViewStyle } from 'react-native';
-import { cubicBezier, Easing, FadeIn, FadeOut, Keyframe, ReduceMotion, SlideInDown, SlideOutDown } from 'react-native-reanimated';
+import { cubicBezier, Easing, FadeIn, FadeOut, SlideInDown, SlideOutDown, type CSSAnimationProperties } from 'react-native-reanimated';
 
 /**
  * Motion is quiet and quick. Hover and press feedback stay under 150ms, surfaces open in about 200ms
@@ -37,20 +37,26 @@ export const hoverTransition = (
     : {}
 ) as ViewStyle;
 
-/** Menus and popovers: a short fade with a slight scale; with reduced motion they just appear. */
-export const popoverEntering = new Keyframe({
-  0: { opacity: 0, transform: [{ scale: 0.97 }] },
-  100: { opacity: 1, transform: [{ scale: 1 }], easing: EASE_OUT },
-})
-  .duration(140)
-  .reduceMotion(ReduceMotion.System);
+/**
+ * Menus and popovers: a short fade with a slight scale. Spread into an `Animated.View` style, where it
+ * plays once on mount. These are Reanimated CSS animations rather than `Keyframe` layout animations: on
+ * web a custom `Keyframe` rewrites the element's position and size when it finishes, which left menus
+ * collapsed and invisible (but still open) in the desktop app. Leave them out with reduced motion.
+ */
+export const popoverIn = {
+  animationName: { from: { opacity: 0, transform: [{ scale: 0.97 }] }, to: { opacity: 1, transform: [{ scale: 1 }] } },
+  animationDuration: 140,
+  animationTimingFunction: CSS_EASE_OUT,
+} satisfies CSSAnimationProperties;
 
-/** A centered dialog settles in from slightly smaller. */
-export const dialogEntering = new Keyframe({
-  0: { opacity: 0, transform: [{ scale: 0.96 }] },
-  100: { opacity: 1, transform: [{ scale: 1 }], easing: EASE_OUT },
-}).duration(motion.open);
+/** A centered dialog settles in from slightly smaller. Same approach as `popoverIn`. */
+export const dialogIn = {
+  animationName: { from: { opacity: 0, transform: [{ scale: 0.96 }] }, to: { opacity: 1, transform: [{ scale: 1 }] } },
+  animationDuration: motion.open,
+  animationTimingFunction: CSS_EASE_OUT,
+} satisfies CSSAnimationProperties;
 
+// Built-in presets are safe as layout animations: only custom keyframes get repositioned on web.
 export const sheetEntering = SlideInDown.duration(motion.sheet).easing(EASE_SHEET);
 export const sheetExiting = SlideOutDown.duration(motion.close + 50).easing(EASE_OUT);
 export const fadeEntering = FadeIn.duration(motion.open).easing(EASE_OUT);

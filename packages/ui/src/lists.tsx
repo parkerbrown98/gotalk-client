@@ -6,7 +6,7 @@ import Animated, { useReducedMotion } from 'react-native-reanimated';
 import { accentFor } from './accent.ts';
 import { Text, type TextTone } from './components.tsx';
 import { ElevationContext, Icon, useElevated, type IconName } from './icons.tsx';
-import { dialogEntering, fadeEntering, fadeExiting, hoverTransition, motion, sheetEntering, sheetExiting, usePresence, type PressState } from './motion.ts';
+import { dialogIn, fadeEntering, fadeExiting, hoverTransition, motion, sheetEntering, sheetExiting, usePresence, type PressState } from './motion.ts';
 import { useTheme } from './theme.tsx';
 
 /** Rows separated by hairlines inside one bordered surface. */
@@ -280,7 +280,7 @@ export function Dialog({ visible, onClose, children }: DialogProps) {
             <ElevationContext.Provider value>
               <Animated.View
                 accessibilityViewIsModal
-                entering={reduced ? fadeEntering : wide ? dialogEntering : sheetEntering}
+                entering={reduced ? fadeEntering : wide ? undefined : sheetEntering}
                 exiting={reduced || wide ? fadeExiting : sheetExiting}
                 style={[
                   {
@@ -290,7 +290,7 @@ export function Dialog({ visible, onClose, children }: DialogProps) {
                     gap: theme.space.lg,
                   },
                   wide
-                    ? { width: 480, maxWidth: '92%', borderRadius: theme.radii.xl, padding: theme.space.xl }
+                    ? { width: 480, maxWidth: '92%', borderRadius: theme.radii.xl, padding: theme.space.xl, ...(reduced ? null : dialogIn) }
                     : {
                         borderBottomWidth: 0,
                         borderTopLeftRadius: theme.radii.xl,

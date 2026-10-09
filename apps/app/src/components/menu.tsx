@@ -1,7 +1,7 @@
-import { Icon, Text, hoverTransition, popoverEntering, useTheme, type IconName, type PressState } from '@gotalk/ui';
+import { Icon, Text, hoverTransition, popoverIn, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { useState, type ReactNode } from 'react';
 import { Modal, Pressable, View, useWindowDimensions } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, { useReducedMotion } from 'react-native-reanimated';
 
 /** Where a popover opens, in window coordinates. Give `top` to open downward or `bottom` to open upward. */
 export interface Anchor {
@@ -23,6 +23,7 @@ export function MenuPopover({ visible, onClose, anchor, width = 232, children }:
   // Opening downward is the default; near the bottom edge the menu flips above what opened it.
   const fits = anchor.top === undefined || anchor.top + height + 8 <= screenHeight;
   const top = anchor.top === undefined ? undefined : fits ? anchor.top : Math.max(8, (anchor.flipAt ?? screenHeight - 8) - height - 4);
+  const reduced = useReducedMotion();
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
       <Pressable accessibilityLabel="Close menu" onPress={onClose} style={{ flex: 1 }}>
@@ -41,15 +42,17 @@ export function MenuPopover({ visible, onClose, anchor, width = 232, children }:
         >
           <Animated.View
             accessibilityRole="menu"
-            entering={popoverEntering}
-            style={{
-              padding: 6,
-              gap: 2,
-              backgroundColor: c.surfaceElevated,
-              borderColor: c.hairlineStrong,
-              borderWidth: 1,
-              borderRadius: theme.radii.lg,
-            }}
+            style={[
+              {
+                padding: 6,
+                gap: 2,
+                backgroundColor: c.surfaceElevated,
+                borderColor: c.hairlineStrong,
+                borderWidth: 1,
+                borderRadius: theme.radii.lg,
+              },
+              reduced ? null : popoverIn,
+            ]}
           >
             {children}
           </Animated.View>
