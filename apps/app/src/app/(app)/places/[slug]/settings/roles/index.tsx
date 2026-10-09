@@ -106,7 +106,7 @@ export default function Roles() {
                   }
                   title={role.name}
                   subtitle={role.is_default ? `Everyone in the place · ${summary}` : manageable ? summary : `Above your highest role · ${summary}`}
-                  trailing={
+                  actions={
                     wide && manageable && !role.is_default ? (
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
                         {moving === role.id ? <ActivityIndicator size="small" /> : null}

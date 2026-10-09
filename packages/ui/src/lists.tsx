@@ -41,17 +41,20 @@ export interface ListRowProps {
   leading?: ReactNode;
   /** Rendered at the right edge, before the chevron. */
   trailing?: ReactNode;
+  /** Buttons at the right edge. Rendered beside the pressable row, never inside it, so a pressable row does not nest <button>s on web. */
+  actions?: ReactNode;
   tone?: Extract<TextTone, 'default' | 'danger'>;
   onPress?: () => void;
   /** Show a chevron to signal navigation. */
   chevron?: boolean;
 }
 
-export function ListRow({ title, subtitle, icon, leading, trailing, tone = 'default', onPress, chevron }: ListRowProps) {
+export function ListRow({ title, subtitle, icon, leading, trailing, actions, tone = 'default', onPress, chevron }: ListRowProps) {
   const theme = useTheme();
   const c = theme.colors;
-  const body = (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space.md, paddingHorizontal: theme.space.lg, paddingVertical: theme.space.md }}>
+  const rowStyle = { flexDirection: 'row', alignItems: 'center', gap: theme.space.md, paddingHorizontal: theme.space.lg, paddingVertical: theme.space.md } as const;
+  const content = (
+    <>
       {leading ?? (icon ? <Icon name={icon} size={16} color={tone === 'danger' ? c.accentRed : c.mute} /> : null)}
       <View style={{ flex: 1 }}>
         <Text variant="bodySmStrong" tone={tone === 'danger' ? 'danger' : 'onDark'}>
@@ -63,8 +66,35 @@ export function ListRow({ title, subtitle, icon, leading, trailing, tone = 'defa
           </Text>
         ) : null}
       </View>
+    </>
+  );
+  const end = (
+    <>
       {trailing}
       {chevron ? <Icon name="chevronRight" size={16} color={c.mute} /> : null}
+    </>
+  );
+  if (actions) {
+    const main = onPress ? (
+      <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => ({ flex: 1, flexDirection: 'row', alignItems: 'center', gap: theme.space.md, backgroundColor: pressed ? c.surfaceElevated : 'transparent' })}>
+        {content}
+      </Pressable>
+    ) : (
+      <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: theme.space.md }}>{content}</View>
+    );
+    return (
+      <View style={rowStyle}>
+        {main}
+        {trailing}
+        {actions}
+        {chevron ? <Icon name="chevronRight" size={16} color={c.mute} /> : null}
+      </View>
+    );
+  }
+  const body = (
+    <View style={rowStyle}>
+      {content}
+      {end}
     </View>
   );
   if (!onPress) return body;
