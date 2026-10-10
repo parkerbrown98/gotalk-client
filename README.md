@@ -42,7 +42,13 @@ pnpm desktop      # Tauri window backed by the Expo dev server
 
 Run a local server from [`../gotalk-server`](../gotalk-server) with `GOTALK_PORT=18080 docker compose up -d`, then
 enter `localhost:18080` on the connect screen. Local and LAN hosts try `http://` before `https://`.
-Instances must allow the client's origin in `server.cors_allowed_origins` (the default is `*`).
+Instances must allow the client's origin in their CORS settings (the default is `*`). Administrators can change
+them at runtime under Account → Server, where the desktop app's origins (`tauri://localhost`,
+`http://tauri.localhost`) are one-tap suggestions.
+
+Password resets and email confirmation need email. For local testing, start Mailpit with
+`GOTALK_PORT=18080 docker compose --profile mail up -d`, then as an administrator choose SMTP under Account →
+Server → Email with host `mailpit`, port `1025` and encryption None. Messages appear at http://localhost:8025.
 
 Voice and video need the server's LiveKit media server: start it with
 `GOTALK_PORT=18080 GOTALK_VOICE_LIVEKIT_URL=ws://localhost:7880 docker compose --profile voice up -d`.

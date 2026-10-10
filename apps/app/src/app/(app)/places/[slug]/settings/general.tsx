@@ -3,18 +3,24 @@ import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 
+import { ImagePicker } from '@/components/image-picker';
 import { PlaceForm } from '@/components/place-form';
 import { PlaceSettingsPage, sectionHref, usePlaceSettings } from '@/components/place-settings';
 import { classifyFailure, failureMessage } from '@/lib/failure';
 import { useFeedActions, useFeedCapabilities } from '@/lib/feeds';
+import { useActiveInstance } from '@/lib/instances';
 import { resetTo } from '@/lib/layout';
 import { usePlaceActions } from '@/lib/places';
+import { useImageActions, useInstanceCapabilities } from '@/lib/uploads';
 
 export default function PlaceGeneralSettings() {
   const theme = useTheme();
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const { place, access } = usePlaceSettings(slug);
   const actions = usePlaceActions();
+  const active = useActiveInstance();
+  const uploads = useInstanceCapabilities();
+  const images = useImageActions();
   const [confirm, setConfirm] = useState(false);
   const [typed, setTyped] = useState('');
   const [deleting, setDeleting] = useState(false);
@@ -58,6 +64,42 @@ export default function PlaceGeneralSettings() {
           }}
           onSecondary={() => resetTo(sectionHref(place.slug, 'general'))}
         />
+        {active ? (
+          <View style={{ borderTopWidth: 1, borderTopColor: theme.colors.hairline, paddingTop: theme.space.lg, gap: theme.space.lg }}>
+            <Stack gap="sm">
+              <Text variant="bodySmStrong" tone="onDark">
+                Icon
+              </Text>
+              <ImagePicker
+                purpose="placeIcon"
+                noun="icon"
+                name={place.name}
+                url={place.icon_url}
+                origin={active.origin}
+                caps={uploads}
+                onUpload={(image, type) => images.setPlaceImage(place.slug, 'icon', image, type)}
+                onRemove={() => images.removePlaceImage(place.slug, 'icon')}
+                onSetUrl={async (url) => void (await actions.update(place.slug, { icon_url: url }))}
+              />
+            </Stack>
+            <Stack gap="sm">
+              <Text variant="bodySmStrong" tone="onDark">
+                Banner
+              </Text>
+              <ImagePicker
+                purpose="placeBanner"
+                noun="banner"
+                name={place.name}
+                url={place.banner_url}
+                origin={active.origin}
+                caps={uploads}
+                onUpload={(image, type) => images.setPlaceImage(place.slug, 'banner', image, type)}
+                onRemove={() => images.removePlaceImage(place.slug, 'banner')}
+                onSetUrl={async (url) => void (await actions.update(place.slug, { banner_url: url }))}
+              />
+            </Stack>
+          </View>
+        ) : null}
         {caps.votes ? (
           <View style={{ borderTopWidth: 1, borderTopColor: theme.colors.hairline, paddingTop: theme.space.lg, gap: theme.space.md }}>
             <Checkbox

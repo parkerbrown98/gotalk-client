@@ -2,7 +2,7 @@ import { Avatar, ListCard, ListRow, Stack, Text } from '@gotalk/ui';
 import { Redirect, router } from 'expo-router';
 
 import { ScreenFrame } from '@/components/screen-frame';
-import { useSettingsGroups } from '@/components/settings-page';
+import { AttentionDot, useSettingsGroups } from '@/components/settings-page';
 import { useMe } from '@/lib/api';
 import { signOut, useAuthTarget, useSession } from '@/lib/auth';
 import { useSessions } from '@/lib/sessions';
@@ -54,9 +54,12 @@ export default function SettingsIndex() {
           .filter((g) => g.label !== 'Account')
           .map((g) => (
             <Stack key={g.label} gap="sm">
-              <Text variant="captionMd" tone="muted">
-                {g.label}
-              </Text>
+              <Stack direction="row" gap="xs" align="center">
+                <Text variant="captionMd" tone="muted">
+                  {g.label}
+                </Text>
+                {g.attention ? <AttentionDot /> : null}
+              </Stack>
               <ListCard>
                 {g.links.map((l) => (
                   <ListRow key={l.path} icon={l.icon} title={l.label} chevron onPress={() => router.push(l.path)} />

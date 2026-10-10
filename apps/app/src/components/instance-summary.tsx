@@ -1,5 +1,5 @@
 import type { Instance } from '@gotalk/api-client';
-import { Badge, Stack, Text, accentFor, useTheme } from '@gotalk/ui';
+import { Badge, Stack, Text, accentFor, useImageFallback, useTheme } from '@gotalk/ui';
 import { Image } from 'expo-image';
 import { View } from 'react-native';
 
@@ -14,12 +14,13 @@ function resolveIcon(iconUrl: string | null | undefined, origin: string): string
   return /^https?:\/\//i.test(iconUrl) ? iconUrl : `${origin}${iconUrl.startsWith('/') ? '' : '/'}${iconUrl}`;
 }
 
+/** Square icon for an instance or place: the image, or its initial when there is none or it fails to load. */
 export function InstanceIcon({ name, iconUrl, origin, size = 48 }: { name: string; iconUrl?: string | null; origin: string; size?: number }) {
   const theme = useTheme();
-  const uri = resolveIcon(iconUrl, origin);
+  const image = useImageFallback(resolveIcon(iconUrl, origin));
   const box = { width: size, height: size, borderRadius: theme.radii.md };
   // A short fade as the image arrives, instead of it popping in over the placeholder.
-  if (uri) return <Image source={{ uri }} style={box} contentFit="cover" transition={150} accessibilityIgnoresInvertColors />;
+  if (image.uri) return <Image source={{ uri: image.uri }} onError={image.onError} style={box} contentFit="cover" transition={150} accessibilityIgnoresInvertColors />;
   const accent = accentFor(theme.colors, name);
   return (
     <View style={[box, { backgroundColor: accent.bg, alignItems: 'center', justifyContent: 'center' }]}>

@@ -68,6 +68,7 @@ function Navigation() {
         <Stack.Screen name="connect" options={{ headerShown: false }} />
         <Stack.Screen name="sign-in" options={{ headerShown: false }} />
         <Stack.Screen name="register" options={{ headerShown: false }} />
+        <Stack.Screen name="forgot-password" options={{ headerShown: false }} />
         <Stack.Screen name="consent" options={{ headerShown: false, animation: 'fade' }} />
         <Stack.Screen name="policy/[kind]" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />

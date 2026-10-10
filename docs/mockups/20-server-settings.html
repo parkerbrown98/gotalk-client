@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Server settings · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+<style>
+  .settings-nav { width: 248px; flex: none; background: var(--gt-color-surface); border-right: 1px solid var(--gt-color-hairline); padding: 16px 8px; display: flex; flex-direction: column; gap: 2px; }
+  .settings-body { flex: 1; min-width: 0; padding: 32px 40px; display: flex; flex-direction: column; gap: 24px; overflow: hidden; }
+  .settings-body .inner { width: 640px; display: flex; flex-direction: column; gap: 16px; }
+  .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
+  .nav-fixed { display: flex; flex-direction: column; gap: 2px; }
+</style>
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Phase 8 · Self-hosting follow-through</nav>
+    <h1 class="t-display-lg">Server settings</h1>
+    <p>A Server page for instance administrators: the live health checks, then Email, Storage, Voice and CORS. Each section says where its settings come from. Saving runs the section's live check first; a failing check can be saved anyway. Secrets are never shown, only that they are set. Changes reach every server within 15 seconds.</p>
+  </header>
+
+  <section class="group">
+    <h2>Web and desktop</h2>
+    <div class="frames">
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/server</div></div><div class="viewport">
+        <nav class="settings-nav"><a class="nav-row" style="margin-bottom:8px"><svg><use href="#chevronLeft"/></svg>Back to Woodworkers</a><div class="section-label">Account</div><a class="nav-row"><svg><use href="#user"/></svg>Profile</a><div class="section-label">Instance <span class="dot-attn"></span></div><a class="nav-row"><svg><use href="#server"/></svg>Instance settings</a><a class="nav-row active"><svg><use href="#settings"/></svg>Server</a><a class="nav-row"><svg><use href="#shield"/></svg>Policies</a></nav>
+        <div class="settings-body"><div class="inner">
+          <div class="col gap-xs"><h2 class="t-heading-xl">Server</h2><p class="mute t-body-sm">Health, storage, email, voice and CORS for woodworkers.example.org. Only instance administrators see this page.</p></div>
+          <div class="card compact">
+            <div class="flex between center"><div class="col"><span class="t-heading-sm">Health</span><span class="t-caption-md mute">Live checks against the running server.</span></div><button class="btn btn-tertiary small">Re-run</button></div>
+            <div>
+              <div class="check-row"><div class="flex between center"><span class="t-body-sm-strong">Database</span><span class="badge success">OK</span></div><span class="t-caption-md mute">connected; schema is up to date</span></div>
+              <div class="check-row"><div class="flex between center"><span class="t-body-sm-strong">Redis</span><span class="badge">Off</span></div><span class="t-caption-md mute">not configured; fine for a single server</span></div>
+              <div class="check-row"><div class="flex between center"><span class="t-body-sm-strong">Storage</span><span class="badge success">OK</span></div><span class="t-caption-md mute">local directory /data is writable</span></div>
+              <div class="check-row"><div class="flex between center"><span class="t-body-sm-strong">Email</span><span class="badge warning">Warning</span></div><span class="t-caption-md mute">email is not configured, so password resets and email verification are unavailable</span><span class="t-caption-md">set GOTALK_MAIL_DRIVER or configure email below</span></div>
+            </div>
+          </div>
+          <div class="pills"><span class="pill active">Email</span><span class="pill">Storage</span><span class="pill">Voice</span><span class="pill">CORS</span></div>
+          <p class="t-caption-md mute">Using the built-in defaults. Saving takes effect on every server within 15 seconds.</p>
+        </div></div></div></div>
+        <figcaption>Health first. The dot beside Instance shows while the instance reports degraded features.</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/server</div></div><div class="viewport">
+        <nav class="settings-nav"><div class="section-label">Instance</div><a class="nav-row active"><svg><use href="#settings"/></svg>Server</a></nav>
+        <div class="settings-body"><div class="inner">
+          <div class="pills"><span class="pill active">Email</span><span class="pill">Storage</span><span class="pill">Voice</span><span class="pill">CORS</span></div>
+          <p class="t-caption-md mute">Saved here on 3 Oct 2026, 14:20. Saving takes effect on every server within 15 seconds.</p>
+          <div class="col gap-xs"><span class="t-body-sm-strong">Provider</span><div class="pills"><span class="pill">Off</span><span class="pill active">SMTP</span><span class="pill">SendGrid</span><span class="pill">Mailgun</span><span class="pill">Postmark</span><span class="pill">Resend</span><span class="pill">Amazon SES</span></div></div>
+          <div class="field"><label>Sender</label><div class="input"><span>Woodworkers &lt;noreply@woodworkers.example.org&gt;</span></div></div>
+          <div class="flex gap-md"><div class="field grow"><label>Host</label><div class="input"><span>smtp.example.net</span></div></div><div class="field" style="width:120px"><label>Port</label><div class="input"><span>587</span></div></div></div>
+          <div class="field"><label>Password</label><div class="input"><span class="ph">Set · leave empty to keep it</span></div><span class="note">A value is set. It is never shown; type a new one to replace it.</span></div>
+          <div class="flex gap-sm"><button class="btn btn-primary">Save</button><button class="btn btn-tertiary">Send test email</button><button class="btn">Reset to defaults</button></div>
+          <p class="t-caption-md mute">The test email goes to marta@example.com.</p>
+        </div></div></div></div>
+        <figcaption>Email saved here: when it was saved, the secret shown as set, Send test email to the administrator, Reset to defaults.</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/server</div></div><div class="viewport">
+        <nav class="settings-nav"><div class="section-label">Instance</div><a class="nav-row active"><svg><use href="#settings"/></svg>Server</a></nav>
+        <div class="settings-body"><div class="inner">
+          <div class="pills"><span class="pill active">Email</span><span class="pill">Storage</span><span class="pill">Voice</span><span class="pill">CORS</span></div>
+          <div class="field"><label>Host</label><div class="input"><span>smtp.exmaple.net</span></div></div>
+          <div class="notice danger"><svg class="i"><use href="#alert"/></svg><span><b>The email check failed.</b> smtp smtp.exmaple.net:587: dial tcp: no such host. Nothing was saved. Fix the settings, or save them anyway if you know the check is wrong.</span></div>
+          <div class="flex gap-sm"><button class="btn btn-danger">Save anyway</button><button class="btn btn-tertiary">Send test email</button><button class="btn">Discard</button></div>
+        </div></div></div></div>
+        <figcaption>A failing live check (422) blocks the save and offers Save anyway (force).</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/server</div></div><div class="viewport">
+        <nav class="settings-nav"><div class="section-label">Instance</div><a class="nav-row active"><svg><use href="#settings"/></svg>Server</a></nav>
+        <div class="settings-body"><div class="inner">
+          <div class="pills"><span class="pill">Email</span><span class="pill active">Storage</span><span class="pill">Voice</span><span class="pill">CORS</span></div>
+          <div class="notice info"><svg class="i"><use href="#lock"/></svg><span><b>Managed by the server's configuration.</b> GOTALK_STORAGE_DRIVER is set, so storage is read-only here. Change it in the config file or environment and restart the server.</span></div>
+          <div class="col gap-xs"><span class="t-body-sm-strong">Where files are kept</span><span class="t-body-sm">S3-compatible</span></div>
+          <div class="field"><label>Endpoint</label><div class="input"><span class="mute">https://acct.r2.cloudflarestorage.com</span></div></div>
+          <div class="field"><label>Bucket</label><div class="input"><span class="mute">woodworkers-media</span></div></div>
+          <div class="field"><label>Secret access key</label><div class="input"><span class="ph">Set · leave empty to keep it</span></div></div>
+        </div></div></div></div>
+        <figcaption>A section set by the config file or environment is read-only, names the variable, and has no Save.</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/server</div></div><div class="viewport">
+        <nav class="settings-nav"><div class="section-label">Instance</div><a class="nav-row active"><svg><use href="#settings"/></svg>Server</a></nav>
+        <div class="settings-body"><div class="inner">
+          <div class="pills"><span class="pill">Email</span><span class="pill">Storage</span><span class="pill">Voice</span><span class="pill active">CORS</span></div>
+          <div class="field"><label>Allowed origins</label><div class="input" style="height:72px;align-items:flex-start"><span>https://forum.woodworkers.example.org</span></div><span class="note">One per line: https://app.example.com, https://*.example.com, or * for any site.</span></div>
+          <label class="check"><span class="box"></span><span>Allow credentials<span class="note" style="display:block">Lets browsers send cookies. Gotalk's apps don't need it, and it can't be combined with *.</span></span></label>
+          <span class="t-caption-md mute">Add with one tap. The desktop app connects from tauri://localhost (macOS, Linux) or http://tauri.localhost (Windows).</span>
+          <div class="flex gap-xs wrap"><button class="btn btn-outline small">+ https://app.gotalk.io</button><button class="btn btn-outline small">+ tauri://localhost</button><button class="btn btn-outline small">+ http://tauri.localhost</button></div>
+          <div class="notice warning"><svg class="i"><use href="#alert"/></svg><span><b>This list leaves out https://app.gotalk.io.</b> That's the site you're using. After saving, this page can no longer reach the instance.</span></div>
+          <div class="flex gap-sm"><button class="btn btn-primary">Save</button><button class="btn btn-tertiary">Test</button></div>
+        </div></div></div></div>
+        <figcaption>CORS with the lock-out warning and one-tap origins. * with credentials is explained and blocked before sending.</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><span class="title">Gotalk</span></div><div class="viewport"><div class="main"></div><div class="scrim">
+        <div class="card dialog" style="width:430px;background:var(--gt-color-surface-elevated);border-color:var(--gt-color-hairline-strong);border-radius:var(--gt-radius-xl)"><h2 class="t-heading-md">Change where files are kept?</h2><p class="mute t-body-sm">Existing avatars, icons and banners are not moved. They stop loading until you copy them over; moving between backends is done with gotalk backup and gotalk restore.</p><div class="flex gap-sm" style="justify-content:flex-end"><button class="btn btn-tertiary">Cancel</button><button class="btn btn-primary">Save</button></div></div>
+      </div></div></div>
+        <figcaption>Changing storage warns first. CORS lock-outs and Reset to defaults confirm the same way.</figcaption></figure>
+
+    </div>
+  </section>
+
+  <section class="group"><h2>Phone</h2><div class="frames">
+    <figure class="frame"><div class="phone"><div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div><div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Account</span><span class="side"></span></div><div class="body">
+      <div class="card flush"><div class="section-label">Instance <span class="dot-attn"></span></div><div class="list-row"><svg class="i mute"><use href="#server"/></svg><span class="grow t-body-sm-strong">Instance settings</span></div><div class="list-row"><svg class="i mute"><use href="#settings"/></svg><span class="grow t-body-sm-strong">Server</span></div><div class="list-row"><svg class="i mute"><use href="#shield"/></svg><span class="grow t-body-sm-strong">Policies</span></div></div>
+    </div><div class="home-bar"></div></div><figcaption>The attention dot on the phone account menu.</figcaption></figure>
+    <figure class="frame"><div class="phone"><div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div><div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Instance settings</span><span class="side"></span></div><div class="body">
+      <div class="notice warning"><svg class="i"><use href="#alert"/></svg><span><b>This instance needs attention.</b> Email isn't working, so password resets and email confirmation are unavailable. <a>Open server settings</a></span></div>
+      <div class="field"><label>Name</label><div class="input"><span>Woodworkers</span></div></div>
+    </div><div class="home-bar"></div></div><figcaption>Administrators see what is degraded at the top of Instance settings; other members see nothing.</figcaption></figure>
+    <figure class="frame"><div class="phone"><div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div><div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Server</span><span class="side"></span></div><div class="body">
+      <div class="pills"><span class="pill active">Email</span><span class="pill">Storage</span><span class="pill">Voice</span><span class="pill">CORS</span></div>
+      <div class="col gap-xs"><span class="t-body-sm-strong">Provider</span><div class="pills"><span class="pill">Off</span><span class="pill active">SMTP</span><span class="pill">SendGrid</span><span class="pill">Mailgun</span></div></div>
+      <div class="field"><label>Host</label><div class="input"><span>smtp.example.net</span></div></div>
+      <div class="card compact"><span class="t-body-sm-strong">Saved. Every server picks this up within 15 seconds.</span><div class="check-row"><div class="flex between center"><span class="t-body-sm-strong">Email</span><span class="badge success">OK</span></div><span class="t-caption-md mute">smtp smtp.example.net:587 accepted the connection</span></div></div>
+    </div><div class="home-bar"></div></div><figcaption>Saved, with the check that ran.</figcaption></figure>
+  </div></section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>

@@ -59,6 +59,10 @@ const shapes = {
   key: [{ circle: [8, 15, 4] }, 'm11 12 8-8M16 7l3 3'],
   server: [{ rect: [3, 4, 18, 6, 1.5] }, { rect: [3, 14, 18, 6, 1.5] }, 'M7 7v.01M7 17v.01'],
   code: ['m8 7-5 5 5 5M16 7l5 5-5 5'],
+  mail: [{ rect: [3, 5, 18, 14, 2] }, 'm3.5 7 8.5 6 8.5-6'],
+  image: [{ rect: [3, 4, 18, 16, 2] }, { circle: [9, 10, 2] }, 'm21 16-5-5-9 9'],
+  upload: ['M12 16V4M7 9l5-5 5 5M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2'],
+  refresh: ['M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6'],
 } as const satisfies Record<string, readonly Shape[]>;
 
 export type IconName = keyof typeof shapes;

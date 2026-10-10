@@ -78,20 +78,47 @@
             <div class="settings-body">
               <div class="inner">
                 <div class="col gap-xs"><h2 class="t-heading-xl">Profile</h2><p class="mute t-body-sm">This is what other members see on your posts and in chat.</p></div>
-                <div class="flex gap-lg center">
-                  <div class="avatar blue" style="width:64px;height:64px;font-size:22px">MK</div>
-                  <div class="col gap-xs"><button class="btn btn-tertiary" disabled>Change photo</button><span class="t-caption-md mute">Photo uploads arrive once the instance supports attachments.</span></div>
+                <div class="picker">
+                  <div class="avatar blue s64">MK</div>
+                  <div class="acts"><div class="flex gap-sm"><button class="btn btn-tertiary small">Upload photo</button></div><span class="t-caption-md mute">PNG, JPEG, GIF or WebP, up to 8 MB. Cropped to a square.</span></div>
                 </div>
                 <div class="field"><label>Display name</label><div class="input focus"><span>Marta Kowalczyk</span></div></div>
                 <div class="field"><label>Username</label><div class="input"><span class="mute">marta.k</span></div><span class="note">Usernames cannot be changed.</span></div>
+                <div class="field"><label>Email <span class="badge warning" style="margin-left:6px">Not confirmed</span></label><div class="input"><span class="mute">marta@example.com</span></div><span class="note">The address you sign in with. It can't be changed in the app.</span></div>
+                <div class="notice info"><svg class="i"><use href="#mail"/></svg><span><b>Confirm your email.</b> Open the link we sent to marta@example.com. Confirming happens in your browser; this page updates when you come back.</span></div>
+                <button class="btn btn-tertiary small" style="align-self:flex-start">Resend link</button>
                 <div class="field"><label>Pronouns</label><div class="input"><span>she/her</span></div></div>
-                <div class="field"><label>Bio</label><div class="input textarea"><span>Hand-planes, hide glue, and a bench that is never finished.</span></div></div>
                 <div class="flex gap-sm"><button class="btn btn-primary">Save changes</button><button class="btn btn-tertiary">Discard</button></div>
               </div>
             </div>
           </div>
         </div>
-        <figcaption>Profile. Save changes is the one white action; there is no separate edit mode.</figcaption>
+        <figcaption>Profile. Save changes is the one white action; there is no separate edit mode. Phase 8 adds the photo picker (see <a href="19-uploads.html">Uploads</a>) and, on instances that send email, the confirmation notice with Resend.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/profile</div></div>
+          <div class="viewport">
+            <nav class="settings-nav">
+              <div class="section-label">Account</div>
+              <a class="nav-row active" href="#"><svg><use href="#user"/></svg>Profile</a>
+              <a class="nav-row" href="#"><svg><use href="#lock"/></svg>Password</a>
+            </nav>
+            <div class="settings-body">
+              <div class="inner">
+                <h2 class="t-heading-xl">Profile</h2>
+                <div class="field"><label>Email <span class="badge warning" style="margin-left:6px">Not confirmed</span></label><div class="input"><span class="mute">marta@example.com</span></div></div>
+                <div class="notice info"><svg class="i"><use href="#mail"/></svg><span><b>Confirm your email.</b> We sent a new link to marta@example.com. Confirming happens in your browser; this page updates when you come back.</span></div>
+                <button class="btn btn-tertiary small" style="align-self:flex-start" disabled>Resend in 51s</button>
+                <div class="notice warning"><svg class="i"><use href="#alert"/></svg><span>A link was sent less than a minute ago. Check your inbox and spam folder.</span></div>
+                <div class="notice danger"><svg class="i"><use href="#alert"/></svg><span>This instance can't send email right now. Try again later, or ask its administrator.</span></div>
+                <div class="field"><label>Email <span class="badge success" style="margin-left:6px">Verified</span></label><div class="input"><span class="mute">marta@example.com</span></div><span class="note">The address you sign in with. It can't be changed in the app.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption>Phase 8: after Resend the button waits a minute; a 409 inside that minute and a 503 have their own copy. Once confirmed, the Verified badge replaces the notice.</figcaption>
       </figure>
 
       <figure class="frame">

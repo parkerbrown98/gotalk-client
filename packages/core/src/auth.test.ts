@@ -1,3 +1,4 @@
+import { uploadImage } from '@gotalk/api-client';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -22,6 +23,7 @@ function fakeServer(clock: { now: number }) {
   const sessions = new Map<string, { refresh: string; revoked: boolean; generation: number }>();
   const validAccess = new Map<string, string>();
   const calls = { login: 0, refresh: 0, logout: 0, me: 0 };
+  const uploads: { type: string | null; bytes: number[] }[] = [];
   let offline = false;
   let throttleRefresh = false;
   let counter = 0;
@@ -48,7 +50,8 @@ function fakeServer(clock: { now: number }) {
     if (offline) throw new TypeError('network down');
     const req = input as Request;
     const path = new URL(req.url).pathname.replace('/api/v1', '');
-    const body = req.method === 'GET' ? null : ((await req.json().catch(() => null)) as Record<string, string> | null);
+    const isJson = req.method !== 'GET' && !(req.headers.get('Content-Type') ?? '').startsWith('image/');
+    const body = isJson ? ((await req.json().catch(() => null)) as Record<string, string> | null) : null;
     if (path === '/auth/login') {
       calls.login++;
       if (body?.password !== PASSWORD) return json({ status: 401, detail: 'invalid username/email or password' }, 401);
@@ -84,12 +87,17 @@ function fakeServer(clock: { now: number }) {
       calls.me++;
       return json({ id: 'u1', username: 'marta.k' });
     }
+    if (path === '/users/@me/avatar' && req.method === 'PUT') {
+      uploads.push({ type: req.headers.get('Content-Type'), bytes: [...new Uint8Array(await req.arrayBuffer())] });
+      return json({ id: 'u1', username: 'marta.k', avatar_url: 'https://x.example/media/avatars/1.png' });
+    }
     return json({ status: 404 }, 404);
   }
 
   return {
     handler,
     calls,
+    uploads,
     sessions,
     setOffline: (v: boolean) => (offline = v),
     setThrottled: (v: boolean) => (throttleRefresh = v),
@@ -220,6 +228,20 @@ describe('refresh', () => {
     expect(res.response.status).toBe(200);
     expect(server.calls.refresh).toBe(1);
     expect(server.calls.me).toBe(1);
+  });
+
+  it('resends an uploaded image with its content type after refreshing an expired token', async () => {
+    const { server, make } = setup();
+    const auth = make();
+    await auth.signIn(target, { login: 'marta.k', password: PASSWORD });
+    server.expireAccessTokens();
+
+    const image = new Blob([new Uint8Array([137, 80, 78, 71, 1, 2, 3])], { type: 'image/png' });
+    const user = await uploadImage(auth.clientFor(target), { kind: 'avatar' }, image);
+
+    expect(user.avatar_url).toBe('https://x.example/media/avatars/1.png');
+    expect(server.calls.refresh).toBe(1);
+    expect(server.uploads).toEqual([{ type: 'image/png', bytes: [137, 80, 78, 71, 1, 2, 3] }]);
   });
 
   it('signs the device out when the server ended the session elsewhere', async () => {

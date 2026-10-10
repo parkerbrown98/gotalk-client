@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { useConnection } from '@/lib/connection';
+import { refusedHint } from '@/lib/connectivity';
+import { useActiveInstance } from '@/lib/instances';
 import { useOnline } from '@/lib/realtime';
 
 const GRACE_MS = 1_500;
@@ -28,11 +30,16 @@ export function useConnectionBannerVisible(): boolean {
 export function ConnectionBanner() {
   const theme = useTheme();
   const c = theme.colors;
+  const everReady = useConnection((s) => s.everReady);
+  const online = useOnline();
+  const origin = useActiveInstance()?.origin;
+  // Never connected on the web: the instance may be refusing this site's origin at the handshake.
+  const hint = !everReady && online ? refusedHint(origin) : null;
   return (
     <View accessibilityRole="alert" style={{ minHeight: 32, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: c.accentYellowSoft }}>
       <Icon name="wifi" size={14} color={c.accentYellow} />
       <Text variant="captionMd" style={{ flexShrink: 1, textAlign: 'center' }}>
-        Reconnecting. Messages will catch up when you are back.
+        {hint ? `Live updates can't connect. ${hint}` : 'Reconnecting. Messages will catch up when you are back.'}
       </Text>
     </View>
   );

@@ -1,7 +1,8 @@
+import { instanceCapabilities } from '@gotalk/core';
 import { Stack, Text, useTheme, type IconName } from '@gotalk/ui';
 import type { Href } from 'expo-router';
 import type { ReactNode } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 import { ScreenFrame } from '@/components/screen-frame';
 import { useInstanceInfo, useMe } from '@/lib/api';
@@ -69,10 +70,12 @@ const account: SettingsLink[] = [
 
 /**
  * Account settings beyond the account itself: developer tools when the instance offers them, and
- * instance administration for administrators. The transparency report is public.
+ * instance administration for administrators. The transparency report is public. The Instance group
+ * carries a dot for administrators while the instance reports degraded features.
  */
-export function useSettingsGroups(): { label: string; links: SettingsLink[] }[] {
-  const features = useInstanceInfo().data?.features;
+export function useSettingsGroups(): { label: string; links: SettingsLink[]; attention?: boolean }[] {
+  const info = useInstanceInfo().data;
+  const features = info?.features;
   const admin = useMe().data?.is_instance_admin ?? false;
   const developer: SettingsLink[] = [
     ...(features?.api_tokens !== false ? [{ path: '/settings/tokens', label: 'Access tokens', icon: 'key' } as const] : []),
@@ -80,12 +83,19 @@ export function useSettingsGroups(): { label: string; links: SettingsLink[] }[] 
   ];
   const instance: SettingsLink[] = [
     ...(admin ? [{ path: '/settings/instance', label: 'Instance settings', icon: 'server' } as const] : []),
+    ...(admin ? [{ path: '/settings/server', label: 'Server', icon: 'settings' } as const] : []),
     ...(admin && features?.policies !== false ? [{ path: '/settings/policies', label: 'Policies', icon: 'shield' } as const] : []),
     ...(features?.transparency ? [{ path: '/settings/transparency', label: 'Transparency report', icon: 'eye' } as const] : []),
   ];
   return [
     { label: 'Account', links: account },
     ...(developer.length ? [{ label: 'Developer', links: developer }] : []),
-    ...(instance.length ? [{ label: 'Instance', links: instance }] : []),
+    ...(instance.length ? [{ label: 'Instance', links: instance, attention: admin && instanceCapabilities(info).needsAttention }] : []),
   ];
+}
+
+/** The small dot beside a settings group that needs an administrator's attention. */
+export function AttentionDot() {
+  const theme = useTheme();
+  return <View accessibilityLabel="Needs attention" style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: theme.colors.accentYellow }} />;
 }

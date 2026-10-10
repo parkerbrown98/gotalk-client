@@ -6,6 +6,7 @@ import Animated, { useReducedMotion } from 'react-native-reanimated';
 import { accentFor } from './accent.ts';
 import { Text, type TextTone } from './components.tsx';
 import { ElevationContext, Icon, useElevated, type IconName } from './icons.tsx';
+import { useImageFallback } from './image-fallback.ts';
 import { dialogIn, fadeEntering, fadeExiting, hoverTransition, motion, sheetEntering, sheetExiting, usePresence, type PressState } from './motion.ts';
 import { useTheme } from './theme.tsx';
 
@@ -229,12 +230,13 @@ export function Checkbox({ checked, onChange, disabled, description, children }:
   );
 }
 
-/** Round avatar: the image when there is one, otherwise initials on a stable soft accent. */
+/** Round avatar: the image when there is one, otherwise initials on a stable soft accent. A broken image falls back to the initials. */
 export function Avatar({ name, uri, size = 36 }: { name: string; uri?: string | null; size?: number }) {
   const theme = useTheme();
   const accent = accentFor(theme.colors, name);
   const box = { width: size, height: size, borderRadius: theme.radii.full };
-  if (uri) return <Image source={{ uri }} style={box} accessibilityIgnoresInvertColors />;
+  const image = useImageFallback(uri);
+  if (image.uri) return <Image source={{ uri: image.uri }} onError={image.onError} style={box} accessibilityIgnoresInvertColors />;
   const initials =
     name
       .trim()

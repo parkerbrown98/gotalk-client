@@ -56,6 +56,14 @@
           "cameraPermission": "Gotalk uses the camera when you turn it on in a voice channel.",
           "microphonePermission": "Gotalk uses the microphone so others can hear you in voice channels."
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Gotalk opens your photos when you choose an avatar, icon or banner.",
+          "cameraPermission": "Gotalk uses the camera when you turn it on in a voice channel.",
+          "microphonePermission": "Gotalk uses the microphone so others can hear you in voice channels."
+        }
       ]
     ],
     "experiments": {

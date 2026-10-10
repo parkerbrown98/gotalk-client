@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Uploads · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+<style>
+  .settings-nav { width: 248px; flex: none; background: var(--gt-color-surface); border-right: 1px solid var(--gt-color-hairline); padding: 16px 8px; display: flex; flex-direction: column; gap: 2px; }
+  .settings-body { flex: 1; min-width: 0; padding: 32px 40px; display: flex; flex-direction: column; gap: 24px; overflow: hidden; }
+  .settings-body .inner { width: 560px; display: flex; flex-direction: column; gap: 18px; }
+  .place-head { position: relative; }
+  .place-head .bg { position: absolute; inset: 0 0 auto 0; height: 168px; }
+  .place-head .bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 15%, var(--gt-color-canvas)); }
+</style>
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Phase 8 · Self-hosting follow-through</nav>
+    <h1 class="t-display-lg">Uploads</h1>
+    <p>Avatars, place icons and banners, and the instance icon follow the <b>image-picker</b> pattern in DESIGN.md. The client crops avatars and icons to a 512px square and fits banners to 1920px wide before sending; GIFs go as they are. Files are small, so there is no progress bar. When an image fails to load (a replaced file is deleted at once), the initials show instead.</p>
+  </header>
+
+  <section class="group">
+    <h2>Web and desktop</h2>
+    <div class="frames">
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/profile</div></div><div class="viewport">
+        <nav class="settings-nav"><a class="nav-row" style="margin-bottom:8px"><svg><use href="#chevronLeft"/></svg>Back to Woodworkers</a><div class="section-label">Account</div><a class="nav-row active"><svg><use href="#user"/></svg>Profile</a><a class="nav-row"><svg><use href="#lock"/></svg>Password</a><a class="nav-row"><svg><use href="#laptop"/></svg>Devices</a></nav>
+        <div class="settings-body"><div class="inner">
+          <div class="col gap-xs"><h2 class="t-heading-xl">Profile</h2><p class="mute t-body-sm">This is what other members see on your posts and in chat.</p></div>
+          <div class="picker"><div class="photo round s64"></div><div class="acts"><div class="flex gap-sm"><button class="btn btn-tertiary small">Replace photo</button><button class="btn small">Remove</button></div><span class="t-caption-md mute">PNG, JPEG, GIF or WebP, up to 8 MB. Cropped to a square.</span></div></div>
+          <div class="field"><label>Display name</label><div class="input"><span>Marta Kowalska</span></div></div>
+          <div class="field"><label>Username</label><div class="input"><span class="mute">marta.k</span></div><span class="note">Usernames cannot be changed.</span></div>
+          <div class="field"><label>Email <span class="badge success" style="margin-left:6px">Verified</span></label><div class="input"><span class="mute">marta@example.com</span></div><span class="note">The address you sign in with. It can't be changed in the app.</span></div>
+        </div></div></div></div>
+        <figcaption>Avatar set. Replace opens the file chooser; Remove falls back to the initials.</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/profile</div></div><div class="viewport">
+        <nav class="settings-nav"><div class="section-label">Account</div><a class="nav-row active"><svg><use href="#user"/></svg>Profile</a></nav>
+        <div class="settings-body"><div class="inner">
+          <h2 class="t-heading-xl">Profile</h2>
+          <div class="picker"><div class="avatar s64 blue">MK</div><div class="acts"><div class="flex gap-sm"><button class="btn small" disabled>Uploading…</button></div><span class="t-caption-md mute">PNG, JPEG, GIF or WebP, up to 8 MB. Cropped to a square.</span></div></div>
+          <p class="t-caption-md mute">Uploading. The rest of the form stays usable.</p>
+          <div class="picker"><div class="avatar s64 blue">MK</div><div class="acts"><div class="flex gap-sm"><button class="btn btn-tertiary small">Upload photo</button></div><span class="t-caption-md mute">PNG, JPEG, GIF or WebP, up to 8 MB. Cropped to a square.</span></div></div>
+          <div class="notice danger"><svg class="i"><use href="#alert"/></svg><span>That image is 11.4 MB. The limit is 8 MB.</span></div>
+          <div class="notice danger"><svg class="i"><use href="#alert"/></svg><span>That file type isn't supported. Use PNG, JPEG, GIF or WebP.</span></div>
+          <div class="notice danger"><svg class="i"><use href="#alert"/></svg><span>Uploads aren't working on this instance right now. Its storage is unavailable; try again later.</span></div>
+        </div></div></div></div>
+        <figcaption>Uploading, then the three refusals: too large and unsupported are caught before sending where possible (413 and 422 otherwise), storage unavailable is a 503.</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/places/woodworkers/settings/general</div></div><div class="viewport">
+        <nav class="settings-nav"><div class="section-label">Place</div><a class="nav-row active"><svg><use href="#settings"/></svg>General</a><a class="nav-row"><svg><use href="#link"/></svg>Invites</a><a class="nav-row"><svg><use href="#shield"/></svg>Roles</a></nav>
+        <div class="settings-body"><div class="inner" style="width:480px">
+          <h2 class="t-heading-xl">General</h2>
+          <div class="field"><label>Name</label><div class="input"><span>Woodworkers</span></div></div>
+          <div class="hairline-t" style="padding-top:16px;display:flex;flex-direction:column;gap:16px">
+            <div class="col gap-sm"><span class="t-body-sm-strong">Icon</span><div class="picker"><div class="photo sq s64"></div><div class="acts"><div class="flex gap-sm"><button class="btn btn-tertiary small">Replace icon</button><button class="btn small">Remove</button></div><span class="t-caption-md mute">PNG, JPEG, GIF or WebP, up to 8 MB. Cropped to a square.</span></div></div></div>
+            <div class="col gap-sm"><span class="t-body-sm-strong">Banner</span><div class="banner-preview photo"></div><div class="flex gap-sm"><button class="btn btn-tertiary small">Replace banner</button><button class="btn small">Remove</button></div><span class="t-caption-md mute">PNG, JPEG, GIF or WebP, up to 8 MB. Wide images work best; they are cropped to fit.</span></div>
+          </div>
+        </div></div></div></div>
+        <figcaption>Place icon and banner in General (Manage place). Each saves as soon as it uploads.</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/places/woodworkers</div></div><div class="viewport">
+        <div class="main" style="flex:1;display:flex;flex-direction:column">
+          <div class="place-head"><div class="bg photo"></div>
+            <div style="position:relative;padding:96px 16px 16px;display:flex;flex-direction:column;gap:12px">
+              <div class="flex gap-lg" style="align-items:flex-end"><div class="tile s56 yellow" style="width:56px;height:56px">W</div><div class="col grow"><span class="t-heading-lg">Woodworkers</span><span class="t-caption-md mute">1,284 members · 6 forums · 4 channels · since Mar 2025</span></div><button class="btn btn-primary small">Invite people</button></div>
+              <p class="t-body-sm mute">Joinery, finishing, and shop talk from people who build things slowly.</p>
+            </div>
+          </div>
+          <div class="pills hairline-b" style="padding:8px 16px"><span class="pill active">Hot</span><span class="pill">New</span><span class="pill">Top</span></div>
+        </div>
+      </div></div>
+        <figcaption>Place page, wide: the banner sits behind the header and fades into the canvas under the name.</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/instance</div></div><div class="viewport">
+        <nav class="settings-nav"><div class="section-label">Instance</div><a class="nav-row active"><svg><use href="#server"/></svg>Instance settings</a><a class="nav-row"><svg><use href="#settings"/></svg>Server</a></nav>
+        <div class="settings-body"><div class="inner">
+          <h2 class="t-heading-xl">Instance settings</h2>
+          <div class="col gap-sm"><span class="t-body-sm-strong">Icon</span><div class="picker"><div class="tile s64 yellow">W</div><div class="acts"><div class="flex gap-sm"><button class="btn btn-tertiary small">Upload icon</button></div><span class="t-caption-md mute">PNG, JPEG, GIF or WebP, up to 8 MB. Cropped to a square.</span></div></div></div>
+          <div class="field"><label>Name</label><div class="input"><span>Woodworkers</span></div></div>
+          <div class="field"><label>Description</label><div class="input" style="height:72px;align-items:flex-start"><span>A home for careful joinery.</span></div></div>
+        </div></div></div></div>
+        <figcaption>The instance icon upload replaces the URL field. Saved instances on other devices pick up the new icon on their next look at the instance.</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/profile</div></div><div class="viewport">
+        <nav class="settings-nav"><div class="section-label">Account</div><a class="nav-row active"><svg><use href="#user"/></svg>Profile</a></nav>
+        <div class="settings-body"><div class="inner">
+          <h2 class="t-heading-xl">Profile</h2>
+          <div class="picker"><div class="avatar s64 blue">MK</div><div class="col grow" style="gap:8px"><div class="field"><label>Photo URL</label><div class="input"><span class="ph">https://</span></div><span class="note">An https image URL. Leave it empty for none. This instance doesn't take uploads.</span></div></div></div>
+          <button class="btn btn-tertiary small" style="align-self:flex-start" disabled>Save photo URL</button>
+        </div></div></div></div>
+        <figcaption>Without uploads on the instance the picker falls back to an image URL, which PATCH still accepts.</figcaption></figure>
+
+    </div>
+  </section>
+
+  <section class="group"><h2>Phone</h2><div class="frames">
+    <figure class="frame"><div class="phone"><div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div><div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Profile</span><span class="side"></span></div><div class="body">
+      <div class="picker"><div class="photo round s64"></div><div class="acts"><div class="flex gap-sm"><button class="btn btn-tertiary small">Replace photo</button><button class="btn small">Remove</button></div><span class="t-caption-md mute">PNG, JPEG, GIF or WebP, up to 8 MB. Cropped to a square.</span></div></div>
+      <div class="field"><label>Display name</label><div class="input"><span>Marta Kowalska</span></div></div>
+    </div><div class="home-bar"></div></div><figcaption>The system photo picker opens; the image is cropped and resized on the phone before upload.</figcaption></figure>
+    <figure class="frame"><div class="phone"><div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div><div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Woodworkers</span><span class="side end on-dark"><svg class="i"><use href="#more"/></svg></span></div><div class="body flush">
+      <div class="photo" style="height:96px"></div>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:12px"><div class="flex gap-md center"><div class="tile yellow">W</div><div class="col grow"><span class="t-heading-sm">Woodworkers</span><span class="t-caption-md mute">1,284 members · 6 forums · 4 channels</span></div></div><p class="t-body-sm mute">Joinery, finishing, and shop talk.</p><div class="pills"><span class="pill active">Feed</span><span class="pill">Forums and chat</span></div></div>
+    </div><div class="home-bar"></div></div><figcaption>Place page, phone: the banner is a strip above the header.</figcaption></figure>
+    <figure class="frame"><div class="phone"><div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div><div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">General</span><span class="side"></span></div><div class="body">
+      <div class="col gap-sm"><span class="t-body-sm-strong">Banner</span><div class="banner-preview">No banner</div><div class="flex gap-sm"><button class="btn btn-tertiary small">Upload banner</button></div><span class="t-caption-md mute">PNG, JPEG, GIF or WebP, up to 8 MB. Wide images work best; they are cropped to fit.</span></div>
+    </div><div class="home-bar"></div></div><figcaption>Empty banner</figcaption></figure>
+  </div></section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>

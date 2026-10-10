@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { API_VERSION_HEADER, ApiError, createGotalkClient, unwrap } from './index.ts';
+import { API_VERSION_HEADER, ApiError, createGotalkClient, removeImage, unwrap, uploadFailureKind, UploadError, uploadImage } from './index.ts';
 
 const json = (body: unknown, status = 200, type = 'application/json') =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': type } });
@@ -73,5 +73,58 @@ describe('createGotalkClient', () => {
 
     const invalid = new ApiError(422, { errors: [{ location: 'body.email', message: 'email address is invalid' }] });
     expect(invalid.fieldErrors).toEqual({ email: 'email address is invalid' });
+  });
+});
+
+describe('uploadImage', () => {
+  const png = () => new Blob([new Uint8Array([137, 80, 78, 71])], { type: 'image/png' });
+
+  it('sends the image as the raw body with its content type, to the right path', async () => {
+    const { fetch, requests } = recordingFetch(() => json({ id: 'p1', icon_url: 'https://x.example/media/place-icons/1.png' }));
+    const client = createGotalkClient({ baseUrl: 'https://x.example/api/v1', fetch });
+
+    const place = await uploadImage(client, { kind: 'placeIcon', place: 'woodworkers' }, png());
+
+    const req = requests[0]!;
+    expect(req.method).toBe('PUT');
+    expect(req.url).toBe('https://x.example/api/v1/places/woodworkers/icon');
+    expect(req.headers.get('Content-Type')).toBe('image/png');
+    expect([...new Uint8Array(await req.arrayBuffer())]).toEqual([137, 80, 78, 71]);
+    expect(place.icon_url).toBe('https://x.example/media/place-icons/1.png');
+  });
+
+  it('lets the caller name the type of an untyped blob', async () => {
+    const { fetch, requests } = recordingFetch(() => json({ id: 'u1' }));
+    await uploadImage(createGotalkClient({ baseUrl: 'https://x.example/api/v1', fetch }), { kind: 'avatar' }, new Blob([new Uint8Array([1])]), 'image/jpeg');
+    expect(requests[0]!.url).toBe('https://x.example/api/v1/users/@me/avatar');
+    expect(requests[0]!.headers.get('Content-Type')).toBe('image/jpeg');
+  });
+
+  it.each([
+    [413, 'request entity too large', 'too_large'],
+    [422, 'the file is larger than the 8388608 byte limit', 'too_large'],
+    [422, 'image: unknown format', 'unsupported'],
+    [503, 'file uploads are unavailable', 'unavailable'],
+    [429, 'rate limit exceeded', 'rate_limited'],
+    [500, 'internal server error', 'other'],
+  ])('maps %i (%s) to %s', async (status, detail, kind) => {
+    const { fetch } = recordingFetch(() => json({ status, detail }, status, 'application/problem+json'));
+    const err = await uploadImage(createGotalkClient({ baseUrl: 'https://x.example/api/v1', fetch }), { kind: 'instanceIcon' }, png()).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(UploadError);
+    expect((err as UploadError).kind).toBe(kind);
+    expect((err as UploadError).message).toBe(detail);
+    expect(uploadFailureKind(status, detail)).toBe(kind);
+  });
+
+  it('removes an image with DELETE', async () => {
+    const { fetch, requests } = recordingFetch(() => json({ id: 'p1', banner_url: null }));
+    const place = await removeImage(createGotalkClient({ baseUrl: 'https://x.example/api/v1', fetch }), { kind: 'placeBanner', place: 'p1' });
+    expect(requests[0]!.method).toBe('DELETE');
+    expect(requests[0]!.url).toBe('https://x.example/api/v1/places/p1/banner');
+    expect(place.banner_url).toBeNull();
+  });
+
+  it('keeps the server error as the cause', () => {
+    expect(new UploadError(new ApiError(413)).cause).toBeInstanceOf(ApiError);
   });
 });

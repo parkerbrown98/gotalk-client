@@ -1,4 +1,8 @@
 import { ApiError } from '@gotalk/api-client';
+import { selectActiveInstance } from '@gotalk/core';
+
+import { refusedHint } from './connectivity';
+import { instancesStore } from './instances';
 
 export type FailureKind =
   | { kind: 'rate_limited'; retryAfter: number }
@@ -23,7 +27,10 @@ export function classifyFailure(e: unknown): FailureKind {
 export function failureMessage(e: unknown, fallback: string): string {
   const f = classifyFailure(e);
   if (f.kind === 'rejected') return f.message;
-  if (f.kind === 'network') return 'Could not reach the instance. Check your connection and try again.';
+  if (f.kind === 'network') {
+    const hint = refusedHint(selectActiveInstance(instancesStore.getState())?.origin);
+    return `Could not reach the instance. Check your connection and try again.${hint ? ` ${hint}` : ''}`;
+  }
   if (f.kind === 'rate_limited') return `Slow down a little. Try again in ${f.retryAfter} seconds.`;
   return fallback;
 }

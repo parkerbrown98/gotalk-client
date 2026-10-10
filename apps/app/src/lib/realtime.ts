@@ -205,6 +205,7 @@ function startConnection(qc: QueryClient, inst: string, gatewayUrl: string, apiB
       state: s.state,
       disconnectedAt: s.disconnectedAt,
       downSince: s.state === 'reconnecting' ? (prev.downSince ?? Date.now()) : null,
+      everReady: (prev.instanceId === inst && prev.everReady) || s.state === 'ready',
     })),
   );
   const offSignOut = onBeforeSignOut((id) => {
@@ -373,7 +374,7 @@ function startConnection(qc: QueryClient, inst: string, gatewayUrl: string, apiB
     offState();
     offSignOut();
     if (current === conn) current = null;
-    connectionStore.setState({ instanceId: null, state: 'idle', disconnectedAt: null, downSince: null });
+    connectionStore.setState({ instanceId: null, state: 'idle', disconnectedAt: null, downSince: null, everReady: false });
     presenceStore.setState({ byUser: {} });
     typingStore.setState({ byChannel: {} });
   };

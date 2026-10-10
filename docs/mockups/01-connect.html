@@ -155,6 +155,45 @@
         <figcaption>Incompatible version. Continue stays disabled, and saved instances remain reachable.</figcaption>
       </figure>
 
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side"></span><span class="t-body-sm-strong">Connect to an instance</span><span class="side"></span></div>
+          <div class="body">
+            <div class="col gap-md">
+              <div class="field"><label>Instance address</label><div class="input"><span>forum.harbor.st</span></div></div>
+              <button class="btn btn-tertiary block">Look up</button>
+            </div>
+            <div class="card compact">
+              <div class="flex gap-md center">
+                <div class="tile s36 blue">H</div>
+                <div class="col grow"><span class="t-heading-sm">Gotalk</span><span class="t-caption-md mute">forum.harbor.st · Gotalk 1.0.0</span></div>
+              </div>
+              <div class="notice warning"><svg class="i"><use href="#alert"/></svg><span><b>Setup isn't finished.</b> This instance hasn't finished first-run setup yet. If it's yours, open the setup page and use the setup token from the server's log. Everyone else can join once setup is done.</span></div>
+              <button class="btn btn-tertiary block">Open setup page</button>
+              <button class="btn block" disabled>Continue to Gotalk</button>
+            </div>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Phase 8: setup isn't finished. The wizard stays on the server's own page, opened in the browser.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side"></span><span class="t-body-sm-strong">Connect to an instance</span><span class="side"></span></div>
+          <div class="body">
+            <div class="col gap-md">
+              <div class="field"><label>Instance address</label><div class="input" style="border-color:var(--gt-color-accent-red)"><span>forum.harbor.st</span></div><span class="t-caption-md" style="color:var(--gt-color-accent-red)">Could not reach https://forum.harbor.st. This instance may not allow connections from https://app.gotalk.io. Its administrator can allow it in the server settings.</span></div>
+              <button class="btn btn-primary block">Look up</button>
+            </div>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Phase 8, web only: a browser reports a CORS refusal like an unreachable host, so the error adds that the instance may not allow this site. Phones send no origin and never see it.</figcaption>
+      </figure>
+
     </div>
   </section>
 </main>

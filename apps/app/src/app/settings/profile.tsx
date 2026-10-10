@@ -1,15 +1,17 @@
 import { unwrap } from '@gotalk/api-client';
-import { Avatar, Button, Notice, Stack, Text, TextField, useTheme } from '@gotalk/ui';
+import { Button, Notice, Stack, TextField, useTheme } from '@gotalk/ui';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 
+import { EmailStatus } from '@/components/email-status';
 import { FailureNotice } from '@/components/failure-notice';
+import { ImagePicker } from '@/components/image-picker';
 import { SettingsPage } from '@/components/settings-page';
 import { useApiClient, useMe } from '@/lib/api';
-import { authManager } from '@/lib/auth';
 import { classifyFailure, type FailureKind } from '@/lib/failure';
 import { useActiveInstance } from '@/lib/instances';
+import { applySelfUpdate, useImageActions, useInstanceCapabilities } from '@/lib/uploads';
 
 export default function Profile() {
   const theme = useTheme();
@@ -18,6 +20,8 @@ export default function Profile() {
   const queryClient = useQueryClient();
   const me = useMe();
   const user = me.data;
+  const caps = useInstanceCapabilities();
+  const images = useImageActions();
 
   const [displayName, setDisplayName] = useState('');
   const [pronouns, setPronouns] = useState('');
@@ -58,8 +62,7 @@ export default function Profile() {
     setSaved(false);
     try {
       const updated = unwrap(await client.PATCH('/users/@me', { body: changes }));
-      queryClient.setQueryData(['me', active!.id], updated);
-      await authManager.setUser(active!.id, updated);
+      await applySelfUpdate(queryClient, active!.id, updated);
       setSaved(true);
     } catch (e) {
       setFailure(classifyFailure(e));
@@ -70,15 +73,17 @@ export default function Profile() {
 
   return (
     <SettingsPage title="Profile" subtitle="This is what other members see on your posts and in chat.">
-      <Stack direction="row" gap="lg" align="center">
-        <Avatar name={user.display_name} uri={user.avatar_url} size={64} />
-        <Stack gap="xs" style={{ flex: 1 }}>
-          <Button title="Change photo" variant="tertiary" disabled style={{ alignSelf: 'flex-start' }} />
-          <Text variant="captionMd" tone="muted">
-            Photo uploads arrive once the instance supports attachments.
-          </Text>
-        </Stack>
-      </Stack>
+      <ImagePicker
+        purpose="avatar"
+        noun="photo"
+        name={user.display_name}
+        url={user.avatar_url}
+        origin={active.origin}
+        caps={caps}
+        onUpload={images.setAvatar}
+        onRemove={images.removeAvatar}
+        onSetUrl={images.setAvatarUrl}
+      />
 
       {saved && !dirty ? (
         <Notice tone="success" title="Saved.">
@@ -99,6 +104,7 @@ export default function Profile() {
           maxLength={64}
         />
         <TextField label="Username" value={user.username} editable={false} hint="Usernames cannot be changed." style={{ color: theme.colors.mute }} />
+        <EmailStatus user={user} onRefresh={() => void me.refetch()} />
         <TextField
           label="Pronouns"
           value={pronouns}

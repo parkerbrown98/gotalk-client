@@ -1,6 +1,8 @@
 import { Notice } from '@gotalk/ui';
 
+import { refusedHint } from '@/lib/connectivity';
 import type { FailureKind } from '@/lib/failure';
+import { useActiveInstance } from '@/lib/instances';
 
 export interface FailureNoticeProps {
   failure: FailureKind | null;
@@ -15,6 +17,7 @@ export interface FailureNoticeProps {
 
 /** The first-class failure states every account form shares: throttled, version mismatch, offline, unexpected. */
 export function FailureNotice({ failure, cooldown = 0, rateLimitTitle = 'Too many attempts.', host, hideRejected }: FailureNoticeProps) {
+  const origin = useActiveInstance()?.origin;
   if (!failure) return null;
   switch (failure.kind) {
     case 'rate_limited':
@@ -29,12 +32,14 @@ export function FailureNotice({ failure, cooldown = 0, rateLimitTitle = 'Too man
           It does not serve the API version this app speaks. Update Gotalk, then try again.
         </Notice>
       );
-    case 'network':
+    case 'network': {
+      const hint = refusedHint(origin);
       return (
-        <Notice tone="danger" title={`Could not reach ${host}.`}>
-          Check your connection and try again.
+        <Notice tone="danger" title={`Could not reach ${host.replace(/^https?:\/\//, '')}.`}>
+          Check your connection and try again.{hint ? ` ${hint}` : ''}
         </Notice>
       );
+    }
     case 'rejected':
       return hideRejected ? null : <Notice tone="danger">{failure.message}</Notice>;
     case 'unknown':

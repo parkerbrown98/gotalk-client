@@ -1,4 +1,4 @@
-import { DiscoveryError, discoverInstance, type DiscoveredInstance } from '@gotalk/core';
+import { DiscoveryError, discoverInstance, instanceCapabilities, normalizeInstanceInput, type DiscoveredInstance } from '@gotalk/core';
 import { Button, Card, Notice, Stack, Text, TextField } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -6,11 +6,23 @@ import { useState } from 'react';
 import { ScreenFrame } from '@/components/screen-frame';
 import { HeroStripes } from '@/components/hero-stripes';
 import { InstanceIcon, InstanceSummary } from '@/components/instance-summary';
+import { refusedHint } from '@/lib/connectivity';
+import { openExternal } from '@/lib/desktop';
 import { instancesStore, useInstances } from '@/lib/instances';
 import { useWide } from '@/lib/layout';
 
-function describeError(e: unknown): string {
-  if (e instanceof DiscoveryError) return e.message;
+function describeError(e: unknown, address: string): string {
+  if (e instanceof DiscoveryError) {
+    if (e.code !== 'unreachable' && e.code !== 'timeout') return e.message;
+    let origin: string | undefined;
+    try {
+      origin = normalizeInstanceInput(address).at(-1);
+    } catch {
+      origin = undefined;
+    }
+    const hint = refusedHint(origin);
+    return hint ? `${e.message} ${hint}` : e.message;
+  }
   return 'Something went wrong while connecting. Check the address and try again.';
 }
 
@@ -30,7 +42,7 @@ export default function Connect() {
     try {
       setFound(await discoverInstance(address));
     } catch (e) {
-      setError(describeError(e));
+      setError(describeError(e, address));
     } finally {
       setPending(false);
     }
@@ -47,7 +59,8 @@ export default function Connect() {
     router.replace('/home');
   }
 
-  const blocked = found && (!found.compatibility.ok || found.instance.setup_required);
+  const awaitingSetup = !!found && instanceCapabilities(found.instance).awaitingSetup;
+  const blocked = found && (!found.compatibility.ok || awaitingSetup);
   // The stripe band appears once per page: only on the first-run screen, before anything is found.
   const firstRun = !found && saved.length === 0;
   const gap = wide ? 'xl' : 'lg';
@@ -115,12 +128,12 @@ export default function Connect() {
                   <Notice tone="danger" title="This instance isn't compatible with this app.">
                     {found.compatibility.reason} Ask the administrator to update, or use a different instance.
                   </Notice>
-                ) : found.instance.setup_required ? (
+                ) : awaitingSetup ? (
                   <Notice tone="warning" title="Setup isn't finished.">
-                    This instance hasn't finished first-run setup yet. Its administrator needs to complete setup before
-                    anyone can join.
+                    {"This instance hasn't finished first-run setup yet. If it's yours, open the setup page and use the setup token from the server's log. Everyone else can join once setup is done."}
                   </Notice>
                 ) : null}
+                {awaitingSetup ? <Button title="Open setup page" variant="tertiary" onPress={() => openExternal(`${found.origin}/setup`)} /> : null}
                 <Button title={`Continue to ${found.instance.name}`} onPress={continueToInstance} disabled={!!blocked} />
               </Card>
             ) : null}

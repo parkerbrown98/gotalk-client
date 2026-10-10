@@ -2,7 +2,7 @@ import { NavRow, Text, useTheme } from '@gotalk/ui';
 import { Redirect, Stack, router, usePathname } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 
-import { useSettingsGroups } from '@/components/settings-page';
+import { AttentionDot, useSettingsGroups } from '@/components/settings-page';
 import { signOut, useAuthTarget, useSession } from '@/lib/auth';
 import { useActiveInstance } from '@/lib/instances';
 import { useWide } from '@/lib/layout';
@@ -31,9 +31,12 @@ function SettingsNav() {
       <ScrollView contentContainerStyle={{ gap: 2 }}>
         {groups.map((g) => (
           <View key={g.label} style={{ gap: 2, marginBottom: theme.space.sm }}>
-            <Text variant="captionMd" tone="muted" style={{ paddingHorizontal: 10, paddingTop: 6, paddingBottom: 2 }}>
-              {g.label}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingTop: 6, paddingBottom: 2 }}>
+              <Text variant="captionMd" tone="muted">
+                {g.label}
+              </Text>
+              {g.attention ? <AttentionDot /> : null}
+            </View>
             {g.links.map((p) => (
               <NavRow key={p.path} label={p.label} icon={p.icon} active={pathname === p.path || pathname.startsWith(`${p.path}/`)} onPress={() => router.replace(p.path)} />
             ))}

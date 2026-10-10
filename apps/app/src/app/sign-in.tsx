@@ -7,6 +7,7 @@ import { AuthLayout } from '@/components/auth-layout';
 import { FailureNotice } from '@/components/failure-notice';
 import { InlineLink } from '@/components/inline-link';
 import { PasswordField } from '@/components/password-field';
+import { useInstanceInfo } from '@/lib/api';
 import { authManager, useAuthTarget, useRevokedNotice, useSession } from '@/lib/auth';
 import { useCountdown } from '@/lib/countdown';
 import { isDesktop } from '@/lib/desktop';
@@ -14,12 +15,15 @@ import { resetTo } from '@/lib/layout';
 import { inviteHref, pendingInvite } from '@/lib/pending-invite';
 import { classifyFailure, type FailureKind } from '@/lib/failure';
 import { useActiveInstance } from '@/lib/instances';
+import { useInstanceCapabilities } from '@/lib/uploads';
 
 export default function SignIn() {
   const active = useActiveInstance();
   const target = useAuthTarget();
   const session = useSession();
   const revoked = useRevokedNotice(active?.id);
+  const info = useInstanceInfo();
+  const caps = useInstanceCapabilities();
 
   const [login, setLogin] = useState(revoked?.login ?? '');
   const [password, setPassword] = useState('');
@@ -58,7 +62,7 @@ export default function SignIn() {
       <Stack gap="lg">
         {revoked && !failure ? (
           <Notice tone="warning" icon="info" title="You were signed out.">
-            Another device ended this session. Sign in again to keep going.
+            This session was ended, from another device or by a password reset. Sign in again to keep going.
           </Notice>
         ) : null}
         {wrongCredentials ? (
@@ -99,6 +103,15 @@ export default function SignIn() {
             onSubmitEditing={submit}
             autoFocus={!!revoked}
           />
+          {caps.passwordReset ? (
+            <Text variant="bodySm" style={{ alignSelf: 'flex-end' }}>
+              <InlineLink onPress={() => router.push('/forgot-password')}>Forgot your password?</InlineLink>
+            </Text>
+          ) : info.data ? (
+            <Text variant="captionMd" tone="muted">
+              {`Forgot your password? ${active.name} can't send email, so ask its administrator to reset it.`}
+            </Text>
+          ) : null}
         </Stack>
 
         <Stack gap="md">

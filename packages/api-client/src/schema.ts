@@ -122,6 +122,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/password-reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Email a password reset link */
+        post: operations["request-password-reset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/password-reset/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set a new password with a reset token; signs out every session */
+        post: operations["confirm-password-reset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/refresh": {
         parameters: {
             query?: never;
@@ -150,6 +184,23 @@ export interface paths {
         put?: never;
         /** Create an account */
         post: operations["register"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/verify-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm an email address with a verification token */
+        post: operations["verify-email"];
         delete?: never;
         options?: never;
         head?: never;
@@ -576,6 +627,108 @@ export interface paths {
         patch: operations["update-instance"];
         trace?: never;
     };
+    "/instance/checks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Run the pre-flight checks against the live configuration (instance admins only) */
+        get: operations["get-instance-checks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/instance/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Show storage, email, voice and CORS settings and where they come from (instance admins only)
+         * @description Requires a login session; API tokens and bots cannot call it.
+         */
+        get: operations["get-instance-config"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Check and save settings for the given sections, then apply them on every replica (instance admins only)
+         * @description Requires a login session; API tokens and bots cannot call it.
+         */
+        patch: operations["update-instance-config"];
+        trace?: never;
+    };
+    "/instance/config/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check settings without saving them, optionally sending a test email (instance admins only)
+         * @description Requires a login session; API tokens and bots cannot call it.
+         */
+        post: operations["test-instance-config"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/instance/config/{section}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Forget saved settings for a section so config, environment and defaults apply again (instance admins only)
+         * @description Requires a login session; API tokens and bots cannot call it.
+         */
+        delete: operations["reset-instance-config"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/instance/icon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Upload the instance icon (instance admins only)
+         * @description Send the image as the raw request body (PNG, JPEG, GIF or WebP). Metadata such as EXIF location is removed. The limit is `limits.upload_size` in GET /instance.
+         */
+        put: operations["upload-instance-icon"];
+        post?: never;
+        /** Remove the instance icon (instance admins only) */
+        delete: operations["delete-instance-icon"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/invites/{code}": {
         parameters: {
             query?: never;
@@ -720,6 +873,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/places/{place}/banner": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Upload the place banner (MANAGE_PLACE)
+         * @description Send the image as the raw request body (PNG, JPEG, GIF or WebP). Metadata such as EXIF location is removed. The limit is `limits.upload_size` in GET /instance.
+         */
+        put: operations["upload-place-banner"];
+        post?: never;
+        /** Remove the place banner (MANAGE_PLACE) */
+        delete: operations["delete-place-banner"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/places/{place}/bans": {
         parameters: {
             query?: never;
@@ -837,6 +1011,27 @@ export interface paths {
         /** Mark every topic in a place (or a board) read, up to before; at most the 5000 most recently active */
         post: operations["mark-place-feed-read"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/places/{place}/icon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Upload the place icon (MANAGE_PLACE)
+         * @description Send the image as the raw request body (PNG, JPEG, GIF or WebP). Metadata such as EXIF location is removed. The limit is `limits.upload_size` in GET /instance.
+         */
+        put: operations["upload-place-icon"];
+        post?: never;
+        /** Remove the place icon (MANAGE_PLACE) */
+        delete: operations["delete-place-icon"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1453,6 +1648,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/setup/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check storage, email, voice or CORS settings during setup without saving them */
+        post: operations["test-setup-settings"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/topics/{topicID}": {
         parameters: {
             query?: never;
@@ -1600,6 +1812,27 @@ export interface paths {
         patch: operations["update-me"];
         trace?: never;
     };
+    "/users/@me/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Upload an avatar image
+         * @description Send the image as the raw request body (PNG, JPEG, GIF or WebP). Metadata such as EXIF location is removed. The limit is `limits.upload_size` in GET /instance.
+         */
+        put: operations["upload-my-avatar"];
+        post?: never;
+        /** Remove the avatar */
+        delete: operations["delete-my-avatar"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/@me/channels": {
         parameters: {
             query?: never;
@@ -1687,6 +1920,26 @@ export interface paths {
         post?: never;
         /** Delete a draft */
         delete: operations["delete-draft"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/email/verification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Email a link that verifies the account's address
+         * @description Requires a login session; API tokens and bots cannot call it.
+         */
+        post: operations["send-verification-email"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -2203,6 +2456,12 @@ export interface components {
             /** @description Shown only once */
             bot_token: string;
         };
+        CORSSettings: {
+            /** @description Allow credentialed requests (cannot be combined with *) */
+            allow_credentials?: boolean;
+            /** @description Origins such as https://app.example.com, https://*.example.com, or * for any */
+            allowed_origins: string[] | null;
+        };
         Channel: {
             /** Format: date-time */
             created_at: string;
@@ -2291,6 +2550,9 @@ export interface components {
              */
             level: "normal" | "muted";
         };
+        ChecksResponse: {
+            checks: components["schemas"]["SetupCheck"][] | null;
+        };
         Command: {
             /** Format: uuid */
             application_id: string;
@@ -2311,6 +2573,95 @@ export interface components {
             description: string;
             name: string;
             options?: components["schemas"]["CommandOption"][] | null;
+        };
+        ConfigDrivers: {
+            mail: string[] | null;
+            storage: string[] | null;
+        };
+        ConfigSectionCORSSettings: {
+            /** @description Setting this key in the config file or environment makes the section read-only */
+            config_key: string;
+            editable: boolean;
+            /** @description Why the section's provider could not be opened */
+            error?: string;
+            /** @description Secret fields that hold a value */
+            secrets_set: string[] | null;
+            settings: components["schemas"]["CORSSettings"];
+            /**
+             * @description default: built-in defaults; config: set by the config file or environment (read-only here); settings: saved through the wizard or this API
+             * @enum {string}
+             */
+            source: "default" | "config" | "settings";
+            /** Format: date-time */
+            updated_at?: string;
+            /** Format: uuid */
+            updated_by?: string;
+        };
+        ConfigSectionMailSettings: {
+            /** @description Setting this key in the config file or environment makes the section read-only */
+            config_key: string;
+            editable: boolean;
+            /** @description Why the section's provider could not be opened */
+            error?: string;
+            /** @description Secret fields that hold a value */
+            secrets_set: string[] | null;
+            settings: components["schemas"]["MailSettings"];
+            /**
+             * @description default: built-in defaults; config: set by the config file or environment (read-only here); settings: saved through the wizard or this API
+             * @enum {string}
+             */
+            source: "default" | "config" | "settings";
+            /** Format: date-time */
+            updated_at?: string;
+            /** Format: uuid */
+            updated_by?: string;
+        };
+        ConfigSectionStorageSettings: {
+            /** @description Setting this key in the config file or environment makes the section read-only */
+            config_key: string;
+            editable: boolean;
+            /** @description Why the section's provider could not be opened */
+            error?: string;
+            /** @description Secret fields that hold a value */
+            secrets_set: string[] | null;
+            settings: components["schemas"]["StorageSettings"];
+            /**
+             * @description default: built-in defaults; config: set by the config file or environment (read-only here); settings: saved through the wizard or this API
+             * @enum {string}
+             */
+            source: "default" | "config" | "settings";
+            /** Format: date-time */
+            updated_at?: string;
+            /** Format: uuid */
+            updated_by?: string;
+        };
+        ConfigSectionVoiceSettings: {
+            /** @description Setting this key in the config file or environment makes the section read-only */
+            config_key: string;
+            editable: boolean;
+            /** @description Why the section's provider could not be opened */
+            error?: string;
+            /** @description Secret fields that hold a value */
+            secrets_set: string[] | null;
+            settings: components["schemas"]["VoiceSettings"];
+            /**
+             * @description default: built-in defaults; config: set by the config file or environment (read-only here); settings: saved through the wizard or this API
+             * @enum {string}
+             */
+            source: "default" | "config" | "settings";
+            /** Format: date-time */
+            updated_at?: string;
+            /** Format: uuid */
+            updated_by?: string;
+        };
+        ConfigTestRequest: {
+            settings: components["schemas"]["ProviderSettings"];
+            /** @description Also send a test email to this address */
+            test_email_to?: string;
+        };
+        ConfigUpdateResponse: {
+            checks: components["schemas"]["SetupCheck"][] | null;
+            config: components["schemas"]["InstanceConfig"];
         };
         Consent: {
             /** Format: date-time */
@@ -2531,6 +2882,10 @@ export interface components {
         EditPostRequest: {
             content: string;
         };
+        EmailTokenRequest: {
+            /** @description The token from the verification link */
+            token: string;
+        };
         ErrorDetail: {
             /** @description Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id' */
             location?: string;
@@ -2578,9 +2933,15 @@ export interface components {
             /** @description Applications with bot accounts and slash commands */
             bots: boolean;
             chat: boolean;
+            /** @description The instance can send email */
+            email: boolean;
+            /** @description Accounts can verify their email address */
+            email_verification: boolean;
             /** @description Ranked topic feeds per place (/places/{place}/feed) and instance-wide (/feed) */
             feed: boolean;
             forums: boolean;
+            /** @description POST /auth/password-reset emails a reset link */
+            password_reset: boolean;
             /** @description Versioned policy documents and consent records */
             policies: boolean;
             /** @enum {string} */
@@ -2589,6 +2950,8 @@ export interface components {
             topic_votes: boolean;
             /** @description Moderation statistics at /transparency */
             transparency: boolean;
+            /** @description Avatars, place icons and banners, and the instance icon can be uploaded */
+            uploads: boolean;
             /** @description Voice and video channels are available (a LiveKit server is configured) */
             voice: boolean;
             /** @description Places can send signed events to external URLs */
@@ -2712,6 +3075,8 @@ export interface components {
         };
         Instance: {
             api: components["schemas"]["APIInfo"];
+            /** @description Features that are unavailable or failing, e.g. email or storage */
+            degraded_features: string[] | null;
             description: string;
             features: components["schemas"]["Features"];
             feed: components["schemas"]["FeedInfo"];
@@ -2725,8 +3090,21 @@ export interface components {
             setup_required: boolean;
             software: components["schemas"]["Software"];
             stats: components["schemas"]["Stats"];
+            /**
+             * @description Overall state; degraded means some features (see degraded_features) do not work
+             * @enum {string}
+             */
+            status: "awaiting_setup" | "healthy" | "degraded";
             url: string;
             webhooks: components["schemas"]["WebhookInfo"];
+        };
+        InstanceConfig: {
+            cors: components["schemas"]["ConfigSectionCORSSettings"];
+            /** @description Available storage and mail drivers */
+            drivers: components["schemas"]["ConfigDrivers"];
+            mail: components["schemas"]["ConfigSectionMailSettings"];
+            storage: components["schemas"]["ConfigSectionStorageSettings"];
+            voice: components["schemas"]["ConfigSectionVoiceSettings"];
         };
         InstanceUpdateRequest: {
             description?: string;
@@ -2811,6 +3189,18 @@ export interface components {
             post_length: number;
             /** Format: int64 */
             title_length: number;
+            /**
+             * Format: int64
+             * @description Largest accepted image width or height in pixels
+             */
+            upload_max_side: number;
+            /**
+             * Format: int64
+             * @description Largest accepted upload in bytes
+             */
+            upload_size: number;
+            /** @description Accepted image types */
+            upload_types: string[] | null;
             /** Format: int64 */
             webhooks_per_place: number;
         };
@@ -2818,6 +3208,41 @@ export interface components {
             /** @description Username or email address */
             login: string;
             password: string;
+        };
+        MailSettings: {
+            /** @description Amazon SES access key ID */
+            access_key_id?: string;
+            /** @description Provider API key or server token; write-only */
+            api_key?: string;
+            /** @description Override the provider's API base URL (e.g. https://api.eu.mailgun.net) */
+            api_url?: string;
+            /** @description Mailgun sending domain */
+            domain?: string;
+            /** @description Mail driver; empty disables email */
+            driver: string;
+            /** @description Sender address, e.g. Gotalk <noreply@forum.example.com> */
+            from?: string;
+            options?: {
+                [key: string]: string;
+            };
+            /** @description Amazon SES region */
+            region?: string;
+            /** @description Amazon SES secret access key; write-only */
+            secret_access_key?: string;
+            smtp_host?: string;
+            /** @description Write-only; leave empty to keep the current value */
+            smtp_password?: string;
+            /**
+             * Format: int64
+             * @description Defaults to 587 (starttls), 465 (tls) or 25 (none)
+             */
+            smtp_port?: number;
+            /**
+             * @description starttls (default), tls (implicit, port 465) or none
+             * @enum {string}
+             */
+            smtp_tls?: "starttls" | "tls" | "none" | "";
+            smtp_username?: string;
         };
         MarkFeedReadRequest: {
             /**
@@ -3063,6 +3488,15 @@ export interface components {
             current_password: string;
             new_password: string;
         };
+        PasswordResetConfirmRequest: {
+            new_password: string;
+            /** @description The token from the reset link */
+            token: string;
+        };
+        PasswordResetRequest: {
+            /** Format: email */
+            email: string;
+        };
         Place: {
             banner_url: string | null;
             /** Format: date-time */
@@ -3182,6 +3616,12 @@ export interface components {
             bio?: string;
             display_name?: string;
             pronouns?: string;
+        };
+        ProviderSettings: {
+            cors?: components["schemas"]["CORSSettings"];
+            mail?: components["schemas"]["MailSettings"];
+            storage?: components["schemas"]["StorageSettings"];
+            voice?: components["schemas"]["VoiceSettings"];
         };
         PublishPolicyRequest: {
             /** @description Markdown */
@@ -3387,6 +3827,8 @@ export interface components {
         };
         SetupCheck: {
             detail: string;
+            /** @description What to do about a warning or error */
+            hint?: string;
             name: string;
             /** @enum {string} */
             status: "ok" | "warning" | "error" | "skipped";
@@ -3394,8 +3836,12 @@ export interface components {
         SetupRequest: {
             admin: components["schemas"]["SetupRequestAdminStruct"];
             instance: components["schemas"]["SetupRequestInstanceStruct"];
+            /** @description Optional storage, email, voice and CORS settings; omitted sections keep their config/defaults */
+            settings?: components["schemas"]["ProviderSettings"];
             /** @description One-time token printed in the server logs on first boot */
             setup_token: string;
+            /** @description Save settings even if their live checks fail */
+            skip_checks?: boolean;
         };
         SetupRequestAdminStruct: {
             /** Format: email */
@@ -3418,12 +3864,20 @@ export interface components {
         };
         SetupStatus: {
             checks: components["schemas"]["SetupCheck"][] | null;
+            /** @description Current storage, email, voice and CORS settings (secrets redacted); only with a valid Gotalk-Setup-Token header */
+            config?: components["schemas"]["InstanceConfig"];
             defaults: components["schemas"]["SetupStatusDefaultsStruct"];
             setup_required: boolean;
         };
         SetupStatusDefaultsStruct: {
             instance_name: string;
             registration_mode: string;
+        };
+        SetupTestRequest: {
+            settings: components["schemas"]["ProviderSettings"];
+            setup_token: string;
+            /** @description Also send a test email to this address */
+            test_email_to?: string;
         };
         Software: {
             name: string;
@@ -3439,6 +3893,29 @@ export interface components {
             places: number;
             /** Format: int64 */
             users: number;
+        };
+        StorageSettings: {
+            /** @description Storage driver */
+            driver: string;
+            /** @description Directory for the local driver */
+            local_path?: string;
+            options?: {
+                [key: string]: string;
+            };
+            /** @description Serve files from this base URL (CDN or public bucket) instead of through Gotalk */
+            public_url?: string;
+            s3_access_key_id?: string;
+            s3_bucket?: string;
+            /** @description S3 API endpoint; empty means AWS S3 in s3_region */
+            s3_endpoint?: string;
+            /** @description Use path-style bucket addressing (MinIO, SeaweedFS and most self-hosted stores) */
+            s3_force_path_style?: boolean;
+            /** @description Key prefix inside the bucket */
+            s3_prefix?: string;
+            /** @description Signing region (us-east-1 when unsure; auto for R2) */
+            s3_region?: string;
+            /** @description Write-only; leave empty to keep the current value */
+            s3_secret_access_key?: string;
         };
         SubscriptionRequest: {
             /** @enum {string} */
@@ -3786,6 +4263,15 @@ export interface components {
             /** Format: date-time */
             started_at: string;
             user: components["schemas"]["User"];
+        };
+        VoiceSettings: {
+            livekit_api_key?: string;
+            /** @description At least 32 characters; write-only, leave empty to keep the current value */
+            livekit_api_secret?: string;
+            /** @description How this server reaches LiveKit's API, if different (e.g. http://livekit:7880) */
+            livekit_api_url?: string;
+            /** @description LiveKit URL clients connect to (ws, wss, http or https); empty disables voice */
+            livekit_url: string;
         };
         VoiceState: {
             /** @description Allowed to publish a microphone (SPEAK, not server-muted, not timed out) */
@@ -4383,6 +4869,68 @@ export interface operations {
             };
         };
     };
+    "request-password-reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordResetRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "confirm-password-reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordResetConfirmRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     refresh: {
         parameters: {
             query?: never;
@@ -4436,6 +4984,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Tokens"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "verify-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailTokenRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["User"];
                 };
             };
             /** @description Error */
@@ -6218,6 +6799,334 @@ export interface operations {
             };
         };
     };
+    "get-instance-checks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChecksResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-instance-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InstanceConfig"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "update-instance-config": {
+        parameters: {
+            query?: {
+                /** @description Save even if a live check fails */
+                force?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProviderSettings"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConfigUpdateResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "test-instance-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfigTestRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChecksResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "reset-instance-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                section: "storage" | "mail" | "voice" | "cors";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InstanceConfig"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "upload-instance-icon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "image/*": string;
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Instance"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Request Entity Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-instance-icon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Instance"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "preview-invite": {
         parameters: {
             query?: never;
@@ -6957,6 +7866,128 @@ export interface operations {
             };
         };
     };
+    "upload-place-banner": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Place ID or slug */
+                place: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "image/*": string;
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Place"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Request Entity Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-place-banner": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Place ID or slug */
+                place: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Place"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "list-bans": {
         parameters: {
             query?: {
@@ -7432,6 +8463,128 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MarkFeedReadResult"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "upload-place-icon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Place ID or slug */
+                place: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "image/*": string;
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Place"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Request Entity Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-place-icon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Place ID or slug */
+                place: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Place"];
                 };
             };
             /** @description Unauthorized */
@@ -9818,7 +10971,10 @@ export interface operations {
     "get-setup-status": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description The setup token; when valid, the response includes the current settings */
+                "Gotalk-Setup-Token"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -9831,6 +10987,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SetupStatus"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "test-setup-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetupTestRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChecksResponse"];
                 };
             };
             /** @description Error */
@@ -10590,6 +11779,104 @@ export interface operations {
             };
         };
     };
+    "upload-my-avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "image/*": string;
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SelfUser"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Request Entity Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-my-avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SelfUser"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "list-direct-channels": {
         parameters: {
             query?: {
@@ -11002,6 +12289,42 @@ export interface operations {
             };
             /** @description Unprocessable Entity */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "send-verification-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

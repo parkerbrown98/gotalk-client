@@ -21,6 +21,8 @@ export interface InstancesState {
   activeId: string | null;
   /** Saves (or refreshes) an instance and makes it active. */
   addInstance: (discovered: DiscoveredInstance) => SavedInstance;
+  /** Picks up a changed name, description or icon from a fresh `GET /instance`. */
+  refresh: (id: string, info: { name: string; description: string; icon_url?: string | null }) => void;
   setActive: (id: string | null) => void;
   removeInstance: (id: string) => void;
 }
@@ -56,6 +58,14 @@ export function createInstancesStore(storage: KeyValueStorage, now: () => number
             activeId: d.id,
           }));
           return saved;
+        },
+        refresh: (id, info) => {
+          const current = get().instances.find((i) => i.id === id);
+          const iconUrl = info.icon_url ?? null;
+          if (!current || (current.name === info.name && current.description === info.description && current.iconUrl === iconUrl)) return;
+          set((s) => ({
+            instances: s.instances.map((i) => (i.id === id ? { ...i, name: info.name, description: info.description, iconUrl } : i)),
+          }));
         },
         setActive: (id) =>
           set((s) => ({

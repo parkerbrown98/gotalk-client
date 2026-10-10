@@ -1,6 +1,8 @@
 import { ApiError } from '@gotalk/api-client';
 import { activeFilterCount, availableSorts, feedParams, parseFeedParams, type FeedFilters, type FeedTopic } from '@gotalk/core';
-import { Button, Icon, NavRow, Notice, PillTabs, Stack, Text, useTheme } from '@gotalk/ui';
+import { Button, Icon, NavRow, Notice, PillTabs, Stack, Text, useImageFallback, useTheme } from '@gotalk/ui';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
@@ -234,6 +236,7 @@ function PlaceHeader({
   const theme = useTheme();
   const wide = useWide();
   const placeActions = usePlaceActions();
+  const banner = useImageFallback(place.banner_url);
   const [joining, setJoining] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
 
@@ -273,9 +276,9 @@ function PlaceHeader({
     )
   ) : null;
 
-  return (
-    <Stack gap="md" style={{ paddingHorizontal: 16, paddingTop: wide ? theme.space.xl : theme.space.lg, paddingBottom: theme.space.lg }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: wide ? theme.space.lg : theme.space.md }}>
+  const content = (
+    <Stack gap="md" style={{ paddingHorizontal: 16, paddingTop: banner.uri && wide ? 96 : wide ? theme.space.xl : theme.space.lg, paddingBottom: theme.space.lg }}>
+      <View style={{ flexDirection: 'row', alignItems: wide && banner.uri ? 'flex-end' : 'center', gap: wide ? theme.space.lg : theme.space.md }}>
         <InstanceIcon name={place.name} iconUrl={place.icon_url} origin={origin} size={wide ? 56 : 48} />
         <Stack gap="xxs" style={{ flex: 1 }}>
           <Text variant={wide ? 'headingLg' : 'headingSm'} accessibilityRole="header">
@@ -299,5 +302,26 @@ function PlaceHeader({
       ) : null}
       {join_}
     </Stack>
+  );
+
+  if (!banner.uri) return content;
+  const image = <Image source={{ uri: banner.uri }} onError={banner.onError} style={{ width: '100%', height: wide ? 168 : 96 }} contentFit="cover" transition={150} accessibilityIgnoresInvertColors />;
+  if (!wide) {
+    return (
+      <View>
+        {image}
+        {content}
+      </View>
+    );
+  }
+  // Wide screens put the banner behind the header and fade it into the canvas under the name.
+  return (
+    <View>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, pointerEvents: 'none' }}>
+        {image}
+        <LinearGradient colors={['transparent', theme.colors.canvas]} locations={[0.15, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: -1 }} />
+      </View>
+      {content}
+    </View>
   );
 }

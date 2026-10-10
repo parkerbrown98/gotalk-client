@@ -164,7 +164,7 @@ export function usePlaceActions() {
         await refresh();
         return place;
       },
-      async update(slug: string, input: Partial<PlaceInput>) {
+      async update(slug: string, input: Partial<PlaceInput> & { icon_url?: string; banner_url?: string }) {
         const place = unwrap(await api().PATCH('/places/{place}', { params: { path: { place: slug } }, body: input }));
         await refresh(slug);
         if (place.slug !== slug) await refresh(place.slug);

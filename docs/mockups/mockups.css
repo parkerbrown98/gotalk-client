@@ -227,3 +227,21 @@ code { font-family: var(--gt-font-mono); font-size: 14px; padding: 1px 6px; bord
 .dialog .input, .sheet .input { background: var(--gt-color-surface); }
 .dialog .card.flush { background: var(--gt-color-surface); }
 .phone .body:not(.flush) { padding-bottom: 32px; }
+
+/* Phase 8: info notices, image stand-ins and the image-picker pattern (DESIGN.md "Image pickers"). */
+.notice.info { background: var(--gt-color-accent-blue-soft); border-color: transparent; color: var(--gt-color-body); }
+.notice.info > svg { color: var(--gt-color-accent-blue); }
+.photo { flex: none; background: linear-gradient(135deg, #3e63dd 0%, #8e4ec6 55%, #e5484d 100%); }
+.photo.round { border-radius: var(--gt-radius-full); }
+.photo.sq { border-radius: var(--gt-radius-md); }
+.photo.s64 { width: 64px; height: 64px; }
+.photo.s48 { width: 48px; height: 48px; }
+.photo.s36 { width: 36px; height: 36px; }
+.photo.s56 { width: 56px; height: 56px; }
+.avatar.s64 { width: 64px; height: 64px; font-size: 22px; }
+.picker { display: flex; align-items: center; gap: var(--gt-space-lg); }
+.picker .acts { display: flex; flex-direction: column; gap: var(--gt-space-xs); }
+.banner-preview { height: 112px; border-radius: var(--gt-radius-md); border: 1px solid var(--gt-color-hairline); background: var(--gt-color-surface-elevated); display: grid; place-items: center; color: var(--gt-color-mute); font-size: 13px; }
+.banner-preview.photo { border-color: var(--gt-color-hairline); }
+.dot-attn { width: 8px; height: 8px; border-radius: 50%; background: var(--gt-color-accent-yellow); display: inline-block; margin-left: 6px; vertical-align: middle; }
+.check-row { display: flex; flex-direction: column; gap: 2px; padding: 8px 0; border-top: 1px solid var(--gt-color-hairline); }

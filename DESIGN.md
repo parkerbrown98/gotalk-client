@@ -266,6 +266,18 @@ components:
     typography: "{typography.body-sm-strong}"
     rounded: "{rounded.sm}"
     size: 28px
+  image-picker:
+    backgroundColor: "transparent"
+    textColor: "{colors.mute}"
+    typography: "{typography.caption-md}"
+    rounded: "{rounded.md}"
+    size: 64px
+  image-picker-banner:
+    backgroundColor: "{colors.surface-elevated}"
+    textColor: "{colors.mute}"
+    typography: "{typography.caption-md}"
+    rounded: "{rounded.md}"
+    height: 112px
   badge-pro:
     backgroundColor: "{colors.surface-elevated}"
     textColor: "{colors.on-dark-mute}"
@@ -556,6 +568,20 @@ Built from the existing vocabulary; no new tokens.
 - Each arrow is a 28px square button, rounded `{rounded.sm}`, icon `{colors.mute}`; the score sits between them in `{typography.body-sm-strong}`.
 - Active (the person's own vote): the arrow's square flips to `{colors.surface-elevated}` and its icon to `{colors.on-dark}` — the same one-notch lift as `{component.pill-tab-active}`. No accent color marks a vote; the system keeps saturated color off chrome.
 - Wide screens put the control in a column left of the row; phones lay it out horizontally in the row's footer next to the reply count.
+
+### Image pickers (Gotalk addition)
+
+Built from the existing vocabulary; no new tokens. Used for the avatar, place icons and banners, and the instance icon.
+
+**`image-picker`** — the current image beside its actions
+- Preview at 64px: avatars are round (`{rounded.full}`), icons are an `{component.app-icon-tile-large}` square (`{rounded.md}`). With no image, or one that fails to load, the preview shows the initials on the stable soft accent the avatar already uses, never an empty box.
+- To its right: a `{component.button-tertiary}` at the small size ("Upload photo", then "Replace photo") and, once there is an image, a `{component.button-secondary}` "Remove". Under them, the accepted formats and size limit in `{typography.caption-md}` `{colors.mute}` ("PNG, JPEG, GIF or WebP, up to 8 MB. Cropped to a square.").
+- While sending, the upload button reads "Uploading…" with its spinner; there is no progress bar. Refusals (too large, unsupported, storage unavailable) appear in a danger notice under the picker.
+- Without uploads on the instance, the picker becomes a `{component.text-input}` for an image URL with its own small Save.
+
+**`image-picker-banner`** — the same pattern for a place banner
+- The preview spans the column, 112px tall, rounded `{rounded.md}` with a 1px `{colors.hairline}` border; empty, it is a `{colors.surface-elevated}` block reading "No banner". The actions sit under the preview.
+- On the place page the banner is a 96px strip above the header on phones. Wide screens put a 168px banner behind the header and fade it into `{colors.canvas}` toward the name, so the title stays on the canvas tone; no scrim color is added.
 
 ### Inputs & Forms
 

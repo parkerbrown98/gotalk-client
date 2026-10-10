@@ -24,6 +24,10 @@ const instanceBody = (overrides: Record<string, unknown> = {}) => ({
   },
   registration_mode: 'open',
   setup_required: false,
+  status: 'healthy',
+  degraded_features: [],
+  features: { email: true, password_reset: true, email_verification: true, uploads: true },
+  limits: { upload_size: 8_388_608, upload_types: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'], upload_max_side: 8192 },
   ...overrides,
 });
 
@@ -175,5 +179,26 @@ describe('instances store', () => {
     const reloaded = createInstancesStore(storage);
     await reloaded.persist.rehydrate();
     expect(reloaded.getState().instances.map((i) => i.id)).toEqual(['https://b.example']);
+  });
+
+  it('picks up a new name or icon from a fresh GET /instance without reordering or re-activating', () => {
+    let t = 1;
+    const store = createInstancesStore(memoryStorage(), () => t++);
+    store.getState().addInstance(discovered('https://a.example', 'A'));
+    store.getState().addInstance(discovered('https://b.example', 'B'));
+    const before = store.getState();
+
+    store.getState().refresh('https://a.example', { name: 'A', description: 'A test instance', icon_url: null });
+    expect(store.getState()).toBe(before);
+
+    store.getState().refresh('https://a.example', { name: 'A', description: 'A test instance', icon_url: 'https://a.example/media/instance/x.png' });
+    const a = store.getState().instances.find((i) => i.id === 'https://a.example')!;
+    expect(a.iconUrl).toBe('https://a.example/media/instance/x.png');
+    expect(a.lastUsedAt).toBe(1);
+    expect(store.getState().activeId).toBe('https://b.example');
+    expect(store.getState().instances.map((i) => i.id)).toEqual(['https://b.example', 'https://a.example']);
+
+    store.getState().refresh('https://unknown.example', { name: 'X', description: '' });
+    expect(store.getState().instances).toHaveLength(2);
   });
 });

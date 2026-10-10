@@ -12,10 +12,12 @@ interface ConnectionInfo {
   disconnectedAt: number | null;
   /** When the client started reconnecting, whether or not it had been connected before; null otherwise. */
   downSince: number | null;
+  /** The gateway has connected at least once for this instance; a refused handshake never does. */
+  everReady: boolean;
 }
 
 /** Mirrors the active instance's gateway state for the UI and for code that must not import the gateway itself. */
-export const connectionStore = createStore<ConnectionInfo>(() => ({ instanceId: null, state: 'idle', disconnectedAt: null, downSince: null }));
+export const connectionStore = createStore<ConnectionInfo>(() => ({ instanceId: null, state: 'idle', disconnectedAt: null, downSince: null, everReady: false }));
 
 export function isGatewayReady(instanceId: string): boolean {
   const s = connectionStore.getState();

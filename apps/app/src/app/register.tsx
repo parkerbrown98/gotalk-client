@@ -1,3 +1,4 @@
+import { instanceCapabilities } from '@gotalk/core';
 import { Badge, Button, Card, Checkbox, Notice, Stack, Text, TextField } from '@gotalk/ui';
 import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
@@ -40,8 +41,21 @@ export default function Register() {
   const [serverErrors, setServerErrors] = useState<Partial<Record<Field, string>>>({});
   const [attempt, setAttempt] = useState(0);
   const cooldown = useCountdown(failure?.kind === 'rate_limited' ? failure.retryAfter : null, attempt);
+  const [created, setCreated] = useState<{ email: string; next: Parameters<typeof resetTo>[0] } | null>(null);
 
   if (!active || !target) return <Redirect href="/connect" />;
+  if (created) {
+    return (
+      <AuthLayout appbarTitle="Check your email" heading="Check your email" minimalAbout>
+        <Stack gap="lg">
+          <Notice tone="success" icon="mail" title="Your account is ready.">
+            We sent a link to {created.email} to confirm the address. Open it whenever you like; nothing here waits for it.
+          </Notice>
+          <Button title="Continue" onPress={() => resetTo(created.next)} />
+        </Stack>
+      </AuthLayout>
+    );
+  }
   // With an invite waiting, submitting carries on to it instead of home.
   if (session && !pendingInvite.get()) return <Redirect href="/home" />;
 
@@ -115,7 +129,10 @@ export default function Register() {
       // An invite-only sign-up already joined the place with its code; otherwise carry on to the invite.
       const invite = pendingInvite.get();
       pendingInvite.clear();
-      resetTo(invite && !inviteOnly ? inviteHref(invite) : '/home');
+      const next = invite && !inviteOnly ? inviteHref(invite) : '/home';
+      // Where the confirmation link went, before moving on; nothing waits for it.
+      if (instanceCapabilities(info.data).emailVerification) setCreated({ email: email.trim(), next });
+      else resetTo(next);
     } catch (e) {
       const f = classifyFailure(e);
       setFailure(f);
