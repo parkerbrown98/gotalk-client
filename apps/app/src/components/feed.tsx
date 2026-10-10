@@ -27,7 +27,9 @@ import { copyText } from '@/lib/clipboard';
 import { isDesktop } from '@/lib/desktop';
 import { useFeedActions, useFeedCapabilities } from '@/lib/feeds';
 import { type BoardNode } from '@/lib/forums';
+import { useActiveInstance } from '@/lib/instances';
 import { useWide } from '@/lib/layout';
+import { welcomeHref } from '@/lib/welcome';
 
 type Topic = Pick<FeedTopic, 'id' | 'score' | 'upvotes' | 'downvotes' | 'viewer' | 'author' | 'unread_count' | 'last_read_post_number'>;
 
@@ -57,12 +59,13 @@ export function VoteControl({ topic, mode, horizontal, onError }: { topic: Topic
   const theme = useTheme();
   const c = theme.colors;
   const actions = useFeedActions();
+  const origin = useActiveInstance()?.origin;
   const [busy, setBusy] = useState(false);
   if (mode === 'off') return null;
   const mine = topic.viewer?.vote ?? 0;
 
   const press = (value: 1 | -1) => {
-    if (mode === 'signin') return router.push('/sign-in');
+    if (mode === 'signin') return router.push(welcomeHref(origin));
     if (mode !== 'on' || busy) return;
     setBusy(true);
     actions

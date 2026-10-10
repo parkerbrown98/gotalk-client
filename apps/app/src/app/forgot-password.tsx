@@ -1,29 +1,31 @@
 import { unwrap } from '@gotalk/api-client';
-import { classifyEmailFailure, passwordResetSentCopy, RESEND_WAIT_SECONDS } from '@gotalk/core';
+import { classifyEmailFailure, instanceCapabilities, instanceDisplayName, passwordResetSentCopy, RESEND_WAIT_SECONDS, serverParam } from '@gotalk/core';
 import { Button, Notice, Stack, Text, TextField } from '@gotalk/ui';
-import { Redirect, router } from 'expo-router';
-import { useState } from 'react';
+import { Redirect, useLocalSearchParams } from 'expo-router';
+import { useState, type ReactNode } from 'react';
 import { ActivityIndicator } from 'react-native';
 
-import { AuthLayout } from '@/components/auth-layout';
-import { useApiClient, useInstanceInfo } from '@/lib/api';
-import { useSession } from '@/lib/auth';
+import { ServerCard, WelcomeFrame } from '@/components/welcome';
 import { useCountdown } from '@/lib/countdown';
 import { useActiveInstance } from '@/lib/instances';
-import { useInstanceCapabilities } from '@/lib/uploads';
+import { goBack, useWide } from '@/lib/layout';
+import { publicClient, useServer, welcomeHref } from '@/lib/welcome';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
- * Requests a reset link. The server answers the same whether or not an account uses the address, so
- * the screen never says "no account found". The link opens the instance's own page, not the app.
+ * Requests a reset link for the server chosen on the welcome screen (`?server=`), or the active one. The
+ * server answers the same whether or not an account uses the address, so the screen never says "no account
+ * found". The link opens the server's own page, not the app.
  */
 export default function ForgotPassword() {
+  const wide = useWide();
+  const { server: serverArg } = useLocalSearchParams<{ server?: string }>();
   const active = useActiveInstance();
-  const session = useSession();
-  const client = useApiClient();
-  const info = useInstanceInfo();
-  const caps = useInstanceCapabilities();
+  const param = serverArg ?? (active ? serverParam(active.origin) : undefined);
+  const query = useServer(param);
+  const server = query.data;
+  const caps = instanceCapabilities(server?.instance);
 
   const [email, setEmail] = useState('');
   const [touched, setTouched] = useState(false);
@@ -35,19 +37,19 @@ export default function ForgotPassword() {
   const [attempt, setAttempt] = useState(0);
   const cooldown = useCountdown(wait, attempt);
 
-  if (!active) return <Redirect href="/connect" />;
-  if (session) return <Redirect href="/home" />;
+  if (!param) return <Redirect href="/welcome" />;
 
+  const name = server ? instanceDisplayName(server.origin, server.instance.name) : param;
   const valid = EMAIL.test(email.trim());
-  const back = () => (router.canGoBack() ? router.back() : router.replace('/sign-in'));
+  const back = () => goBack(server ? welcomeHref(server.origin) : '/welcome');
 
   async function send() {
-    if (!client || !valid || pending || cooldown > 0) return;
+    if (!server || !valid || pending || cooldown > 0) return;
     setPending(true);
     setError(null);
     setFieldError(null);
     try {
-      unwrap(await client.POST('/auth/password-reset', { body: { email: email.trim() } }));
+      unwrap(await publicClient(server).POST('/auth/password-reset', { body: { email: email.trim() } }));
       setSentTo(email.trim());
       setWait(RESEND_WAIT_SECONDS);
       setAttempt((n) => n + 1);
@@ -60,13 +62,13 @@ export default function ForgotPassword() {
           setError({ title: 'Too many requests.', text: `You can try again in ${f.retryAfter} seconds.` });
           break;
         case 'email_unavailable':
-          setError({ title: "This instance can't send email right now.", text: `Ask the administrator of ${active!.name} to reset your password, or try again later.` });
+          setError({ title: "This server can't send email right now.", text: `Ask the administrator of ${name} to reset your password, or try again later.` });
           break;
         case 'invalid':
           setFieldError(f.message);
           break;
         case 'network':
-          setError({ title: `Could not reach ${active!.origin.replace(/^https?:\/\//, '')}.`, text: 'Check your connection and try again.' });
+          setError({ title: `Could not reach ${server.origin.replace(/^https?:\/\//, '')}.`, text: 'Check your connection and try again.' });
           break;
         default:
           setError({ text: f.kind === 'other' ? f.message : 'Something went wrong. Try again.' });
@@ -76,37 +78,56 @@ export default function ForgotPassword() {
     }
   }
 
-  if (info.isPending) {
-    return (
-      <AuthLayout appbarTitle="Reset password" heading="Reset your password">
-        <ActivityIndicator />
-      </AuthLayout>
+  const frame = (heading: string, children: ReactNode) => (
+    <WelcomeFrame title="Reset password" onBack={back}>
+      <Stack gap="lg">
+        {server ? <ServerCard origin={server.origin} name={server.instance.name} iconUrl={server.instance.icon_url} /> : null}
+        {wide ? (
+          <Text variant="headingXl" accessibilityRole="header">
+            {heading}
+          </Text>
+        ) : null}
+        {children}
+      </Stack>
+    </WelcomeFrame>
+  );
+
+  if (query.isPending) return frame('Reset your password', <ActivityIndicator style={{ alignSelf: 'flex-start' }} />);
+
+  if (!server) {
+    return frame(
+      'Reset your password',
+      <Stack gap="lg">
+        <Notice tone="danger" title={`Could not reach ${param}.`}>
+          Check your connection and try again.
+        </Notice>
+        <Button title="Back to sign in" onPress={back} />
+      </Stack>,
     );
   }
 
   if (!caps.passwordReset) {
-    return (
-      <AuthLayout appbarTitle="Reset password" heading="Reset your password">
-        <Stack gap="lg">
-          <Notice tone="info" icon="mail" title="This instance can't send email.">
-            Ask the administrator of {active.name} to reset your password.
-          </Notice>
-          <Button title="Back to sign in" onPress={back} />
-        </Stack>
-      </AuthLayout>
+    return frame(
+      'Reset your password',
+      <Stack gap="lg">
+        <Notice tone="info" icon="mail" title="This server can't send email.">
+          Ask the administrator of {name} to reset your password.
+        </Notice>
+        <Button title="Back to sign in" onPress={back} />
+      </Stack>,
     );
   }
 
-  return (
-    <AuthLayout appbarTitle="Reset password" heading={sentTo ? 'Check your email' : 'Reset your password'}>
-      <Stack gap="lg">
+  return frame(
+    sentTo ? 'Check your email' : 'Reset your password',
+    <Stack gap="lg">
         {sentTo ? (
           <Notice tone="success" icon="mail" title="Link sent.">
             {passwordResetSentCopy(sentTo)}
           </Notice>
         ) : (
           <Text variant="bodySm" tone="muted">
-            {`Enter the email address of your account on ${active.name}. We'll send a link to choose a new password.`}
+            {`Enter the email address of your account on ${name}. We'll send a link to choose a new password.`}
           </Text>
         )}
         {error ? (
@@ -155,7 +176,6 @@ export default function ForgotPassword() {
             </>
           )}
         </Stack>
-      </Stack>
-    </AuthLayout>
+    </Stack>,
   );
 }

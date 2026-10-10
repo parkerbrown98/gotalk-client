@@ -1,9 +1,10 @@
+import { instanceDisplayName } from '@gotalk/core';
 import { Button, Card, Stack, Text } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable } from 'react-native';
 
-import { InstanceIcon, InstanceSummary } from '@/components/instance-summary';
+import { InstanceSummary, ServerIcon } from '@/components/instance-summary';
 import { PresenceAvatar, PresenceSheet, presenceLabels } from '@/components/presence';
 import { ScreenFrame } from '@/components/screen-frame';
 import { useInstanceInfo, useMe } from '@/lib/api';
@@ -67,10 +68,10 @@ export default function You() {
           ) : null}
           {others.map((i) => (
             <Card compact key={i.id} style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <InstanceIcon name={i.name} iconUrl={i.iconUrl} origin={i.origin} size={36} />
+              <ServerIcon name={i.name} iconUrl={i.iconUrl} origin={i.origin} size={36} />
               <Stack gap="none" style={{ flex: 1 }}>
                 <Text variant="bodySmStrong" tone="onDark">
-                  {i.name}
+                  {instanceDisplayName(i.origin, i.name)}
                 </Text>
                 <Text variant="captionMd" tone="muted">
                   {i.origin.replace(/^https?:\/\//, '')}
@@ -86,13 +87,13 @@ export default function You() {
               />
             </Card>
           ))}
-          <Button title="Add an instance" variant="tertiary" onPress={() => router.push('/connect')} />
+          <Button title="Add an instance" variant="tertiary" onPress={() => router.push('/welcome')} />
           <Button
-            title={`Forget ${active.name}`}
+            title={`Forget ${instanceDisplayName(active.origin, active.name)}`}
             variant="danger"
             onPress={async () => {
               await forgetInstance(active.id);
-              resetTo('/connect');
+              resetTo('/welcome');
             }}
           />
         </Stack>

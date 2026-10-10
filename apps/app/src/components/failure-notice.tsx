@@ -13,11 +13,14 @@ export interface FailureNoticeProps {
   host: string;
   /** Skip server rejections, for screens that map them onto fields or their own copy. */
   hideRejected?: boolean;
+  /** The instance being reached, when it is not the active one (the welcome screen). */
+  origin?: string;
 }
 
 /** The first-class failure states every account form shares: throttled, version mismatch, offline, unexpected. */
-export function FailureNotice({ failure, cooldown = 0, rateLimitTitle = 'Too many attempts.', host, hideRejected }: FailureNoticeProps) {
-  const origin = useActiveInstance()?.origin;
+export function FailureNotice({ failure, cooldown = 0, rateLimitTitle = 'Too many attempts.', host, hideRejected, origin: target }: FailureNoticeProps) {
+  const active = useActiveInstance()?.origin;
+  const origin = target ?? active;
   if (!failure) return null;
   switch (failure.kind) {
     case 'rate_limited':

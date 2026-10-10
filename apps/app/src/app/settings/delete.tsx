@@ -35,7 +35,7 @@ export default function DeleteAccount() {
     try {
       unwrap(await client.DELETE('/users/@me', { body: { password } }));
       // Leave first: clearing the session would otherwise bounce this screen to sign-in.
-      resetTo('/connect');
+      resetTo('/welcome');
       await authManager.endSession(active!.id);
     } catch (e) {
       const f = classifyFailure(e);

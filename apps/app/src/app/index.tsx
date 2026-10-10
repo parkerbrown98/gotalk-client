@@ -4,6 +4,7 @@ import { ActivityIndicator } from 'react-native';
 
 import { useAuthHydrated, useSession } from '@/lib/auth';
 import { useActiveInstance, useInstancesHydrated } from '@/lib/instances';
+import { welcomeHref } from '@/lib/welcome';
 
 export default function Index() {
   const instancesReady = useInstancesHydrated();
@@ -18,6 +19,6 @@ export default function Index() {
       </Screen>
     );
   }
-  if (!active) return <Redirect href="/connect" />;
-  return <Redirect href={session ? '/home' : '/sign-in'} />;
+  if (!active) return <Redirect href="/welcome" />;
+  return <Redirect href={session ? '/home' : welcomeHref(active.origin)} />;
 }

@@ -1,5 +1,5 @@
 import { createGotalkClient, unwrap } from '@gotalk/api-client';
-import { discoverInstance, isInviteCode } from '@gotalk/core';
+import { discoverInstance, isInviteCode, serverParam } from '@gotalk/core';
 import { Button, Notice, Stack, Text, useTheme } from '@gotalk/ui';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -14,6 +14,7 @@ import { classifyFailure, type FailureKind } from '@/lib/failure';
 import { instancesStore, useActiveInstance, useInstances } from '@/lib/instances';
 import { resetTo, useWide } from '@/lib/layout';
 import { pendingInvite } from '@/lib/pending-invite';
+import { welcomeHref } from '@/lib/welcome';
 
 /**
  * Opened from an invite link: `/invite/<code>?instance=<origin>` on the web, `gotalk://invite/<code>?...` in apps.
@@ -51,10 +52,11 @@ export default function InviteScreen() {
   const place = preview.data?.place;
   const incompatible = found.data && !found.data.compatibility.ok ? found.data.compatibility.reason : null;
 
-  function adoptInstance() {
-    if (saved) instancesStore.getState().setActive(saved.id);
-    else if (found.data) instancesStore.getState().addInstance(found.data);
+  function continueOnServer(tab: 'sign-in' | 'create') {
     pendingInvite.set({ code: code!, origin: origin! });
+    // The welcome screen's account step reuses this look-up instead of making its own.
+    if (found.data) queryClient.setQueryData(['server', serverParam(found.data.origin)], found.data);
+    router.push(welcomeHref(saved?.origin ?? origin, tab));
   }
 
   async function join() {
@@ -124,21 +126,8 @@ export default function InviteScreen() {
           <Button title={`Join ${place.name}`} onPress={join} loading={joining} />
         ) : (
           <Stack gap="md">
-            <Button
-              title={`Sign in to ${host}`}
-              onPress={() => {
-                adoptInstance();
-                router.push('/sign-in');
-              }}
-            />
-            <Button
-              title="Create an account"
-              variant="tertiary"
-              onPress={() => {
-                adoptInstance();
-                router.push('/register');
-              }}
-            />
+            <Button title={`Sign in to ${host}`} onPress={() => continueOnServer('sign-in')} />
+            <Button title="Create an account" variant="tertiary" onPress={() => continueOnServer('create')} />
             <Text variant="captionMd" tone="muted" style={{ textAlign: 'center' }}>
               Invite code {code} is applied automatically.
             </Text>

@@ -1,7 +1,10 @@
 import type { Instance } from '@gotalk/api-client';
+import { instanceDisplayName, isOfficialInstance } from '@gotalk/core';
 import { Badge, Stack, Text, accentFor, useImageFallback, useTheme } from '@gotalk/ui';
 import { Image } from 'expo-image';
 import { View } from 'react-native';
+
+import appIcon from '@/assets/images/icon.png';
 
 const registrationLabel: Record<string, string> = {
   open: 'Open registration',
@@ -29,6 +32,14 @@ export function InstanceIcon({ name, iconUrl, origin, size = 48 }: { name: strin
       </Text>
     </View>
   );
+}
+
+/** An instance's icon: the app icon for Gotalk Official unless it sets its own, otherwise the instance icon. */
+export function ServerIcon({ origin, name, iconUrl, size = 36 }: { origin: string; name: string; iconUrl?: string | null; size?: number }) {
+  if (isOfficialInstance(origin) && !iconUrl) {
+    return <Image source={appIcon} style={{ width: size, height: size, borderRadius: Math.round(size * 0.22) }} accessibilityIgnoresInvertColors />;
+  }
+  return <InstanceIcon name={name} iconUrl={iconUrl} origin={origin} size={size} />;
 }
 
 export function InstanceSummary({
@@ -63,9 +74,9 @@ export function InstanceSummary({
   return (
     <Stack gap="md">
       <Stack direction="row" gap="md" align="center">
-        <InstanceIcon name={instance.name} iconUrl={instance.icon_url} origin={origin} size={iconSize} />
+        <ServerIcon name={instance.name} iconUrl={instance.icon_url} origin={origin} size={iconSize} />
         <Stack gap="none" style={{ flex: 1 }}>
-          <Text variant={large ? 'headingMd' : 'headingSm'}>{instance.name}</Text>
+          <Text variant={large ? 'headingMd' : 'headingSm'}>{instanceDisplayName(origin, instance.name)}</Text>
           <Text variant="captionMd" tone="muted">
             {origin.replace(/^https?:\/\//, '')} · {instance.software.name} {instance.software.version}
           </Text>

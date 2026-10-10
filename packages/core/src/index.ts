@@ -12,6 +12,7 @@ export * from './instances.ts';
 export * from './markdown.ts';
 export * from './moderation.ts';
 export * from './notifications.ts';
+export * from './official.ts';
 export * from './permissions.ts';
 export * from './places.ts';
 export * from './roles.ts';

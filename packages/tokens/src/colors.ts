@@ -78,8 +78,13 @@ export const colors: ColorTokens = {
   accentYellowSoft: 'rgba(255,197,51,0.15)',
 };
 
-/** Two-stop gradients. The hero stripe is allowed once per page; the keycap gradient is subtle depth. */
+/**
+ * Two-stop gradients. The keycap gradient is subtle depth. The brand glow is the app icon's red, faded to
+ * nothing; it sits behind Gotalk Official on the welcome screen and nowhere else. The hero stripe is kept for
+ * the docs but no longer used in the app.
+ */
 export const gradients = {
   heroStripe: { start: '#ff5757', end: '#a1131a' },
   keycap: { start: '#24262a', end: '#151619' },
+  brandGlow: { start: 'rgba(255,87,87,0.16)', end: 'rgba(255,87,87,0)' },
 } as const;

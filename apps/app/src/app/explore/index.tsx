@@ -1,15 +1,16 @@
-import { availableSorts, feedParams, parseFeedParams, type FeedFilters } from '@gotalk/core';
+import { availableSorts, feedParams, instanceDisplayName, parseFeedParams, type FeedFilters } from '@gotalk/core';
 import { Button, Text, useTheme } from '@gotalk/ui';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { ActiveFilters, FeedCard, FeedFrame, FeedList, FiltersDialog, SortBar, useVoteMode } from '@/components/feed';
-import { InstanceIcon } from '@/components/instance-summary';
+import { ServerIcon } from '@/components/instance-summary';
 import { useSession } from '@/lib/auth';
 import { useFeedCapabilities, useInstanceFeed, useLocalReads, useSortPreference } from '@/lib/feeds';
 import { useActiveInstance } from '@/lib/instances';
 import { useWide } from '@/lib/layout';
+import { welcomeHref } from '@/lib/welcome';
 
 /** Public topics on the instance, for people who have not signed in. */
 export default function Explore() {
@@ -30,7 +31,7 @@ export default function Explore() {
   const filters: FeedFilters = { ...(sorts.includes(parsed.sort) ? parsed : { ...parsed, sort: 'hot', window: undefined }), board: undefined, pinnedFirst: false, hideRead: false };
   const feed = useInstanceFeed('all', filters, !session && prefs.loaded);
 
-  if (!active) return <Redirect href="/connect" />;
+  if (!active) return <Redirect href="/welcome" />;
   if (session) return <Redirect href={{ pathname: '/feed', params: { scope: 'all' } }} />;
 
   const change = (next: FeedFilters) => {
@@ -42,15 +43,15 @@ export default function Explore() {
     <View>
       {wide ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space.md, paddingHorizontal: 16, height: 56, borderBottomWidth: 1, borderBottomColor: c.hairline }}>
-          <InstanceIcon name={active.name} origin={active.origin} size={32} />
+          <ServerIcon name={active.name} iconUrl={active.iconUrl} origin={active.origin} size={32} />
           <Text variant="bodyStrong" tone="onDark" accessibilityRole="header">
-            {active.name}
+            {instanceDisplayName(active.origin, active.name)}
           </Text>
           <Text variant="captionMd" tone="muted" style={{ flex: 1 }}>
             Public topics
           </Text>
-          <Button title="Create an account" variant="secondary" size="sm" onPress={() => router.push('/register')} />
-          <Button title="Sign in" size="sm" onPress={() => router.push('/sign-in')} />
+          <Button title="Create an account" variant="secondary" size="sm" onPress={() => router.push(welcomeHref(active.origin, 'create'))} />
+          <Button title="Sign in" size="sm" onPress={() => router.push(welcomeHref(active.origin))} />
         </View>
       ) : null}
       <SortBar sorts={sorts} filters={filters} onChange={change} onFilters={() => setFiltersOpen(true)} />
@@ -61,9 +62,9 @@ export default function Explore() {
   return (
     <FeedFrame
       title="Explore"
-      onBack={() => router.replace('/sign-in')}
+      onBack={() => router.replace(welcomeHref(active.origin))}
       end={
-        <Pressable accessibilityRole="link" hitSlop={12} onPress={() => router.push('/sign-in')}>
+        <Pressable accessibilityRole="link" hitSlop={12} onPress={() => router.push(welcomeHref(active.origin))}>
           <Text variant="bodySmStrong" tone="onDark">
             Sign in
           </Text>

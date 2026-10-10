@@ -10,8 +10,10 @@ import { ScreenFrame } from '@/components/screen-frame';
 import { useSession } from '@/lib/auth';
 import { useFeedActions } from '@/lib/feeds';
 import { usePosts, useTopic } from '@/lib/forums';
+import { useActiveInstance } from '@/lib/instances';
 import { goBack, useWide } from '@/lib/layout';
 import { useBoards, usePlace } from '@/lib/places';
+import { welcomeHref } from '@/lib/welcome';
 
 /** A public topic, read-only, for people who have not signed in. */
 export default function ExploreTopic() {
@@ -20,6 +22,7 @@ export default function ExploreTopic() {
   const wide = useWide();
   const { id } = useLocalSearchParams<{ id: string }>();
   const session = useSession();
+  const active = useActiveInstance();
   const topicQuery = useTopic(id);
   const topic = topicQuery.data;
   const postsQuery = usePosts(id);
@@ -96,8 +99,8 @@ export default function ExploreTopic() {
           Sign in or create an account to reply, react and vote.
         </Notice>
         <View style={{ flexDirection: 'row', gap: theme.space.sm }}>
-          <Button title="Sign in" onPress={() => router.push('/sign-in')} />
-          <Button title="Create an account" variant="tertiary" onPress={() => router.push('/register')} />
+          <Button title="Sign in" onPress={() => router.push(welcomeHref(active?.origin))} />
+          <Button title="Create an account" variant="tertiary" onPress={() => router.push(welcomeHref(active?.origin, 'create'))} />
         </View>
       </Stack>
     </ScreenFrame>

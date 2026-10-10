@@ -9,17 +9,21 @@ import { ScreenFrame } from '@/components/screen-frame';
 import { useApiClient } from '@/lib/api';
 import { useActiveInstance } from '@/lib/instances';
 import { goBack } from '@/lib/layout';
+import { publicClient, useServer } from '@/lib/welcome';
 
 const KINDS = ['terms', 'privacy', 'guidelines'] as const;
 type Kind = (typeof KINDS)[number];
 
+/** A published policy: of the active instance, or of a server being signed up to on the welcome screen (`?server=`). */
 export default function PolicyScreen() {
-  const { kind } = useLocalSearchParams<{ kind: string }>();
+  const { kind, server: serverArg } = useLocalSearchParams<{ kind: string; server?: string }>();
   const active = useActiveInstance();
-  const client = useApiClient();
+  const activeClient = useApiClient();
+  const server = useServer(serverArg).data;
+  const client = serverArg ? (server ? publicClient(server) : null) : activeClient;
   const valid = (KINDS as readonly string[]).includes(kind ?? '');
   const policy = useQuery({
-    queryKey: ['policy', active?.id, kind],
+    queryKey: ['policy', serverArg ? server?.id : active?.id, kind],
     enabled: !!client && valid,
     queryFn: async () => unwrap(await client!.GET('/policies/{kind}', { params: { path: { kind: kind as Kind } } })),
   });

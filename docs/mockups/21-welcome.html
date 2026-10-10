@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Welcome and sign in · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+<style>
+  /* The mark: the app icon's bubble, used small beside the wordmark. */
+  .brand { position: absolute; top: 20px; left: 24px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: var(--gt-color-on-dark); letter-spacing: -0.1px; }
+  .brand img { width: 22px; height: 22px; }
+  .phone .brand { position: static; padding: 4px 0 0; }
+
+  .stage { flex: 1; display: flex; align-items: center; justify-content: center; padding: 56px 24px 32px; }
+  .stage > .col { width: 440px; }
+
+  /* The official instance is the full app icon on its own dark tile. */
+  .app-icon { flex: none; border-radius: 22%; overflow: hidden; display: block; }
+  .app-icon img { width: 100%; height: 100%; display: block; }
+  .app-icon.s56 { width: 56px; height: 56px; }
+  .app-icon.s36 { width: 36px; height: 36px; }
+  .app-icon.s32 { width: 32px; height: 32px; }
+
+  /* The one emphasised element: the icon's own glow carried into the card. */
+  .official { position: relative; overflow: hidden; background: var(--gt-color-surface); border: 1px solid var(--gt-color-hairline); border-radius: var(--gt-radius-lg); padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+  .official::before { content: ''; position: absolute; inset: 0; background: radial-gradient(420px 220px at 48px 44px, rgba(255, 87, 87, 0.16), transparent 70%); pointer-events: none; }
+  .official > * { position: relative; }
+
+  .another { display: flex; gap: 8px; }
+  .another .input { flex: 1; }
+
+  /* The chosen server, pinned above the account step. */
+  .server-chip { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--gt-color-hairline); border-radius: var(--gt-radius-md); background: var(--gt-color-surface); }
+  .server-chip.official-chip { background: radial-gradient(260px 120px at 30px 30px, rgba(255, 87, 87, 0.12), transparent 70%), var(--gt-color-surface); }
+
+  .rows { border: 1px solid var(--gt-color-hairline); border-radius: var(--gt-radius-lg); background: var(--gt-color-surface); overflow: hidden; }
+  .rows .row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+  .rows .row + .row { border-top: 1px solid var(--gt-color-hairline); }
+  .rows .row.selected { background: var(--gt-color-surface-elevated); }
+
+  .quiet { font-size: 13px; color: var(--gt-color-mute); }
+  .quiet a { color: var(--gt-color-on-dark); }
+  .right { align-self: flex-end; }
+
+  </style>
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Welcome · replaces Connect, Sign in and Create account</nav>
+    <h1 class="t-display-lg">Welcome and sign in</h1>
+    <p>One screen instead of three. Step one picks a server, with Gotalk Official (api.gotalk.sh) offered first; step two signs in or creates an account there, with the chosen server pinned above the form. Nothing is saved to the device until someone signs in, creates an account or chooses to browse. The app icon appears twice: small beside the wordmark, and as Gotalk Official's own icon. Its glow is the only red on the screen.</p>
+  </header>
+
+  <section class="group">
+    <h2>Web and desktop</h2>
+    <p>A single 440px column, left-aligned, centred in the window. The wordmark sits in the corner like app chrome rather than as a hero.</p>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io</div></div>
+          <div class="viewport">
+            <div class="brand"><img src="../../apps/app/assets/images/splash-icon.png" alt="">Gotalk</div>
+            <div class="stage"><div class="col gap-xl">
+              <div class="col gap-sm">
+                <h2 class="t-heading-xl">Welcome to Gotalk</h2>
+                <p class="t-body-sm mute">Communities on Gotalk live on independent servers. Start on ours, or enter the address of another one.</p>
+              </div>
+              <div class="official">
+                <div class="flex gap-md center">
+                  <span class="app-icon s56"><img src="../../apps/app/assets/images/icon.png" alt=""></span>
+                  <div class="col grow"><div class="flex gap-sm center"><span class="t-heading-sm">Gotalk Official</span><span class="badge">Run by Gotalk</span></div><span class="t-caption-md mute">api.gotalk.sh</span></div>
+                </div>
+                <p class="t-body-sm" style="color:var(--gt-color-body)">Open to everyone. A good first home for new communities, and where we post updates about Gotalk.</p>
+                <button class="btn btn-primary block">Continue with Gotalk Official</button>
+              </div>
+              <div class="field"><label>Another server</label>
+                <div class="another"><div class="input"><span class="ph">forum.example.com</span></div><button class="btn btn-tertiary">Look up</button></div>
+              </div>
+            </div></div>
+          </div>
+        </div>
+        <figcaption>First run. Gotalk Official is the one white button; another server is a field with its own Look up.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io</div></div>
+          <div class="viewport">
+            <div class="brand"><img src="../../apps/app/assets/images/splash-icon.png" alt="">Gotalk</div>
+            <div class="stage"><div class="col gap-lg">
+              <div class="server-chip official-chip">
+                <span class="app-icon s36"><img src="../../apps/app/assets/images/icon.png" alt=""></span>
+                <div class="col grow"><span class="t-body-sm-strong">Gotalk Official</span><span class="t-caption-md mute">api.gotalk.sh</span></div>
+                <button class="btn btn-tertiary small">Change</button>
+              </div>
+              <div class="pills"><span class="pill active">Sign in</span><span class="pill">Create account</span></div>
+              <div class="col gap-md">
+                <div class="field"><label>Username or email</label><div class="input focus"><span>marta.k</span></div></div>
+                <div class="field"><label>Password</label><div class="input"><span>••••••••••••</span><span class="trail t-caption-md">Show</span></div></div>
+                <a class="t-body-sm right">Forgot your password?</a>
+              </div>
+              <button class="btn btn-primary block">Sign in</button>
+              <p class="quiet">Just looking? <a>Browse public topics</a></p>
+            </div></div>
+          </div>
+        </div>
+        <figcaption>Step two, same screen. The chosen server stays pinned with Change; Sign in and Create account are tabs, not separate pages.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io</div></div>
+          <div class="viewport">
+            <div class="brand"><img src="../../apps/app/assets/images/splash-icon.png" alt="">Gotalk</div>
+            <div class="stage"><div class="col gap-lg">
+              <div class="server-chip official-chip">
+                <span class="app-icon s36"><img src="../../apps/app/assets/images/icon.png" alt=""></span>
+                <div class="col grow"><span class="t-body-sm-strong">Gotalk Official</span><span class="t-caption-md mute">api.gotalk.sh</span></div>
+                <button class="btn btn-tertiary small">Change</button>
+              </div>
+              <div class="pills"><span class="pill">Sign in</span><span class="pill active">Create account</span></div>
+              <div class="col gap-md">
+                <div class="field"><label>Username</label><div class="input focus"><span>marta.k</span></div></div>
+                <div class="field"><label>Email</label><div class="input"><span>marta@example.com</span></div></div>
+                <div class="field"><label>Password</label><div class="input"><span class="ph">At least 10 characters</span><span class="trail t-caption-md">Show</span></div></div>
+                <label class="check"><span class="box on"><svg><use href="#check"/></svg></span><span>I agree to the <a>terms</a> and <a>privacy policy</a></span></label>
+              </div>
+              <button class="btn btn-primary block">Create account</button>
+              <p class="quiet">We'll send a link to confirm your email. Your account works on Gotalk Official only; other servers need their own.</p>
+            </div></div>
+          </div>
+        </div>
+        <figcaption>Create account on the same step. Invite-only and closed servers change this tab the way the current register screen does.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io</div></div>
+          <div class="viewport">
+            <div class="brand"><img src="../../apps/app/assets/images/splash-icon.png" alt="">Gotalk</div>
+            <div class="stage"><div class="col gap-lg">
+              <div class="server-chip" style="flex-direction:column;align-items:stretch;gap:12px">
+                <div class="flex gap-md center">
+                  <div class="tile s36 yellow">O</div>
+                  <div class="col grow"><span class="t-body-sm-strong">Open Woodworkers</span><span class="t-caption-md mute">woodworkers.example.org</span></div>
+                  <button class="btn btn-tertiary small">Change</button>
+                </div>
+                <p class="t-body-sm mute">Joinery, finishing, and shop talk from people who build things slowly.</p>
+                <div class="flex gap-sm wrap"><span class="badge warning">Invite only</span><span class="badge">1,284 members</span></div>
+              </div>
+              <div class="pills"><span class="pill active">Sign in</span><span class="pill">Create account</span></div>
+              <div class="col gap-md">
+                <div class="field"><label>Username or email</label><div class="input focus"><span class="ph"></span></div></div>
+                <div class="field"><label>Password</label><div class="input"><span class="ph">Password</span><span class="trail t-caption-md">Show</span></div></div>
+              </div>
+              <button class="btn btn-primary block" disabled>Sign in</button>
+            </div></div>
+          </div>
+        </div>
+        <figcaption>Another server after Look up. The pinned card grows to describe a server people may not know, so the preview and the sign-in are one step.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io</div></div>
+          <div class="viewport">
+            <div class="brand"><img src="../../apps/app/assets/images/splash-icon.png" alt="">Gotalk</div>
+            <div class="stage"><div class="col gap-xl">
+              <div class="col gap-sm">
+                <h2 class="t-heading-xl">Welcome back</h2>
+                <p class="t-body-sm mute">Pick a server to continue.</p>
+              </div>
+              <div class="rows">
+                <div class="row"><span class="app-icon s36"><img src="../../apps/app/assets/images/icon.png" alt=""></span><div class="col grow"><span class="t-body-sm-strong">Gotalk Official</span><span class="t-caption-md mute">api.gotalk.sh, signed in as marta.k</span></div><button class="btn btn-primary small">Open</button></div>
+                <div class="row"><div class="tile s36 yellow">O</div><div class="col grow"><span class="t-body-sm-strong">Open Woodworkers</span><span class="t-caption-md mute">woodworkers.example.org, signed out</span></div><button class="btn btn-outline small">Sign in</button></div>
+                <div class="row"><div class="tile s36 blue">H</div><div class="col grow"><span class="t-body-sm-strong">Harbor Street Cycling</span><span class="t-caption-md mute">forum.harbor.st, signed in as mk</span></div><button class="btn btn-tertiary small">Open</button></div>
+              </div>
+              <div class="field"><label>Add a server</label>
+                <div class="another"><div class="input"><span class="ph">forum.example.com</span></div><button class="btn btn-tertiary">Look up</button></div>
+              </div>
+            </div></div>
+          </div>
+        </div>
+        <figcaption>Returning, from the account menu or after signing out. Saved servers first, with what each one needs; the most recent gets the white button.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="win short">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io</div></div>
+          <div class="viewport">
+            <div class="brand"><img src="../../apps/app/assets/images/splash-icon.png" alt="">Gotalk</div>
+            <div class="stage"><div class="col gap-xl">
+              <div class="col gap-sm">
+                <h2 class="t-heading-xl">Welcome back</h2>
+                <p class="t-body-sm mute">Pick a server to continue.</p>
+              </div>
+              <div class="rows">
+                <div class="row"><div class="tile s36 yellow">O</div><div class="col grow"><span class="t-body-sm-strong">Open Woodworkers</span><span class="t-caption-md mute">woodworkers.example.org, signed in as marta.k</span></div><button class="btn btn-primary small">Open</button></div>
+                <div class="row"><span class="app-icon s36"><img src="../../apps/app/assets/images/icon.png" alt=""></span><div class="col grow"><span class="t-body-sm-strong">Gotalk Official</span><span class="t-caption-md mute">api.gotalk.sh, open to everyone</span></div><button class="btn btn-outline small">Join</button></div>
+              </div>
+              <div class="field"><label>Add a server</label>
+                <div class="another"><div class="input error"><span>forum.harbor.st</span></div><button class="btn btn-tertiary">Look up</button></div>
+                <span class="note error">Could not reach forum.harbor.st. This server may not allow connections from app.gotalk.io; its administrator can allow it in the server settings.</span>
+              </div>
+            </div></div>
+          </div>
+        </div>
+        <figcaption>Someone who hasn't joined Gotalk Official still sees it, as a quiet Join row under their own servers. Below, a failed look-up with the refused-connection hint.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Phone</h2>
+    <p>The same two steps. The wordmark replaces the title bar on step one; step two gets a back chevron that returns to the server choice.</p>
+    <div class="frames">
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="body">
+            <div class="brand"><img src="../../apps/app/assets/images/splash-icon.png" alt="">Gotalk</div>
+            <div class="col gap-sm" style="margin-top:24px">
+              <h2 class="t-heading-xl">Welcome to Gotalk</h2>
+              <p class="t-body-sm mute">Communities on Gotalk live on independent servers. Start on ours, or enter the address of another one.</p>
+            </div>
+            <div class="official">
+              <div class="flex gap-md center">
+                <span class="app-icon s56"><img src="../../apps/app/assets/images/icon.png" alt=""></span>
+                <div class="col grow"><span class="t-heading-sm">Gotalk Official</span><span class="t-caption-md mute">api.gotalk.sh</span></div>
+              </div>
+              <p class="t-body-sm" style="color:var(--gt-color-body)">Open to everyone. A good first home for new communities.</p>
+              <button class="btn btn-primary block">Continue with Gotalk Official</button>
+            </div>
+            <div class="field"><label>Another server</label>
+              <div class="another"><div class="input"><span class="ph">forum.example.com</span></div><button class="btn btn-tertiary">Look up</button></div>
+            </div>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>First run</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Gotalk Official</span><span class="side"></span></div>
+          <div class="body">
+            <div class="pills"><span class="pill active">Sign in</span><span class="pill">Create account</span></div>
+            <div class="field"><label>Username or email</label><div class="input focus"><span>marta.k</span></div></div>
+            <div class="field"><label>Password</label><div class="input"><span>••••••••••••</span><span class="trail t-caption-md">Show</span></div></div>
+            <a class="t-body-sm right">Forgot your password?</a>
+            <button class="btn btn-primary block">Sign in</button>
+            <p class="quiet">Just looking? <a>Browse public topics</a></p>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Step two. The server's name is the title; back returns to the choice.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Gotalk dev</span><span class="side"></span></div>
+          <div class="body">
+            <div class="server-chip" style="flex-direction:column;align-items:stretch;gap:10px">
+              <div class="flex gap-md center"><div class="tile s36 green">G</div><div class="col grow"><span class="t-body-sm-strong">Gotalk dev</span><span class="t-caption-md mute">localhost:18080</span></div></div>
+              <div class="flex gap-sm wrap"><span class="badge warning">Not encrypted (HTTP)</span><span class="badge success">Open registration</span></div>
+            </div>
+            <div class="notice warning"><svg class="i"><use href="#alert"/></svg><span>Traffic to this server can be read on the network. Only continue if it is your own.</span></div>
+            <div class="pills"><span class="pill active">Sign in</span><span class="pill">Create account</span></div>
+            <div class="field"><label>Username or email</label><div class="input"><span class="ph"></span></div></div>
+            <div class="field"><label>Password</label><div class="input"><span class="ph">Password</span></div></div>
+            <button class="btn btn-primary block" disabled>Sign in</button>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Another server, over plain HTTP. Warnings that used to sit on the connect card move onto the account step.</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="body">
+            <div class="brand"><img src="../../apps/app/assets/images/splash-icon.png" alt="">Gotalk</div>
+            <div class="col gap-sm" style="margin-top:24px"><h2 class="t-heading-xl">Welcome back</h2><p class="t-body-sm mute">Pick a server to continue.</p></div>
+            <div class="rows">
+              <div class="row"><span class="app-icon s36"><img src="../../apps/app/assets/images/icon.png" alt=""></span><div class="col grow"><span class="t-body-sm-strong">Gotalk Official</span><span class="t-caption-md mute">api.gotalk.sh, signed in as marta.k</span></div><button class="btn btn-primary small">Open</button></div>
+              <div class="row"><div class="tile s36 yellow">O</div><div class="col grow"><span class="t-body-sm-strong">Open Woodworkers</span><span class="t-caption-md mute">woodworkers.example.org, signed out</span></div><button class="btn btn-outline small">Sign in</button></div>
+            </div>
+            <div class="field"><label>Add a server</label><div class="another"><div class="input"><span class="ph">forum.example.com</span></div><button class="btn btn-tertiary">Look up</button></div></div>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>Returning</figcaption>
+      </figure>
+
+      <figure class="frame">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div>
+          <div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">forum.harbor.st</span><span class="side"></span></div>
+          <div class="body">
+            <div class="server-chip"><div class="tile s36 blue">H</div><div class="col grow"><span class="t-body-sm-strong">Gotalk</span><span class="t-caption-md mute">forum.harbor.st</span></div></div>
+            <div class="notice warning"><svg class="i"><use href="#alert"/></svg><span><b>Setup isn't finished.</b> If this server is yours, open the setup page and use the setup token from its log. Everyone else can join once setup is done.</span></div>
+            <button class="btn btn-tertiary block">Open setup page</button>
+            <button class="btn block">Choose another server</button>
+          </div>
+          <div class="home-bar"></div>
+        </div>
+        <figcaption>A server awaiting setup stops at step two with the way forward, instead of a disabled Continue.</figcaption>
+      </figure>
+
+    </div>
+  </section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>

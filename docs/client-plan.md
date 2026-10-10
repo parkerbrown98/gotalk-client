@@ -859,6 +859,48 @@ Known gaps and decisions:
 - Data export, retention, email digests and push notifications are still not in the backend. Push stays in
   Phase 9.
 
+## Welcome and sign in ✅
+
+One screen now covers choosing a server, signing in and creating an account, replacing the separate Connect,
+Sign in and Create account screens and the striped hero. Mockups: [Welcome and sign in](./mockups/21-welcome.html)
+(the single-column direction was chosen over a two-pane variant); [Connect](./mockups/01-connect.html),
+[Sign in](./mockups/02-sign-in.html) and [Create an account](./mockups/03-register.html) are marked superseded,
+and their error and registration states still apply. `DESIGN.md` gained the wordmark, `official-server-card`
+and `brand-glow`, and `@gotalk/tokens` the `brandGlow` gradient.
+
+Delivered:
+
+- **`/welcome`:** with no server, first run offers Gotalk Official (api.gotalk.sh) as a card with the full app
+  icon on the brand glow and the only white button, and an "Another server" address field. Returning people get
+  "Welcome back" with their saved servers, most recent first, each with its address and whether it is signed in
+  (Open, or Sign in), a quiet Join row for Gotalk Official if it isn't saved, and "Add a server".
+- **Account step** (`/welcome?server=…&tab=create`): the chosen server pinned above the form with Change (a
+  title bar with back on phones). Gotalk Official is a one-line card on its glow; other servers also show their
+  description and registration, size and HTTP badges. Sign in and Create account are tabs with the old forms'
+  behavior (revoked notice, wrong credentials, rate limits, version mismatch, invite codes, closed registration,
+  policy consent, the "check your email" step), plus "Forgot your password?" and "Browse public topics". Servers
+  that are incompatible or awaiting setup stop here with the way forward.
+- **Nothing is saved until it is used:** a looked-up server lives in the query cache (`useServer`) and is saved
+  and made active only after signing in, creating an account or choosing to browse (`adoptServer`). Forgot
+  password and policy pages take `?server=` so they work for a server that isn't saved yet.
+- **Gotalk Official everywhere:** `@gotalk/core` has `OFFICIAL_INSTANCE`, `isOfficialInstance`,
+  `instanceDisplayName` (the server calls itself "Gotalk"), `serverParam` and `sortServers`. `ServerIcon`
+  shows the bundled app icon for it unless it sets its own, on the welcome screen, the You tab and Explore.
+- **Routing:** `/connect`, `/sign-in` and `/register` redirect into `/welcome`, and every caller (route guards,
+  Explore, votes, invites, You, delete account, consent) links there directly. The invite screen hands its
+  look-up to the account step instead of saving the server first. `AuthLayout` and `HeroStripes` are gone.
+- **Tests:** 4 new in `@gotalk/core` (194): recognising the official origin, its display name, round-tripping
+  server addresses through discovery (HTTPS, ports, plain HTTP), and ordering saved servers.
+
+Verified in Chromium against the live api.gotalk.sh and a local server, at 1280px and 390px: first run, the
+Official account step with both tabs (nothing saved), Change back to the choice, looking up `localhost:18080`
+with the HTTP warning and badges, creating an account (saved only then), signing out to the account step, the
+returning list with Open, Sign in and the Official Join row, a failed look-up with the refused-connection hint,
+signing back in, the already-signed-in state, forgot password for an unsaved server, an invite link opened signed
+out (sign in on the account step, back to the invite, joined; the server saved only on sign-in), and the three
+old addresses redirecting. Not exercised: iOS, Android and Tauri builds, and a server awaiting setup or on an
+incompatible API version.
+
 ## Phase 9 — Distribution & polish
 
 - **Push notifications:** a small Gotalk-operated push relay (APNs/FCM), web push for the web app, and

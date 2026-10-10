@@ -41,7 +41,8 @@ pnpm desktop      # Tauri window backed by the Expo dev server
 ```
 
 Run a local server from [`../gotalk-server`](../gotalk-server) with `GOTALK_PORT=18080 docker compose up -d`, then
-enter `localhost:18080` on the connect screen. Local and LAN hosts try `http://` before `https://`.
+enter `localhost:18080` under "Another server" on the welcome screen. Local and LAN hosts try `http://` before
+`https://`. Gotalk Official (api.gotalk.sh) is offered first.
 Instances must allow the client's origin in their CORS settings (the default is `*`). Administrators can change
 them at runtime under Account → Server, where the desktop app's origins (`tauri://localhost`,
 `http://tauri.localhost`) are one-tap suggestions.

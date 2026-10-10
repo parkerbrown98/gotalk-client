@@ -6,6 +6,7 @@ import { AttentionDot, useSettingsGroups } from '@/components/settings-page';
 import { signOut, useAuthTarget, useSession } from '@/lib/auth';
 import { useActiveInstance } from '@/lib/instances';
 import { useWide } from '@/lib/layout';
+import { welcomeHref } from '@/lib/welcome';
 
 function SettingsNav() {
   const theme = useTheme();
@@ -55,8 +56,8 @@ export default function SettingsLayout() {
   const wide = useWide();
   const active = useActiveInstance();
   const session = useSession();
-  if (!active) return <Redirect href="/connect" />;
-  if (!session) return <Redirect href="/sign-in" />;
+  if (!active) return <Redirect href="/welcome" />;
+  if (!session) return <Redirect href={welcomeHref(active.origin)} />;
 
   const screens = (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.colors.canvas }, animation: wide ? 'none' : 'default' }} />

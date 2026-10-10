@@ -36,6 +36,8 @@ colors:
   accent-yellow-soft: "rgba(255,197,51,0.15)"
   hero-stripe-start: "#ff5757"
   hero-stripe-end: "#a1131a"
+  brand-glow-start: "rgba(255,87,87,0.16)"
+  brand-glow-end: "rgba(255,87,87,0)"
   key-bg-start: "#24262a"
   key-bg-end: "#151619"
 
@@ -278,6 +280,15 @@ components:
     typography: "{typography.caption-md}"
     rounded: "{rounded.md}"
     height: 112px
+  official-server-card:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-dark}"
+    typography: "{typography.body-sm}"
+    rounded: "{rounded.lg}"
+    padding: 20px
+  brand-glow:
+    backgroundColor: "radial {colors.brand-glow-start} → {colors.brand-glow-end}"
+    size: 320px
   badge-pro:
     backgroundColor: "{colors.surface-elevated}"
     textColor: "{colors.on-dark-mute}"
@@ -418,7 +429,8 @@ The design philosophy is "the marketing page is the product." Section rhythm is 
 - **Accent Yellow** (`{colors.accent-yellow}` — `#ffc533`) + **Soft** (`{colors.accent-yellow-soft}` — `rgba(255,197,51,0.15)`): "warning" semantic + the Hacker News orange-yellow that appears as the most prominent accent illustration on the home page hero.
 
 ### Brand Gradient
-- **Hero Stripe Gradient** — three diagonal red stripes layered across the very top of the home page hero, fading from `{colors.hero-stripe-start}` (`#ff5757`) to `{colors.hero-stripe-end}` (`#a1131a`). The system's only chromatic gradient on chrome — used once per page maximum and reserved for hero launch-banner moments.
+- **Hero Stripe Gradient** — three diagonal red stripes layered across the very top of the home page hero, fading from `{colors.hero-stripe-start}` (`#ff5757`) to `{colors.hero-stripe-end}` (`#a1131a`). The system's only chromatic gradient on chrome — used once per page maximum and reserved for hero launch-banner moments. The Gotalk app no longer uses it; the welcome screen uses the brand glow instead.
+- **Brand Glow** (Gotalk addition) — the app icon's own red, `{colors.brand-glow-start}` (`#ff5757` at 16%) fading to nothing, as a radial wash behind the app icon. It marks Gotalk Official and appears nowhere else.
 - **Keycap Gradient** — the small key-glyph background uses a subtle linear-gradient from `{colors.key-bg-start}` (`#24262a`) to `{colors.key-bg-end}` (`#151619`) that gives Raycast's keycap UI its slight 3D-key feel.
 
 ## Typography
@@ -582,6 +594,22 @@ Built from the existing vocabulary; no new tokens. Used for the avatar, place ic
 **`image-picker-banner`** — the same pattern for a place banner
 - The preview spans the column, 112px tall, rounded `{rounded.md}` with a 1px `{colors.hairline}` border; empty, it is a `{colors.surface-elevated}` block reading "No banner". The actions sit under the preview.
 - On the place page the banner is a 96px strip above the header on phones. Wide screens put a 168px banner behind the header and fade it into `{colors.canvas}` toward the name, so the title stays on the canvas tone; no scrim color is added.
+
+### Welcome (Gotalk addition)
+
+Choosing a server and signing in share one screen. Built from existing tokens plus the brand glow.
+
+**Wordmark** — the app icon's bubble at 22px beside "Gotalk" in `{typography.body-strong}` `{colors.on-dark}`. It sits in the window's top-left corner like app chrome on wide screens and heads the column on phones. It is never enlarged into a hero.
+
+**`official-server-card`** — Gotalk Official as the first choice
+- Container: `{colors.surface}`, 1px `{colors.hairline}`, rounded `{rounded.lg}`, padding 20px, with `{component.brand-glow}` centered behind the icon.
+- The full app icon at 56px (its corners at 22% of its size), the name in `{typography.heading-sm}` with a neutral "Run by Gotalk" badge, the address in `{typography.caption-md}` `{colors.mute}`, one line of description, and the screen's only `{component.button-primary}`.
+- Once chosen, the same server shrinks to a one-line pinned card (36px icon, a smaller glow) above the account form, with a small tertiary Change.
+
+**`brand-glow`** — the only red on the welcome screen
+- A radial wash from `{colors.brand-glow-start}` to `{colors.brand-glow-end}`, about 320px wide and flattened to roughly half that height, centered on the app icon. It echoes the dark glow the app icon already has. Never behind other servers, and never on chrome outside the welcome screen.
+
+Other servers use their own icon on a plain `{colors.surface}` card that also carries their description and registration, size and HTTP badges, since people may not know them.
 
 ### Inputs & Forms
 

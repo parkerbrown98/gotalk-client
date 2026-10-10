@@ -38,7 +38,7 @@ export interface ScreenFrameProps {
   title: string;
   onBack?: () => void;
   end?: ReactNode;
-  /** Drawn above the title bar (the hero stripes). */
+  /** Drawn above the title bar. */
   banner?: ReactNode;
   maxWidth?: number;
   /** Replaces the default padding of the content column. */
@@ -46,7 +46,7 @@ export interface ScreenFrameProps {
   children: ReactNode;
 }
 
-/** Safe-area aware screen: stripes or nothing on top, a title bar on phones, then a scrolling column. */
+/** Safe-area aware screen: an optional banner on top, a title bar on phones, then a scrolling column. */
 export function ScreenFrame({ title, onBack, end, banner, maxWidth = 640, contentStyle, children }: ScreenFrameProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();

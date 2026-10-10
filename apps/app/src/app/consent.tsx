@@ -27,7 +27,7 @@ export default function Consent() {
   const [pending, setPending] = useState(false);
   const [failure, setFailure] = useState<FailureKind | null>(null);
 
-  if (!active || !session) return <Redirect href="/connect" />;
+  if (!active || !session) return <Redirect href="/welcome" />;
   const outstanding = consents.data?.outstanding ?? [];
   const given = new Set((consents.data?.consents ?? []).filter((c) => c.granted).map((c) => c.purpose));
   if (consents.isSuccess && outstanding.length === 0) return <Redirect href="/home" />;

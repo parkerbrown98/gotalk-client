@@ -13,6 +13,7 @@ import { useSession } from '@/lib/auth';
 import { consentDismissed } from '@/lib/consent';
 import { useActiveInstance } from '@/lib/instances';
 import { useWide } from '@/lib/layout';
+import { welcomeHref } from '@/lib/welcome';
 
 /** Signed-in shell: rail and sidebar on wide screens, a tab bar on phones. */
 export default function AppLayout() {
@@ -34,8 +35,8 @@ export default function AppLayout() {
     if (active && owesConsent && !consentDismissed.has(active.id)) router.push('/consent');
   }, [active, owesConsent]);
 
-  if (!active) return <Redirect href="/connect" />;
-  if (!session) return <Redirect href="/sign-in" />;
+  if (!active) return <Redirect href="/welcome" />;
+  if (!session) return <Redirect href={welcomeHref(active.origin)} />;
 
   const screens = (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.colors.canvas }, animation: wide ? 'none' : 'default' }} />
