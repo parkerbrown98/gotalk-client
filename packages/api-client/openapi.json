@@ -251,6 +251,54 @@
         ],
         "type": "object"
       },
+      "Attachment": {
+        "additionalProperties": false,
+        "properties": {
+          "content_type": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "height": {
+            "format": "int32",
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "size": {
+            "description": "Bytes",
+            "format": "int64",
+            "type": "integer"
+          },
+          "url": {
+            "type": "string"
+          },
+          "width": {
+            "description": "Images only. Files without dimensions are served as downloads",
+            "format": "int32",
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "url",
+          "filename",
+          "content_type",
+          "size",
+          "width",
+          "height"
+        ],
+        "type": "object"
+      },
       "AuditEntry": {
         "additionalProperties": false,
         "properties": {
@@ -1430,10 +1478,20 @@
       "CreatePostRequest": {
         "additionalProperties": false,
         "properties": {
+          "attachment_ids": {
+            "description": "Files from POST /attachments, in display order",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "type": [
+              "array",
+              "null"
+            ]
+          },
           "content": {
-            "description": "Markdown; @username mentions notify",
+            "description": "Markdown; @username mentions notify. May be empty when attachment_ids is set",
             "maxLength": 50000,
-            "minLength": 1,
             "type": "string"
           },
           "parent_id": {
@@ -1442,9 +1500,6 @@
             "type": "string"
           }
         },
-        "required": [
-          "content"
-        ],
         "type": "object"
       },
       "CreateReportRequest": {
@@ -1538,10 +1593,20 @@
       "CreateTopicRequest": {
         "additionalProperties": false,
         "properties": {
+          "attachment_ids": {
+            "description": "Files from POST /attachments for the opening post, in display order",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "type": [
+              "array",
+              "null"
+            ]
+          },
           "content": {
-            "description": "Markdown",
+            "description": "Markdown. May be empty when attachment_ids is set",
             "maxLength": 50000,
-            "minLength": 1,
             "type": "string"
           },
           "tags": {
@@ -1561,8 +1626,7 @@
           }
         },
         "required": [
-          "title",
-          "content"
+          "title"
         ],
         "type": "object"
       },
@@ -1730,8 +1794,8 @@
         "additionalProperties": false,
         "properties": {
           "content": {
+            "description": "May be empty when the message has attachments",
             "maxLength": 4000,
-            "minLength": 1,
             "type": "string"
           }
         },
@@ -1744,8 +1808,8 @@
         "additionalProperties": false,
         "properties": {
           "content": {
+            "description": "May be empty when the post has attachments",
             "maxLength": 50000,
-            "minLength": 1,
             "type": "string"
           }
         },
@@ -1766,6 +1830,84 @@
         },
         "required": [
           "token"
+        ],
+        "type": "object"
+      },
+      "Embed": {
+        "additionalProperties": false,
+        "properties": {
+          "color": {
+            "description": "The site's theme color (#rrggbb)",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "image": {
+            "$ref": "#/components/schemas/EmbedImage"
+          },
+          "kind": {
+            "description": "image: the link points straight at an image",
+            "enum": [
+              "link",
+              "image"
+            ],
+            "type": "string"
+          },
+          "large_image": {
+            "description": "The site prefers a large image over a thumbnail",
+            "type": "boolean"
+          },
+          "resolved_url": {
+            "description": "Where the link led after redirects",
+            "type": "string"
+          },
+          "site_name": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "description": "The link as written in the content",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "kind",
+          "resolved_url",
+          "site_name",
+          "title",
+          "description",
+          "color",
+          "image",
+          "large_image"
+        ],
+        "type": "object"
+      },
+      "EmbedImage": {
+        "additionalProperties": false,
+        "properties": {
+          "height": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "url": {
+            "type": "string"
+          },
+          "width": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "url",
+          "width",
+          "height"
         ],
         "type": "object"
       },
@@ -1870,6 +2012,10 @@
           "forums": {
             "type": "boolean"
           },
+          "link_previews": {
+            "description": "The server fetches previews (embeds) for links in messages and posts",
+            "type": "boolean"
+          },
           "password_reset": {
             "description": "POST /auth/password-reset emails a reset link",
             "type": "boolean"
@@ -1895,7 +2041,7 @@
             "type": "boolean"
           },
           "uploads": {
-            "description": "Avatars, place icons and banners, and the instance icon can be uploaded",
+            "description": "Avatars, place icons and banners, the instance icon, and message and post attachments can be uploaded",
             "type": "boolean"
           },
           "voice": {
@@ -1922,7 +2068,8 @@
           "email",
           "password_reset",
           "email_verification",
-          "uploads"
+          "uploads",
+          "link_previews"
         ],
         "type": "object"
       },
@@ -2035,6 +2182,10 @@
             "format": "int32",
             "type": "integer"
           },
+          "embed": {
+            "$ref": "#/components/schemas/Embed",
+            "description": "The first link preview of the opening post"
+          },
           "excerpt": {
             "description": "Plain text from the opening post (no Markdown or HTML), at most 280 characters",
             "type": "string"
@@ -2042,6 +2193,21 @@
           "id": {
             "format": "uuid",
             "type": "string"
+          },
+          "image_count": {
+            "description": "How many images the opening post has in total",
+            "format": "int64",
+            "type": "integer"
+          },
+          "images": {
+            "description": "Up to 4 image attachments of the opening post",
+            "items": {
+              "$ref": "#/components/schemas/Attachment"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
           },
           "is_archived": {
             "type": "boolean"
@@ -2139,6 +2305,9 @@
         },
         "required": [
           "excerpt",
+          "images",
+          "image_count",
+          "embed",
           "board",
           "place",
           "is_nsfw",
@@ -2576,6 +2745,11 @@
             "format": "int64",
             "type": "integer"
           },
+          "attachments": {
+            "description": "Most files one message or post can carry",
+            "format": "int64",
+            "type": "integer"
+          },
           "commands_per_application": {
             "format": "int64",
             "type": "integer"
@@ -2611,7 +2785,7 @@
             "type": "integer"
           },
           "upload_types": {
-            "description": "Accepted image types",
+            "description": "Accepted image types; attachments may also be other files",
             "items": {
               "type": "string"
             },
@@ -2636,7 +2810,8 @@
           "personal_tokens",
           "upload_size",
           "upload_types",
-          "upload_max_side"
+          "upload_max_side",
+          "attachments"
         ],
         "type": "object"
       },
@@ -2873,6 +3048,15 @@
       "Message": {
         "additionalProperties": false,
         "properties": {
+          "attachments": {
+            "items": {
+              "$ref": "#/components/schemas/Attachment"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
           "author": {
             "$ref": "#/components/schemas/User",
             "description": "null if the author deleted their account"
@@ -2897,6 +3081,16 @@
             "format": "date-time",
             "type": [
               "string",
+              "null"
+            ]
+          },
+          "embeds": {
+            "description": "Previews of links in the content, fetched by the server after sending (MESSAGE_UPDATE follows)",
+            "items": {
+              "$ref": "#/components/schemas/Embed"
+            },
+            "type": [
+              "array",
               "null"
             ]
           },
@@ -2977,7 +3171,9 @@
           "thread",
           "edit_count",
           "edited_at",
-          "created_at"
+          "created_at",
+          "attachments",
+          "embeds"
         ],
         "type": "object"
       },
@@ -3837,6 +4033,16 @@
       "Post": {
         "additionalProperties": false,
         "properties": {
+          "attachments": {
+            "description": "Empty for deleted posts unless the caller can manage posts",
+            "items": {
+              "$ref": "#/components/schemas/Attachment"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
           "author": {
             "$ref": "#/components/schemas/User",
             "description": "null if the author deleted their account"
@@ -3869,6 +4075,16 @@
             "format": "date-time",
             "type": [
               "string",
+              "null"
+            ]
+          },
+          "embeds": {
+            "description": "Previews of links in the content, fetched by the server after posting",
+            "items": {
+              "$ref": "#/components/schemas/Embed"
+            },
+            "type": [
+              "array",
               "null"
             ]
           },
@@ -3923,6 +4139,8 @@
           "deleted",
           "reactions",
           "reaction_count",
+          "attachments",
+          "embeds",
           "edit_count",
           "edited_at",
           "created_at"
@@ -4543,10 +4761,20 @@
       "SendMessageRequest": {
         "additionalProperties": false,
         "properties": {
+          "attachment_ids": {
+            "description": "Files from POST /attachments, in display order",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "type": [
+              "array",
+              "null"
+            ]
+          },
           "content": {
-            "description": "Markdown; @username mentions notify",
+            "description": "Markdown; @username mentions notify. May be empty when attachment_ids is set",
             "maxLength": 4000,
-            "minLength": 1,
             "type": "string"
           },
           "nonce": {
@@ -4560,9 +4788,6 @@
             "type": "string"
           }
         },
-        "required": [
-          "content"
-        ],
         "type": "object"
       },
       "Session": {
@@ -6824,6 +7049,115 @@
         "summary": "Replace an application's slash commands (owner or the bot itself)",
         "tags": [
           "Developer"
+        ]
+      }
+    },
+    "/attachments": {
+      "post": {
+        "description": "Send the file as the raw request body with its Content-Type, and its name in `filename`. PNG, JPEG, GIF and WebP images have metadata such as EXIF location removed and are shown inline; other files are kept as sent and served as downloads. Pass the returned ID in `attachment_ids` when sending a message or post within an hour, after which unused uploads are deleted. The size limit is `limits.upload_size` in GET /instance.",
+        "operationId": "upload-attachment",
+        "parameters": [
+          {
+            "description": "The file's name, shown to readers and used for downloads",
+            "explode": false,
+            "in": "query",
+            "name": "filename",
+            "schema": {
+              "description": "The file's name, shown to readers and used for downloads",
+              "maxLength": 255,
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Content-Type",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "contentMediaType": "application/octet-stream",
+                "format": "binary",
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Attachment"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload a file to attach to a message or post",
+        "tags": [
+          "Attachments"
         ]
       }
     },

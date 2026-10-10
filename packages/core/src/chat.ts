@@ -158,8 +158,9 @@ export function previewText(content: string, max = 120): string {
   return flat.length > max ? `${flat.slice(0, max - 1)}…` : flat;
 }
 
-export function validateMessage(content: string): string | null {
-  if (!content.trim()) return 'Write something first.';
+/** `attachments` is how many files go with the message; with any, the text may be empty. */
+export function validateMessage(content: string, attachments = 0): string | null {
+  if (!content.trim() && attachments === 0) return 'Write something first.';
   if ([...content].length > MESSAGE_LIMIT) return `Messages can be up to ${MESSAGE_LIMIT.toLocaleString('en-US')} characters.`;
   return null;
 }

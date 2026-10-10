@@ -1,4 +1,4 @@
-import { previewText, type Message } from '@gotalk/core';
+import { messagePreview, type Message } from '@gotalk/core';
 import { Icon, Notice, Text, useTheme } from '@gotalk/ui';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -27,7 +27,7 @@ function PinnedStrip({ channelId, onOpen }: { channelId: string; onOpen: () => v
     <Pressable accessibilityRole="button" accessibilityLabel={`${pins.length} pinned. Show pinned messages`} onPress={onOpen} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 20, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: c.hairline }}>
       <Icon name="pin" size={16} color={c.mute} />
       <Text variant="captionMd" tone="muted" numberOfLines={1} style={{ flex: 1 }}>
-        {previewText(pins[0]!.content, 160)}
+        {messagePreview(pins[0]!, 160)}
       </Text>
       <Text variant="captionMd" tone="muted" style={{ textDecorationLine: 'underline' }}>
         {pins.length} pinned

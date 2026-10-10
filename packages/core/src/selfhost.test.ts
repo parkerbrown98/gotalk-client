@@ -30,8 +30,8 @@ const instance = (overrides: Record<string, unknown> = {}) => ({
   status: 'healthy' as const,
   degraded_features: [] as string[],
   setup_required: false,
-  features: { email: true, password_reset: true, email_verification: true, uploads: true },
-  limits: { upload_size: 8 * MB, upload_types: TYPES, upload_max_side: 8192 },
+  features: { email: true, password_reset: true, email_verification: true, uploads: true, link_previews: true },
+  limits: { upload_size: 8 * MB, upload_types: TYPES, upload_max_side: 8192, attachments: 10 },
   ...overrides,
 });
 
@@ -45,6 +45,8 @@ describe('instanceCapabilities', () => {
       uploadSize: 8 * MB,
       uploadTypes: TYPES,
       uploadMaxSide: 8192,
+      maxAttachments: 10,
+      linkPreviews: true,
       awaitingSetup: false,
       needsAttention: false,
       degradedFeatures: [],

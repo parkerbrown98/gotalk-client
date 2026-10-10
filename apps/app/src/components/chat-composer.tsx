@@ -3,7 +3,9 @@ import { Avatar, hoverTransition, Icon, Text, typeStyle, useTheme, type PressSta
 import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, TextInput, View, type NativeSyntheticEvent, type TextInputKeyPressEventData, type TextStyle } from 'react-native';
 
+import { AttachButton, AttachmentTray, usePasteFiles } from '@/components/attachments';
 import { ReactionPickerDialog } from '@/components/chat-dialogs';
+import type { Attachment, AttachmentDraft } from '@/lib/attachments';
 import type { Channel } from '@/lib/chat';
 import { failureMessage } from '@/lib/failure';
 import { useMemberSuggestions } from '@/lib/forums';
@@ -20,7 +22,9 @@ export interface ChatComposerProps {
   wide: boolean;
   replyTo: Message | null;
   onClearReply: () => void;
-  onSend: (content: string) => void;
+  onSend: (content: string, attachments: Attachment[]) => void;
+  /** Files added with the + button, paste or drag and drop (the chat view shares it for dropping). */
+  attachments: AttachmentDraft;
   onTyping: () => void;
   commands: readonly ChannelCommand[];
   onCommand: (parsed: ParsedCommand) => Promise<void>;
@@ -36,7 +40,7 @@ interface Suggestion {
   apply: () => void;
 }
 
-export function ChatComposer({ channel, slug, placeholder, wide, replyTo, onClearReply, onSend, onTyping, commands, onCommand, focusKey }: ChatComposerProps) {
+export function ChatComposer({ channel, slug, placeholder, wide, replyTo, onClearReply, onSend, attachments, onTyping, commands, onCommand, focusKey }: ChatComposerProps) {
   const theme = useTheme();
   const c = theme.colors;
   const input = useRef<TextInput>(null);
@@ -48,6 +52,7 @@ export function ChatComposer({ channel, slug, placeholder, wide, replyTo, onClea
   const [busy, setBusy] = useState(false);
   const [emoji, setEmoji] = useState(false);
   const lastTyping = useRef(0);
+  usePasteFiles(input, attachments);
 
   const setValue = (next: string) => {
     setValueState(next);
@@ -103,9 +108,12 @@ export function ChatComposer({ channel, slug, placeholder, wide, replyTo, onClea
   async function submit() {
     if (busy) return;
     const text = value.replace(/\s+$/, '');
-    if (!text.trim()) return;
+    if (!text.trim() && attachments.items.length === 0) return;
     setError(null);
-    if (text.startsWith('/') && commands.length > 0) {
+    if (attachments.uploading) return setError('Wait for the files to finish uploading.');
+    if (attachments.items.some((i) => i.state === 'failed')) return setError('Some files did not upload. Retry or remove them.');
+    const files = attachments.ready;
+    if (text.startsWith('/') && commands.length > 0 && files.length === 0) {
       const parsed = parseCommand(text, commands);
       if (parsed && 'error' in parsed) return setError(parsed.error);
       if (parsed) {
@@ -121,9 +129,10 @@ export function ChatComposer({ channel, slug, placeholder, wide, replyTo, onClea
         return;
       }
     }
-    const problem = validateMessage(text);
+    const problem = validateMessage(text, files.length);
     if (problem) return setError(problem);
-    onSend(text);
+    onSend(text, files);
+    attachments.clear();
     setValue('');
     setSel({ start: 0, end: 0 });
     lastTyping.current = 0;
@@ -145,7 +154,7 @@ export function ChatComposer({ channel, slug, placeholder, wide, replyTo, onClea
   }
 
   const over = [...value].length > MESSAGE_LIMIT;
-  const hasText = value.trim().length > 0;
+  const hasText = value.trim().length > 0 || attachments.items.length > 0;
 
   return (
     <View style={{ paddingHorizontal: wide ? 20 : 12, paddingBottom: wide ? 16 : 8, gap: 6 }}>
@@ -189,62 +198,73 @@ export function ChatComposer({ channel, slug, placeholder, wide, replyTo, onClea
         ) : null}
         <View
           style={{
-            flexDirection: 'row',
-            alignItems: 'flex-end',
-            gap: 8,
-            minHeight: 44,
-            paddingVertical: 6,
-            paddingLeft: 12,
-            paddingRight: 8,
             borderRadius: theme.radii.md,
             backgroundColor: c.surfaceElevated,
             borderWidth: 1,
             borderColor: error || over ? c.accentRed : focused ? c.hairlineStrong : c.hairline,
           }}
         >
-          <TextInput
-            ref={input}
-            accessibilityLabel={placeholder}
-            multiline
-            value={value}
-            selection={sel}
-            onSelectionChange={(e) => setSel(e.nativeEvent.selection)}
-            onChangeText={(next) => {
-              setValue(next);
-              if (error) setError(null);
-              if (next.trim() && !next.startsWith('/') && Date.now() - lastTyping.current > TYPING_EVERY_MS) {
-                lastTyping.current = Date.now();
-                onTyping();
-              }
-            }}
-            onContentSizeChange={(e) => setHeight(Math.min(160, Math.max(24, e.nativeEvent.contentSize.height)))}
-            onKeyPress={onKey}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setTimeout(() => setFocused(false), 150)}
-            placeholder={placeholder}
-            placeholderTextColor={c.ash}
-            style={[
-              typeStyle(theme, 'bodyMd'),
-              { flex: 1, color: c.onDark, height: Math.max(24, height), maxHeight: 160, paddingVertical: 4, textAlignVertical: 'top' } as TextStyle,
-              Platform.OS === 'web' ? ({ outlineWidth: 0, outlineStyle: 'none', resize: 'none' } as unknown as TextStyle) : null,
-            ]}
-          />
-          <Pressable accessibilityRole="button" accessibilityLabel="Insert an emoji" onPress={() => setEmoji(true)} hitSlop={6} style={{ height: 30, justifyContent: 'center' }}>
-            <Icon name="smile" size={18} color={c.mute} />
-          </Pressable>
-          {hasText ? (
-            wide ? (
-              <Pressable accessibilityRole="button" accessibilityLabel="Send" disabled={busy} onPress={() => void submit()} style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, height: 30, paddingHorizontal: 12, justifyContent: 'center', borderRadius: theme.radii.md, backgroundColor: pressed || hovered ? c.primaryPressed : c.primary })}>
-                <Text variant="captionMd" tone="inverse" style={{ fontFamily: theme.fontFaces['500'] }}>
-                  Send
-                </Text>
-              </Pressable>
-            ) : (
-              <Pressable accessibilityRole="button" accessibilityLabel="Send" disabled={busy} onPress={() => void submit()} style={{ width: 30, height: 30, alignItems: 'center', justifyContent: 'center', borderRadius: 15, backgroundColor: c.primary }}>
-                <Icon name="send" size={16} color={c.onPrimary} />
-              </Pressable>
-            )
+          {attachments.items.length > 0 || attachments.notice ? (
+            <View style={{ paddingHorizontal: 12, paddingTop: 10, paddingBottom: 4 }}>
+              <AttachmentTray draft={attachments} />
+            </View>
           ) : null}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'flex-end',
+              gap: 8,
+              minHeight: 42,
+              paddingVertical: 6,
+              paddingLeft: attachments.enabled ? 6 : 12,
+              paddingRight: 8,
+            }}
+          >
+            <AttachButton draft={attachments} />
+            <TextInput
+              ref={input}
+              accessibilityLabel={placeholder}
+              multiline
+              value={value}
+              selection={sel}
+              onSelectionChange={(e) => setSel(e.nativeEvent.selection)}
+              onChangeText={(next) => {
+                setValue(next);
+                if (error) setError(null);
+                if (next.trim() && !next.startsWith('/') && Date.now() - lastTyping.current > TYPING_EVERY_MS) {
+                  lastTyping.current = Date.now();
+                  onTyping();
+                }
+              }}
+              onContentSizeChange={(e) => setHeight(Math.min(160, Math.max(24, e.nativeEvent.contentSize.height)))}
+              onKeyPress={onKey}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setTimeout(() => setFocused(false), 150)}
+              placeholder={placeholder}
+              placeholderTextColor={c.ash}
+              style={[
+                typeStyle(theme, 'bodyMd'),
+                { flex: 1, color: c.onDark, height: Math.max(24, height), maxHeight: 160, paddingVertical: 4, textAlignVertical: 'top' } as TextStyle,
+                Platform.OS === 'web' ? ({ outlineWidth: 0, outlineStyle: 'none', resize: 'none' } as unknown as TextStyle) : null,
+              ]}
+            />
+            <Pressable accessibilityRole="button" accessibilityLabel="Insert an emoji" onPress={() => setEmoji(true)} hitSlop={6} style={{ height: 30, justifyContent: 'center' }}>
+              <Icon name="smile" size={18} color={c.mute} />
+            </Pressable>
+            {hasText ? (
+              wide ? (
+                <Pressable accessibilityRole="button" accessibilityLabel="Send" disabled={busy} onPress={() => void submit()} style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, height: 30, paddingHorizontal: 12, justifyContent: 'center', borderRadius: theme.radii.md, backgroundColor: pressed || hovered ? c.primaryPressed : c.primary })}>
+                  <Text variant="captionMd" tone="inverse" style={{ fontFamily: theme.fontFaces['500'] }}>
+                    Send
+                  </Text>
+                </Pressable>
+              ) : (
+                <Pressable accessibilityRole="button" accessibilityLabel="Send" disabled={busy} onPress={() => void submit()} style={{ width: 30, height: 30, alignItems: 'center', justifyContent: 'center', borderRadius: 15, backgroundColor: c.primary }}>
+                  <Icon name="send" size={16} color={c.onPrimary} />
+                </Pressable>
+              )
+            ) : null}
+          </View>
         </View>
       </View>
       {error || over ? (

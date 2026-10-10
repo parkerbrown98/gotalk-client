@@ -97,19 +97,19 @@ export type UploadFailure =
   | { kind: 'rate_limited'; retryAfter: number; message: string };
 
 /** One sentence for a failed upload. 413, 422 and 503 have their own copy; the server's message explains a corrupt file. */
-export function describeUploadFailure(e: unknown, caps?: Pick<InstanceCapabilities, 'uploadSize' | 'uploadTypes'>): UploadFailure {
+export function describeUploadFailure(e: unknown, caps?: Pick<InstanceCapabilities, 'uploadSize' | 'uploadTypes'>, noun: 'image' | 'file' = 'image'): UploadFailure {
   const err = e instanceof UploadError ? e : e instanceof ApiError ? new UploadError(e) : null;
   if (!err) {
     if (e instanceof TypeError || (e instanceof Error && /network request failed/i.test(e.message))) {
       return { kind: 'other', message: 'Could not reach the instance. Check your connection and try again.' };
     }
-    return { kind: 'other', message: 'The image could not be uploaded. Try again.' };
+    return { kind: 'other', message: `The ${noun} could not be uploaded. Try again.` };
   }
   switch (err.kind) {
     case 'too_large':
-      return { kind: 'too_large', message: caps ? `That image is too large. The limit is ${formatBytes(caps.uploadSize)}.` : 'That image is too large.' };
+      return { kind: 'too_large', message: caps ? `That ${noun} is too large. The limit is ${formatBytes(caps.uploadSize)}.` : `That ${noun} is too large.` };
     case 'unsupported':
-      return { kind: 'unsupported', message: err.message || `That image can't be used. Try ${caps ? describeImageTypes(caps.uploadTypes) : 'another file'}.` };
+      return { kind: 'unsupported', message: err.message || `That ${noun} can't be used. Try ${caps ? describeImageTypes(caps.uploadTypes) : 'another file'}.` };
     case 'unavailable':
       return { kind: 'unavailable', message: "Uploads aren't working on this instance right now. Its storage is unavailable; try again later." };
     case 'rate_limited': {
@@ -117,6 +117,6 @@ export function describeUploadFailure(e: unknown, caps?: Pick<InstanceCapabiliti
       return { kind: 'rate_limited', retryAfter, message: `Too many uploads. Try again in ${retryAfter} seconds.` };
     }
     default:
-      return { kind: 'other', message: err.message || 'The image could not be uploaded. Try again.' };
+      return { kind: 'other', message: err.message || `The ${noun} could not be uploaded. Try again.` };
   }
 }

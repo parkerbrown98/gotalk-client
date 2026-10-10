@@ -84,16 +84,18 @@ export interface ComposeProblem {
 }
 
 /** First problem that would make the server reject a new topic, so the form can point at it. */
-export function validateTopic(input: { title: string; content: string; tags: string[] }): ComposeProblem | null {
+/** A topic needs a title; its body may be empty when it has attachments. */
+export function validateTopic(input: { title: string; content: string; tags: string[]; attachments?: number }): ComposeProblem | null {
   const title = input.title.trim().replace(/\s+/g, ' ');
   if (!title) return { field: 'title', message: 'Give the topic a title.' };
   if ([...title].length > LIMITS.title) return { field: 'title', message: `Titles can be up to ${LIMITS.title} characters.` };
   if (input.tags.length > LIMITS.tags) return { field: 'tags', message: `A topic can have up to ${LIMITS.tags} tags.` };
-  return validatePost(input.content);
+  return validatePost(input.content, input.attachments);
 }
 
-export function validatePost(content: string): ComposeProblem | null {
-  if (!content.trim()) return { field: 'content', message: 'Write something first.' };
+/** `attachments` is how many files go with the post; with any, the text may be empty. */
+export function validatePost(content: string, attachments = 0): ComposeProblem | null {
+  if (!content.trim() && attachments === 0) return { field: 'content', message: 'Write something first.' };
   if ([...content].length > LIMITS.post) return { field: 'content', message: `Posts can be up to ${LIMITS.post.toLocaleString('en-US')} characters.` };
   return null;
 }

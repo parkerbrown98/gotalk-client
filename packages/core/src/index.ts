@@ -1,3 +1,4 @@
+export * from './attachments.ts';
 export * from './auth.ts';
 export * from './capabilities.ts';
 export * from './chat.ts';

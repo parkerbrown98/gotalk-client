@@ -1,4 +1,4 @@
-import { conversationTitle, previewText, shortTime } from '@gotalk/core';
+import { conversationTitle, messagePreview, shortTime } from '@gotalk/core';
 import { unwrap, type Schemas } from '@gotalk/api-client';
 import { Avatar, Button, Dialog, hoverTransition, Icon, NavRow, Notice, Text, TextField, typeStyle, useTheme, type PressState } from '@gotalk/ui';
 import { useQueries } from '@tanstack/react-query';
@@ -58,7 +58,7 @@ export function ConversationListRow({ channel }: { channel: Channel }) {
   const unread = channel.read_state?.mention_count ?? 0;
   const title = conversationTitle(channel, myId);
   const who = !last ? '' : last.author?.id === myId ? 'You: ' : channel.kind === 'group_dm' ? `${last.author?.display_name.split(/\s+/)[0] ?? 'Someone'}: ` : '';
-  const preview = last ? `${who}${previewText(last.content, 80)}` : channel.last_message_id ? '' : 'No messages yet';
+  const preview = last ? `${who}${messagePreview(last, 80)}` : channel.last_message_id ? '' : 'No messages yet';
   return (
     <Pressable
       accessibilityRole="link"

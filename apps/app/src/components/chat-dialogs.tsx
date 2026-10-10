@@ -1,4 +1,4 @@
-import { clockTime, previewText, QUICK_REACTIONS, relativeTime, type Message } from '@gotalk/core';
+import { clockTime, messagePreview, previewText, QUICK_REACTIONS, relativeTime, type Message } from '@gotalk/core';
 import { Button, Dialog, hoverTransition, Icon, ListCard, ListRow, Notice, Text, TextField, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
@@ -168,7 +168,7 @@ function Quote({ message }: { message: Message }) {
         </Text>
       </View>
       <Text variant="bodySm" numberOfLines={4}>
-        {previewText(message.content, 300)}
+        {messagePreview(message, 300)}
       </Text>
     </View>
   );

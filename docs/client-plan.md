@@ -369,8 +369,8 @@ Known gaps and decisions:
 - The rail shows no per-place unread counts: that needs every place's channel list, and only open places
   load theirs. The mockup's rail count was removed.
 - The member list shows the first 100 members, without roles.
-- The API has no message search or attachments yet, so the mockups' search icon and composer "+" were
-  removed. Reactions offer the same fixed set as forums.
+- The API has no message search yet, so the mockups' search icon was removed. (The composer "+" returned with
+  attachments.) Reactions offer the same fixed set as forums.
 - Threads are reached from their starting message; they are not listed in the sidebar.
 - Creating voice channels and setting their user limit arrived with voice in Phase 5; per-role channel
   permissions come with the overwrite editors in Phase 6. Moving a channel into or out of a category is done
@@ -728,8 +728,9 @@ Known gaps and decisions:
 - Copy link copies the web client's address and is offered on the web only; there are no server-rendered
   topic pages to link to yet.
 - Voting stays separate from reactions; the client does not add reactions into the score.
-- Per-forum unread counts in the sidebar, live "N new topics" banners, thumbnails, saved topics, custom
-  multi-place feeds and a per-forum default sort remain out of scope.
+- Per-forum unread counts in the sidebar, live "N new topics" banners, saved topics, custom
+  multi-place feeds and a per-forum default sort remain out of scope. (Image and link thumbnails arrived with
+  attachments.)
 
 ## Phase 8 — Self-hosting follow-through ✅
 
@@ -846,8 +847,8 @@ Known gaps and decisions:
 - Re-encoding before upload was kept (the open question): the server only strips metadata, and serving phone
   photos at full size to every viewer was the worse cost. There is no crop editor.
 - Uploads cover avatars, place icons and banners, and the instance icon. Images in posts and chat, link
-  previews and thumbnails wait for backend attachments (the `ATTACH_FILES` flows, still deferred). Application
-  icons also stay URLs.
+  previews and thumbnails followed in [Attachments and link previews](#attachments-and-link-previews-).
+  Application icons stay URLs.
 - Uploaded files are served by URL without a sign-in, so the icon of a private place is not secret.
 - No change-email flow: the backend has no endpoint, so a mistyped address cannot be corrected from the app.
 - No gateway event announces a changed avatar or display name, so others see it on their next refetch.
@@ -901,6 +902,51 @@ out (sign in on the account step, back to the invite, joined; the server saved o
 old addresses redirecting. Not exercised: iOS, Android and Tauri builds, and a server awaiting setup or on an
 incompatible API version.
 
+## Attachments and link previews ✅
+
+Chat messages and forum posts carry files, and links in them get previews fetched by the server (backend
+migration `00008_attachments`). The composer "+" removed in Phase 4 is back.
+
+Delivered:
+
+- **Contract sync:** `pnpm api:sync` (128 paths): `POST /attachments`, `attachment_ids` on sending a message,
+  starting a topic and replying, `attachments` and `embeds` on `Message` and `Post`, and `images`,
+  `image_count` and `embed` on feed items. `instanceCapabilities` adds `maxAttachments` (0 on servers without
+  attachments, which hides every attach control) and `linkPreviews`.
+- **Uploading:** `uploadAttachment(client, blob, filename, type)` in `@gotalk/api-client` sends the file as the
+  raw body, like `uploadImage`. Files upload as soon as they are added, into a per-composer draft
+  (`useAttachmentDraft`, keyed `chat:<channel>`, `topic:<board>` or `reply:<topic>:<post>`) that outlives
+  the screen, so switching channels mid-upload loses nothing. Photos over 2560px or the size limit are scaled
+  and re-encoded first (`planAttachmentImage`); HEIC and other formats the device can decode become JPEG; GIFs go
+  as they are. Other files go untouched.
+- **Adding files:** the "+" button (the file chooser on web and desktop; Photos or Files on phones, through
+  `expo-image-picker` and the new `expo-document-picker`), pasting files or screenshots into the chat input or
+  the forum editor, and dropping files anywhere on a conversation or on the forum editor (an overlay names the
+  destination). The Tauri shell disables its native drop handler so the page receives drops. Files wait in a
+  tray with previews, an uploading spinner, remove, and retry on failure. Sending waits for uploads, and a
+  message or post may be only files.
+- **Showing them:** one image fitted to 400×320 (280×260 narrow), several as a square grid, a lightbox with
+  "Open original", and other files as download cards with the extension, name and size. Link previews show
+  the site, title, description and image (a thumbnail, or large when the site asks for it, with its theme
+  color as the edge), and direct image links show as images. Previews arrive by `MESSAGE_UPDATE` in chat; the
+  forum refetches a topic's posts a few seconds after posting a link. Previews of message and post text use
+  `messagePreview`, which names the files when there is no text.
+- **Feeds:** a topic whose opening post has images shows them (one large, or up to four in a strip with "+N");
+  a link topic shows its site and the preview image beside the title.
+- **Tests:** `attachments.test.ts` in `@gotalk/core` (sizes, summaries, file labels, size checks, resize plans,
+  validation with files, capabilities) and an upload test in `@gotalk/api-client`.
+
+Verified in Chromium against a local server: pasting a screenshot into chat and sending it with a link (the
+GitHub preview arrived live), dropping a PDF onto the conversation, a topic with three pasted photos and a link,
+the lightbox, and the place feed. Not exercised: iOS, Android and Tauri builds.
+
+Known gaps:
+
+- Attachments cannot be added to or removed from a message or post after sending; editing changes the text only.
+- Files are served by unguessable URL without a sign-in, so attachments in private channels are only as private
+  as their links.
+- Videos and audio are offered as downloads, not players.
+
 ## Phase 9 — Distribution & polish
 
 - **Push notifications:** a small Gotalk-operated push relay (APNs/FCM), web push for the web app, and
@@ -929,8 +975,8 @@ incompatible API version.
   - instance branding (accent color, logo variants) in `GET /instance`
   - an optional HttpOnly refresh-token cookie mode for same-site web deployments
   - push subscription endpoints and the relay contract
-  - attachments for posts and chat (avatar, place and instance image upload shipped with backend Phase 7;
-    application icon upload and a gateway event for changed avatars and display names are still missing)
+  - application icon upload and a gateway event for changed avatars and display names (attachments for posts
+    and chat shipped; adding or removing them when editing is still missing)
   - a change-email endpoint (email confirmation exists, but an address cannot be changed)
   - OAuth/OIDC with PKCE for native clients when backend auth providers land
 - **Decisions still open:**

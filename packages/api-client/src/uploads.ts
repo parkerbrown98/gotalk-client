@@ -96,3 +96,28 @@ export async function uploadImage<T extends UploadTarget>(client: GotalkClient, 
 export async function removeImage<T extends UploadTarget>(client: GotalkClient, target: T): Promise<UploadResult<T>> {
   return unwrap(await (client as unknown as LooseClient).DELETE(pathOf(target), { params: paramsOf(target) })) as UploadResult<T>;
 }
+
+type LoosePost = {
+  POST(path: string, init: Record<string, unknown>): Promise<{ data?: unknown; error?: unknown; response: Response }>;
+};
+
+/**
+ * Uploads a file to attach to a message or post; pass the returned `id` in `attachment_ids` within an
+ * hour. Like {@link uploadImage}, the body is a `Blob` so it can be resent after a token refresh.
+ * Refusals throw {@link UploadError}.
+ */
+export async function uploadAttachment(client: GotalkClient, file: Blob, filename: string, contentType?: string, signal?: AbortSignal): Promise<Schemas['Attachment']> {
+  const type = contentType || file.type || 'application/octet-stream';
+  const result = await (client as unknown as LoosePost).POST('/attachments', {
+    params: { query: { filename } },
+    body: file,
+    bodySerializer: (body: unknown) => body,
+    headers: { 'Content-Type': type },
+    signal,
+  });
+  try {
+    return unwrap(result) as Schemas['Attachment'];
+  } catch (e) {
+    throw e instanceof ApiError ? new UploadError(e) : e;
+  }
+}

@@ -5,6 +5,7 @@ import { Pressable, View } from 'react-native';
 
 import { Composer } from '@/components/composer';
 import { messageFor } from '@/components/forum';
+import { useAttachmentDraft } from '@/lib/attachments';
 import { draftKeys, useForumActions, useServerDraft, type Post } from '@/lib/forums';
 
 export interface ReplyFormProps {
@@ -28,6 +29,7 @@ export function ReplyForm({ topicId, slug, parent, onClearParent, onPosted, auto
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const restored = useRef<string | null>(null);
+  const files = useAttachmentDraft(`reply:${topicId}:${parent?.id ?? ''}`);
 
   // Restore the stored draft once per draft key, without overwriting what is being typed.
   const key = draftKeys.reply(topicId, parent?.id);
@@ -41,13 +43,16 @@ export function ReplyForm({ topicId, slug, parent, onClearParent, onPosted, auto
   }, [draft.loaded, draft.stored, key]);
 
   async function post() {
-    const problem = validatePost(content);
+    if (files.uploading) return setError('Wait for the files to finish uploading.');
+    if (files.items.some((i) => i.state === 'failed')) return setError('Some files did not upload. Retry or remove them.');
+    const problem = validatePost(content, files.ready.length);
     if (problem) return setError(problem.message);
     setBusy(true);
     setError(null);
     try {
-      const created = await actions.reply(topicId, content, parent?.id);
+      const created = await actions.reply(topicId, content, parent?.id, files.ready.map((a) => a.id));
       await draft.discard();
+      files.clear();
       setContent('');
       onPosted(created);
     } catch (e) {
@@ -86,6 +91,7 @@ export function ReplyForm({ topicId, slug, parent, onClearParent, onPosted, auto
         draftState={draft.state}
         onSubmit={post}
         error={error}
+        attachments={files}
       />
       <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
         <Button title="Post reply" loading={busy} onPress={post} />

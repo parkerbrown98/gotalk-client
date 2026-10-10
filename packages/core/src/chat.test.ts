@@ -39,6 +39,8 @@ function msg(n: number, over: Partial<Message> = {}): Message {
     reply_to: null as unknown as Message['reply_to'],
     mentions: [],
     reactions: [],
+    attachments: [],
+    embeds: [],
     is_pinned: false,
     pinned_at: null,
     thread: null as unknown as Message['thread'],

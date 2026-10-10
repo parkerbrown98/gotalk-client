@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { API_VERSION_HEADER, ApiError, createGotalkClient, removeImage, unwrap, uploadFailureKind, UploadError, uploadImage } from './index.ts';
+import { API_VERSION_HEADER, ApiError, createGotalkClient, removeImage, unwrap, uploadFailureKind, UploadError, uploadAttachment, uploadImage } from './index.ts';
 
 const json = (body: unknown, status = 200, type = 'application/json') =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': type } });
@@ -126,5 +126,20 @@ describe('uploadImage', () => {
 
   it('keeps the server error as the cause', () => {
     expect(new UploadError(new ApiError(413)).cause).toBeInstanceOf(ApiError);
+  });
+
+  it('uploads an attachment with its name and type', async () => {
+    const { fetch, requests } = recordingFetch(() => json({ id: 'a1', url: 'https://x.example/media/attachments/a1.pdf', filename: 'plans v2.pdf', width: null }, 201));
+    const file = new Blob([new Uint8Array([37, 80, 68, 70])], { type: 'application/pdf' });
+    const att = await uploadAttachment(createGotalkClient({ baseUrl: 'https://x.example/api/v1', fetch }), file, 'plans v2.pdf');
+    expect(requests[0]!.method).toBe('POST');
+    expect(requests[0]!.url).toBe('https://x.example/api/v1/attachments?filename=plans%20v2.pdf');
+    expect(requests[0]!.headers.get('Content-Type')).toBe('application/pdf');
+    expect([...new Uint8Array(await requests[0]!.arrayBuffer())]).toEqual([37, 80, 68, 70]);
+    expect(att.id).toBe('a1');
+
+    const { fetch: refuse } = recordingFetch(() => json({ status: 413, detail: 'request entity too large' }, 413, 'application/problem+json'));
+    const err = await uploadAttachment(createGotalkClient({ baseUrl: 'https://x.example/api/v1', fetch: refuse }), file, 'big.pdf').catch((e: unknown) => e);
+    expect((err as UploadError).kind).toBe('too_large');
   });
 });

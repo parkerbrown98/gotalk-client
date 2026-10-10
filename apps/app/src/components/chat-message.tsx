@@ -1,9 +1,10 @@
-import { clockTime, previewText, type Message } from '@gotalk/core';
+import { attachmentSummary, clockTime, messagePreview, previewText, type Message } from '@gotalk/core';
 import { Avatar, hoverTransition, Icon, Text, typeStyle, useTheme, type PressState } from '@gotalk/ui';
 import { createContext, memo, useContext, useRef, useState, type ReactNode } from 'react';
 import { Platform, Pressable, TextInput, View, type TextStyle } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
+import { MessageMedia } from '@/components/attachments';
 import { contextMenu } from '@/components/context-menu';
 import { Chip } from '@/components/forum';
 import { Markdown } from '@/components/markdown';
@@ -129,7 +130,7 @@ function EditBox({ message, scope }: { message: Message; scope: ChatScope }) {
   const save = async () => {
     if (busy) return;
     if (value.trim() === message.content.trim()) return scope.setEditing(null);
-    if (!value.trim()) return setError('A message cannot be empty. Delete it instead.');
+    if (!value.trim() && !message.attachments?.length) return setError('A message cannot be empty. Delete it instead.');
     setBusy(true);
     setError(null);
     const ok = await scope.saveEdit(message, value);
@@ -227,7 +228,7 @@ function ReplyQuote({ message, scope }: { message: Message; scope: ChatScope }) 
           </Text>
           {'  '}
           <Text variant="captionMd" tone="faint">
-            {previewText(ref.excerpt, 80)}
+            {previewText(ref.excerpt, 80) || 'Attachment'}
           </Text>
         </Text>
       ) : (
@@ -265,7 +266,7 @@ export const MessageRow = memo(function MessageRow({ message, continued, highlig
   return (
     <View onPointerEnter={scope.hover ? () => setHovered(true) : undefined} onPointerLeave={scope.hover ? () => setHovered(false) : undefined} style={{ marginTop: continued ? 0 : 8 }}>
       <Pressable
-        accessibilityLabel={`${name}, ${clockTime(message.created_at)}: ${previewText(message.content, 200)}`}
+        accessibilityLabel={`${name}, ${clockTime(message.created_at)}: ${messagePreview(message, 200)}`}
         onLongPress={scope.hover ? undefined : () => scope.openActions(message)}
         delayLongPress={350}
         {...contextMenu((anchor) => scope.openActions(message, anchor))}
@@ -310,17 +311,20 @@ export const MessageRow = memo(function MessageRow({ message, continued, highlig
             <EditBox message={message} scope={scope} />
           ) : (
             <View style={{ maxWidth: 760 }}>
-              <Markdown
-                source={message.content}
-                compact={!scope.wide}
-                trailing={
-                  message.edited_at ? (
-                    <Text variant="captionSm" tone="faint" accessibilityRole={canSeeHistory ? 'button' : undefined} accessibilityLabel={canSeeHistory ? 'Edited. Show edit history' : 'Edited'} onPress={canSeeHistory ? () => scope.showHistory(message) : undefined}>
-                      (edited)
-                    </Text>
-                  ) : undefined
-                }
-              />
+              {message.content.trim() || message.edited_at ? (
+                <Markdown
+                  source={message.content}
+                  compact={!scope.wide}
+                  trailing={
+                    message.edited_at ? (
+                      <Text variant="captionSm" tone="faint" accessibilityRole={canSeeHistory ? 'button' : undefined} accessibilityLabel={canSeeHistory ? 'Edited. Show edit history' : 'Edited'} onPress={canSeeHistory ? () => scope.showHistory(message) : undefined}>
+                        (edited)
+                      </Text>
+                    ) : undefined
+                  }
+                />
+              ) : null}
+              <MessageMedia attachments={message.attachments} embeds={message.embeds} wide={scope.wide} />
             </View>
           )}
           {!editing && (message.reactions?.length ?? 0) > 0 ? (
@@ -382,7 +386,7 @@ export function OutgoingRow({ item, author, continued }: { item: OutgoingMessage
   const failed = item.state === 'failed';
   return (
     <View
-      accessibilityLabel={failed ? `Not sent: ${item.content}` : `Sending: ${item.content}`}
+      accessibilityLabel={`${failed ? 'Not sent' : 'Sending'}: ${previewText(item.content) || attachmentSummary(item.attachments)}`}
       style={{
         flexDirection: 'row',
         gap: 12,
@@ -395,7 +399,7 @@ export function OutgoingRow({ item, author, continued }: { item: OutgoingMessage
       <View style={{ flex: 1, minWidth: 0 }}>
         {item.replyTo ? (
           <Text variant="captionMd" tone="muted" numberOfLines={1}>
-            ↳ {item.replyTo.author?.display_name ?? 'Deleted account'} {previewText(item.replyTo.content, 60)}
+            ↳ {item.replyTo.author?.display_name ?? 'Deleted account'} {messagePreview(item.replyTo, 60)}
           </Text>
         ) : null}
         {continued ? null : (
@@ -409,7 +413,8 @@ export function OutgoingRow({ item, author, continued }: { item: OutgoingMessage
           </View>
         )}
         <View style={{ opacity: failed ? 1 : 0.6 }}>
-          <Markdown source={item.content} compact={!scope.wide} />
+          {item.content.trim() ? <Markdown source={item.content} compact={!scope.wide} /> : null}
+          <MessageMedia attachments={item.attachments} wide={scope.wide} />
         </View>
         {failed ? (
           <View

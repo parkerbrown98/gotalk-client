@@ -7,12 +7,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, AppState, Platform, View } from 'react-native';
 import Animated, { useReducedMotion } from 'react-native-reanimated';
 
+import { DropOverlay, useFileDrop } from '@/components/attachments';
 import { ChatComposer } from '@/components/chat-composer';
 import { DeleteMessageDialog, MessageHistoryDialog, MessageMenu, MessageSheet, ReactionPickerDialog, StartThreadDialog, messageActions } from '@/components/chat-dialogs';
 import { ChatScopeContext, MessageRow, OutgoingRow, type ChatScope } from '@/components/chat-message';
 import type { Anchor } from '@/components/menu';
 import { ReportDialog } from '@/components/moderation';
 import { useApiClient, useMe } from '@/lib/api';
+import { useAttachmentDraft } from '@/lib/attachments';
 import { useSession } from '@/lib/auth';
 import { useChannelCommands, useChatActions, useMemberNames, useMessages, useOutbox, useReceipts, type Channel, type OutgoingMessage } from '@/lib/chat';
 import { failureMessage } from '@/lib/failure';
@@ -147,6 +149,9 @@ export function ChatView({ channel, slug, wide, placeholder, intro, starter, onO
   const typingIds = useTypingUsers(channel.id);
   const attentive = useAttentive();
   const list = useRef<FlashListRef<Row>>(null);
+  const zone = useRef<View>(null);
+  const attachments = useAttachmentDraft(can.send ? `chat:${channel.id}` : null);
+  const dragging = useFileDrop(zone, attachments);
   const atBottom = useRef(true);
 
   const [replyTo, setReplyTo] = useState<Message | null>(null);
@@ -360,7 +365,8 @@ export function ChatView({ channel, slug, wide, placeholder, intro, starter, onO
 
   return (
     <ChatScopeContext.Provider value={scope}>
-      <View style={{ flex: 1, minHeight: 0 }}>
+      <View ref={zone} style={{ flex: 1, minHeight: 0 }}>
+        <DropOverlay visible={dragging} label={`Drop files to send in ${placeholder.replace(/^Message /, '')}`} />
         {query.isPending ? (
           <ActivityIndicator style={{ flex: 1 }} />
         ) : query.isError ? (
@@ -426,9 +432,10 @@ export function ChatView({ channel, slug, wide, placeholder, intro, starter, onO
             commands={commands}
             onCommand={runCommand}
             onTyping={() => void actions?.typing(channel.id)}
-            onSend={(content) => {
+            attachments={attachments}
+            onSend={(content, files) => {
               atBottom.current = true;
-              actions?.send(channel.id, content, replyTo);
+              actions?.send(channel.id, content, replyTo, files);
               setReplyTo(null);
             }}
           />

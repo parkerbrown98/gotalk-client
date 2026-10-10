@@ -8,6 +8,7 @@ import { Composer } from '@/components/composer';
 import { messageFor } from '@/components/forum';
 import { ScreenFrame } from '@/components/screen-frame';
 import { TagInput } from '@/components/tag-input';
+import { useAttachmentDraft } from '@/lib/attachments';
 import { draftKeys, useForumActions, useServerDraft } from '@/lib/forums';
 import { goBack, useWide } from '@/lib/layout';
 import { useBoardAccess, useBoards, usePlace, usePlaceAccess } from '@/lib/places';
@@ -29,6 +30,7 @@ export default function NewTopic() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ field: 'title' | 'content' | 'tags' | 'form'; message: string } | null>(null);
   const restored = useRef(false);
+  const files = useAttachmentDraft(id ? `topic:${id}` : null);
 
   // Fill the form once from the stored draft, and never again, so typing is not overwritten.
   useEffect(() => {
@@ -56,13 +58,16 @@ export default function NewTopic() {
   };
 
   async function post() {
-    const problem = validateTopic({ title, content, tags });
+    if (files.uploading) return setError({ field: 'content', message: 'Wait for the files to finish uploading.' });
+    if (files.items.some((i) => i.state === 'failed')) return setError({ field: 'content', message: 'Some files did not upload. Retry or remove them.' });
+    const problem = validateTopic({ title, content, tags, attachments: files.ready.length });
     if (problem) return setError(problem);
     setBusy(true);
     setError(null);
     try {
-      const topic = await actions.createTopic(id, { title: title.trim().replace(/\s+/g, ' '), content, tags });
+      const topic = await actions.createTopic(id, { title: title.trim().replace(/\s+/g, ' '), content, tags, attachmentIds: files.ready.map((a) => a.id) });
       await draft.discard();
+      files.clear();
       router.replace({ pathname: '/places/[slug]/topics/[id]', params: { slug, id: topic.id } });
     } catch (e) {
       setError({ field: 'form', message: messageFor(e, 'Could not post the topic. Try again.') });
@@ -87,7 +92,7 @@ export default function NewTopic() {
         <TextField label="Title" value={title} onChangeText={(v) => change({ title: v })} error={error?.field === 'title' ? error.message : null} maxLength={400} returnKeyType="next" />
         <TagInput slug={slug} value={tags} onChange={(v) => change({ tags: v })} />
         {error?.field === 'tags' ? <Notice tone="danger">{error.message}</Notice> : null}
-        <Composer value={content} onChange={(v) => change({ content: v })} slug={slug} placeholder="What do you want to discuss?" minHeight={wide ? 200 : 160} draftState={draft.state} onSubmit={post} error={error?.field === 'content' ? error.message : null} />
+        <Composer value={content} onChange={(v) => change({ content: v })} slug={slug} placeholder="What do you want to discuss?" minHeight={wide ? 200 : 160} draftState={draft.state} onSubmit={post} error={error?.field === 'content' ? error.message : null} attachments={locked ? undefined : files} />
         {error?.field === 'form' ? <Notice tone="danger">{error.message}</Notice> : null}
         <View style={{ flexDirection: 'row', gap: theme.space.sm, justifyContent: 'flex-end' }}>
           <Button
@@ -95,6 +100,7 @@ export default function NewTopic() {
             variant="tertiary"
             onPress={async () => {
               await draft.discard();
+              files.clear();
               setTitle('');
               setTags([]);
               setContent('');

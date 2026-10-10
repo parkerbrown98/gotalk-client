@@ -341,6 +341,8 @@ export interface OutgoingMessage {
   channelId: string;
   content: string;
   replyTo: Message | null;
+  /** Uploaded already; only their IDs go with the message. */
+  attachments: Schemas['Attachment'][];
   createdAt: string;
   /** The newest message held for the channel when this was written; only later ones can be its echo. */
   afterId: string | null;
@@ -389,7 +391,12 @@ export function chatActions({ qc, client, inst, myId }: ChatContext) {
       const m = unwrap(
         await client.POST('/channels/{channelID}/messages', {
           params: { path: { channelID: item.channelId } },
-          body: { content: item.content, nonce: item.nonce, reply_to_id: item.replyTo?.id },
+          body: {
+            content: item.content,
+            nonce: item.nonce,
+            reply_to_id: item.replyTo?.id,
+            attachment_ids: item.attachments.length > 0 ? item.attachments.map((a) => a.id) : undefined,
+          },
         }),
       );
       insertMessages(qc, inst, item.channelId, [m]);
@@ -405,9 +412,9 @@ export function chatActions({ qc, client, inst, myId }: ChatContext) {
   }
 
   return {
-    send(channelId: string, content: string, replyTo: Message | null = null) {
+    send(channelId: string, content: string, replyTo: Message | null = null, attachments: Schemas['Attachment'][] = []) {
       const afterId = heldMessages(qc.getQueryData<MessagePages>(chatKeys.messages(inst, channelId))).at(-1)?.id ?? null;
-      const item: OutgoingMessage = { nonce: newNonce(), instanceId: inst, channelId, content, replyTo, createdAt: new Date().toISOString(), afterId, state: 'sending' };
+      const item: OutgoingMessage = { nonce: newNonce(), instanceId: inst, channelId, content, replyTo, attachments, createdAt: new Date().toISOString(), afterId, state: 'sending' };
       outbox.add(item);
       void deliver(item);
     },
@@ -433,7 +440,8 @@ export function chatActions({ qc, client, inst, myId }: ChatContext) {
           if (!item) return;
           tried.add(item.nonce);
           const held = heldMessages(qc.getQueryData<MessagePages>(chatKeys.messages(inst, item.channelId)));
-          const landed = held.some((m) => m.author?.id === myId && m.content === item.content && isAfter(m.id, item.afterId));
+          const files = item.attachments.map((a) => a.id).join();
+          const landed = held.some((m) => m.author?.id === myId && m.content === item.content && (m.attachments ?? []).map((a) => a.id).join() === files && isAfter(m.id, item.afterId));
           if (landed) outbox.remove(item.nonce);
           else await deliver(item);
         }

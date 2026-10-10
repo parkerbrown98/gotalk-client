@@ -3,6 +3,7 @@ import { Avatar, Badge, Button, Dialog, hoverTransition, Icon, ListCard, ListRow
 import { useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
+import { MessageMedia } from '@/components/attachments';
 import { Composer } from '@/components/composer';
 import { Markdown } from '@/components/markdown';
 import { MenuItem, MenuPopover, MenuSeparator, type Anchor } from '@/components/menu';
@@ -287,7 +288,7 @@ export function PostItem({ post, topic, indent = 0, wide, userId, canModerate, c
   }
 
   async function save() {
-    const problem = validatePost(draft);
+    const problem = validatePost(draft, post.attachments?.length ?? 0);
     if (problem) return setError(problem.message);
     if (await run(() => actions.editPost(post, draft), 'Could not save the edit. Try again.')) setEditing(false);
   }
@@ -353,7 +354,10 @@ export function PostItem({ post, topic, indent = 0, wide, userId, canModerate, c
             This post was deleted.
           </Text>
         ) : (
-          <Markdown source={post.content} compact={small} />
+          <>
+            {post.content.trim() ? <Markdown source={post.content} compact={small} /> : null}
+            <MessageMedia attachments={post.attachments} embeds={post.embeds} wide={!small} />
+          </>
         )}
 
         {!deleted && !editing ? (

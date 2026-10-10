@@ -18,6 +18,10 @@ export interface InstanceCapabilities {
   uploadTypes: readonly string[];
   /** Longest side the server accepts, in pixels. */
   uploadMaxSide: number;
+  /** Most files a message or post can carry; 0 when the instance has no attachments. */
+  maxAttachments: number;
+  /** The server fetches previews for links in messages and posts. */
+  linkPreviews: boolean;
   awaitingSetup: boolean;
   /** Something an administrator should fix: see `degradedFeatures`. */
   needsAttention: boolean;
@@ -45,6 +49,9 @@ export function instanceCapabilities(instance: PartialInstance | null | undefine
     uploadSize: l.upload_size && l.upload_size > 0 ? l.upload_size : DEFAULT_UPLOAD_SIZE,
     uploadTypes: types,
     uploadMaxSide: l.upload_max_side && l.upload_max_side > 0 ? l.upload_max_side : DEFAULT_UPLOAD_MAX_SIDE,
+    // Instances from before attachments omit the limit, and do not accept attachment_ids.
+    maxAttachments: f.uploads === true && l.attachments && l.attachments > 0 ? l.attachments : 0,
+    linkPreviews: f.link_previews === true,
     awaitingSetup: instance?.status === 'awaiting_setup' || instance?.setup_required === true,
     needsAttention: instance?.status === 'degraded' || degraded.length > 0,
     degradedFeatures: degraded,
@@ -57,7 +64,7 @@ export function degradedFeatureMessage(feature: DegradedFeature): string {
     case 'email':
       return "Email isn't working, so password resets and email confirmation are unavailable.";
     case 'storage':
-      return "Storage isn't working, so avatars, icons and banners can't be uploaded.";
+      return "Storage isn't working, so avatars, icons, banners and attachments can't be uploaded.";
     case 'voice':
       return "Voice is misconfigured, so voice channels can't connect.";
     default:

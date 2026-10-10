@@ -85,6 +85,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/attachments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload a file to attach to a message or post
+         * @description Send the file as the raw request body with its Content-Type, and its name in `filename`. PNG, JPEG, GIF and WebP images have metadata such as EXIF location removed and are shown inline; other files are kept as sent and served as downloads. Pass the returned ID in `attachment_ids` when sending a message or post within an hour, after which unused uploads are deleted. The size limit is `limits.upload_size` in GET /instance.
+         */
+        post: operations["upload-attachment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/login": {
         parameters: {
             query?: never;
@@ -2370,6 +2390,25 @@ export interface components {
             /** Format: uuid */
             owner_id: string;
         };
+        Attachment: {
+            content_type: string;
+            filename: string;
+            /** Format: int32 */
+            height: number | null;
+            /** Format: uuid */
+            id: string;
+            /**
+             * Format: int64
+             * @description Bytes
+             */
+            size: number;
+            url: string;
+            /**
+             * Format: int32
+             * @description Images only. Files without dimensions are served as downloads
+             */
+            width: number | null;
+        };
         AuditEntry: {
             /** @example member.ban */
             action: string;
@@ -2770,8 +2809,10 @@ export interface components {
             visibility: "public" | "invite_only" | "private";
         };
         CreatePostRequest: {
-            /** @description Markdown; @username mentions notify */
-            content: string;
+            /** @description Files from POST /attachments, in display order */
+            attachment_ids?: string[] | null;
+            /** @description Markdown; @username mentions notify. May be empty when attachment_ids is set */
+            content?: string;
             /**
              * Format: uuid
              * @description The post being replied to
@@ -2818,8 +2859,10 @@ export interface components {
             scopes: string[] | null;
         };
         CreateTopicRequest: {
-            /** @description Markdown */
-            content: string;
+            /** @description Files from POST /attachments for the opening post, in display order */
+            attachment_ids?: string[] | null;
+            /** @description Markdown. May be empty when attachment_ids is set */
+            content?: string;
             tags?: string[] | null;
             title: string;
         };
@@ -2877,14 +2920,42 @@ export interface components {
             };
         };
         EditMessageRequest: {
+            /** @description May be empty when the message has attachments */
             content: string;
         };
         EditPostRequest: {
+            /** @description May be empty when the post has attachments */
             content: string;
         };
         EmailTokenRequest: {
             /** @description The token from the verification link */
             token: string;
+        };
+        Embed: {
+            /** @description The site's theme color (#rrggbb) */
+            color: string | null;
+            description: string;
+            image: components["schemas"]["EmbedImage"];
+            /**
+             * @description image: the link points straight at an image
+             * @enum {string}
+             */
+            kind: "link" | "image";
+            /** @description The site prefers a large image over a thumbnail */
+            large_image: boolean;
+            /** @description Where the link led after redirects */
+            resolved_url: string;
+            site_name: string;
+            title: string;
+            /** @description The link as written in the content */
+            url: string;
+        };
+        EmbedImage: {
+            /** Format: int32 */
+            height: number;
+            url: string;
+            /** Format: int32 */
+            width: number;
         };
         ErrorDetail: {
             /** @description Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id' */
@@ -2940,6 +3011,8 @@ export interface components {
             /** @description Ranked topic feeds per place (/places/{place}/feed) and instance-wide (/feed) */
             feed: boolean;
             forums: boolean;
+            /** @description The server fetches previews (embeds) for links in messages and posts */
+            link_previews: boolean;
             /** @description POST /auth/password-reset emails a reset link */
             password_reset: boolean;
             /** @description Versioned policy documents and consent records */
@@ -2950,7 +3023,7 @@ export interface components {
             topic_votes: boolean;
             /** @description Moderation statistics at /transparency */
             transparency: boolean;
-            /** @description Avatars, place icons and banners, and the instance icon can be uploaded */
+            /** @description Avatars, place icons and banners, the instance icon, and message and post attachments can be uploaded */
             uploads: boolean;
             /** @description Voice and video channels are available (a LiveKit server is configured) */
             voice: boolean;
@@ -3000,10 +3073,19 @@ export interface components {
             created_at: string;
             /** Format: int32 */
             downvotes: number;
+            /** @description The first link preview of the opening post */
+            embed: components["schemas"]["Embed"];
             /** @description Plain text from the opening post (no Markdown or HTML), at most 280 characters */
             excerpt: string;
             /** Format: uuid */
             id: string;
+            /**
+             * Format: int64
+             * @description How many images the opening post has in total
+             */
+            image_count: number;
+            /** @description Up to 4 image attachments of the opening post */
+            images: components["schemas"]["Attachment"][] | null;
             is_archived: boolean;
             is_locked: boolean;
             /** @description The board, one of its parents, or the place is marked NSFW */
@@ -3177,6 +3259,11 @@ export interface components {
         Limits: {
             /** Format: int64 */
             applications_per_user: number;
+            /**
+             * Format: int64
+             * @description Most files one message or post can carry
+             */
+            attachments: number;
             /** Format: int64 */
             commands_per_application: number;
             /** Format: int64 */
@@ -3199,7 +3286,7 @@ export interface components {
              * @description Largest accepted upload in bytes
              */
             upload_size: number;
-            /** @description Accepted image types */
+            /** @description Accepted image types; attachments may also be other files */
             upload_types: string[] | null;
             /** Format: int64 */
             webhooks_per_place: number;
@@ -3300,6 +3387,7 @@ export interface components {
             mute?: boolean;
         };
         Message: {
+            attachments: components["schemas"]["Attachment"][] | null;
             /** @description null if the author deleted their account */
             author: components["schemas"]["User"];
             /** Format: uuid */
@@ -3312,6 +3400,8 @@ export interface components {
             edit_count: number;
             /** Format: date-time */
             edited_at: string | null;
+            /** @description Previews of links in the content, fetched by the server after sending (MESSAGE_UPDATE follows) */
+            embeds: components["schemas"]["Embed"][] | null;
             /**
              * Format: uuid
              * @description Time-ordered (UUIDv7); usable as a pagination cursor
@@ -3566,6 +3656,8 @@ export interface components {
             version: number;
         };
         Post: {
+            /** @description Empty for deleted posts unless the caller can manage posts */
+            attachments: components["schemas"]["Attachment"][] | null;
             /** @description null if the author deleted their account */
             author: components["schemas"]["User"];
             /** Format: uuid */
@@ -3584,6 +3676,8 @@ export interface components {
             edit_count: number;
             /** Format: date-time */
             edited_at: string | null;
+            /** @description Previews of links in the content, fetched by the server after posting */
+            embeds: components["schemas"]["Embed"][] | null;
             /** Format: uuid */
             id: string;
             /**
@@ -3802,8 +3896,10 @@ export interface components {
             username: string;
         };
         SendMessageRequest: {
-            /** @description Markdown; @username mentions notify */
-            content: string;
+            /** @description Files from POST /attachments, in display order */
+            attachment_ids?: string[] | null;
+            /** @description Markdown; @username mentions notify. May be empty when attachment_ids is set */
+            content?: string;
             /** @description Echoed on the response and MESSAGE_CREATE event so clients can match optimistic messages */
             nonce?: string;
             /**
@@ -4791,6 +4887,80 @@ export interface operations {
             };
             /** @description Internal Server Error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "upload-attachment": {
+        parameters: {
+            query?: {
+                /** @description The file's name, shown to readers and used for downloads */
+                filename?: string;
+            };
+            header?: {
+                "Content-Type"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Attachment"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Request Entity Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

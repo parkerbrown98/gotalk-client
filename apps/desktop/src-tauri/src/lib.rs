@@ -88,6 +88,9 @@ pub fn run() {
             #[cfg(target_os = "macos")]
             let builder = builder.allow_link_preview(false);
             let builder = builder.general_autofill_enabled(false);
+            // Let files dropped on the window reach the page as HTML drag and drop events, which the
+            // chat and forum composers turn into attachments.
+            let builder = builder.disable_drag_drop_handler();
             #[cfg(desktop)]
             let builder = match user_agent(&app.package_info().version.to_string()) {
                 Some(ua) => builder.user_agent(&ua),

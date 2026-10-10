@@ -230,15 +230,29 @@ export function useForumActions() {
       queryClient.setQueryData(['topic', id, topic.id], topic);
       queryClient.setQueriesData<InfiniteData<Schemas['PageTopic']>>({ queryKey: ['topics', id] }, (d) => patchTopics(d, topic));
     };
+    // Link previews are fetched by the server after posting and posts have no live updates, so look again shortly.
+    const refetchPreviews = (topicId: string, content: string) => {
+      if (!/https?:\/\//.test(content)) return;
+      setTimeout(() => void queryClient.invalidateQueries({ queryKey: ['posts', id, topicId] }), 4000);
+    };
     return {
-      async createTopic(boardId: string, input: { title: string; content: string; tags: string[] }) {
-        const created = unwrap(await api().POST('/boards/{boardID}/topics', { params: { path: { boardID: boardId } }, body: input }));
+      async createTopic(boardId: string, input: { title: string; content: string; tags: string[]; attachmentIds?: string[] }) {
+        const { attachmentIds, ...rest } = input;
+        const body = { ...rest, attachment_ids: attachmentIds?.length ? attachmentIds : undefined };
+        const created = unwrap(await api().POST('/boards/{boardID}/topics', { params: { path: { boardID: boardId } }, body }));
         await Promise.all([queryClient.invalidateQueries({ queryKey: ['topics', id] }), queryClient.invalidateQueries({ queryKey: ['boards', id] }), queryClient.invalidateQueries({ queryKey: ['tags', id] })]);
+        refetchPreviews(created.topic.id, input.content);
         return created.topic;
       },
-      async reply(topicId: string, content: string, parentId?: string) {
-        const post = unwrap(await api().POST('/topics/{topicID}/posts', { params: { path: { topicID: topicId } }, body: { content, parent_id: parentId } }));
+      async reply(topicId: string, content: string, parentId?: string, attachmentIds: string[] = []) {
+        const post = unwrap(
+          await api().POST('/topics/{topicID}/posts', {
+            params: { path: { topicID: topicId } },
+            body: { content, parent_id: parentId, attachment_ids: attachmentIds.length ? attachmentIds : undefined },
+          }),
+        );
         await refreshTopic(topicId);
+        refetchPreviews(topicId, content);
         return post;
       },
       async editPost(post: Post, content: string) {

@@ -1,6 +1,7 @@
 import {
   activeFilterCount,
   describeTopicReadState,
+  embedSite,
   feedSortLabels,
   feedWindowLabels,
   FEED_WINDOWS,
@@ -18,6 +19,7 @@ import { useMemo, useState, type ReactElement, type ReactNode } from 'react';
 import { ActivityIndicator, FlatList, Platform, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { FeedImages, FeedThumbnail } from '@/components/attachments';
 import { contextMenu } from '@/components/context-menu';
 import { ActionList, Chip, Empty, messageFor, TagBadges } from '@/components/forum';
 import type { Anchor } from '@/components/menu';
@@ -146,6 +148,10 @@ export function FeedCard({ item, wide, showPlace, vote, locallyRead, onOpen, onM
   const hidden = item.is_nsfw && !showNsfw;
   const solved = !!item.solution_post_id;
   const replies = `${item.reply_count} ${item.reply_count === 1 ? 'reply' : 'replies'}`;
+  const images = hidden ? [] : (item.images ?? []);
+  // The generated type misses that the server sends null when the opening post has no link preview.
+  const embed = hidden ? null : (item.embed as FeedTopic['embed'] | null);
+  const pictures = item.image_count > 0 ? `, ${item.image_count} ${item.image_count === 1 ? 'image' : 'images'}` : '';
 
   const meta = [showPlace ? item.place.name : null, item.board.name, item.author.display_name, shortTime(item.created_at)].filter(Boolean).join(' · ');
   const badges =
@@ -185,29 +191,41 @@ export function FeedCard({ item, wide, showPlace, vote, locallyRead, onOpen, onM
   );
 
   const body = (
-    <View style={{ flex: 1, gap: 4 }}>
-      {title}
-      {!hidden && item.excerpt ? (
-        <Text variant="bodySm" tone="muted" numberOfLines={2}>
-          {item.excerpt}
+    <View style={{ flex: 1, flexDirection: 'row', gap: 12 }}>
+      <View style={{ flex: 1, gap: 4 }}>
+        {title}
+        {!hidden && item.excerpt ? (
+          <Text variant="bodySm" tone="muted" numberOfLines={2}>
+            {item.excerpt}
+          </Text>
+        ) : null}
+        {images.length > 0 ? <FeedImages images={images} count={item.image_count} wide={wide} /> : null}
+        {embed && images.length === 0 && embedSite(embed) ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <Icon name="link" size={12} color={c.mute} />
+            <Text variant="captionMd" tone="muted" numberOfLines={1}>
+              {embedSite(embed)}
+            </Text>
+          </View>
+        ) : null}
+        <Text variant="captionMd" tone="muted" numberOfLines={1}>
+          {meta}
         </Text>
-      ) : null}
-      <Text variant="captionMd" tone="muted" numberOfLines={1}>
-        {meta}
-      </Text>
-      {badges}
-      {problem ? (
-        <Text variant="captionMd" tone="danger">
-          {problem}
-        </Text>
-      ) : null}
+        {badges}
+        {problem ? (
+          <Text variant="captionMd" tone="danger">
+            {problem}
+          </Text>
+        ) : null}
+      </View>
+      {embed && images.length === 0 ? <FeedThumbnail embed={embed} wide={wide} /> : null}
     </View>
   );
 
   return (
     <Pressable
       accessibilityRole="link"
-      accessibilityLabel={`${hidden ? 'NSFW topic' : item.title}, ${read.label}, ${replies}${vote !== 'off' ? `, score ${item.score}` : ''}`}
+      accessibilityLabel={`${hidden ? 'NSFW topic' : item.title}${pictures}, ${read.label}, ${replies}${vote !== 'off' ? `, score ${item.score}` : ''}`}
       onPress={onOpen}
       onLongPress={onMenu ? () => onMenu() : undefined}
       {...(onMenu ? contextMenu(onMenu) : {})}
