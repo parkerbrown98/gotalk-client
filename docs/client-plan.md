@@ -2,8 +2,9 @@
 
 This document lays out the phases for the official Gotalk client in
 [`repos/gotalk-client`](../repos/gotalk-client/README.md). It is the client counterpart to
-[backend-plan.md](./backend-plan.md); backend phases 1–5 are already delivered, so the client can work
-against a complete API. Phase 7 (topic feeds) uses backend Phase 6.
+[backend-plan.md](./backend-plan.md); backend phases 1–7 are delivered, so the client can work
+against a complete API. Phase 7 (topic feeds) uses backend Phase 6, and Phase 8 (self-hosting
+follow-through) takes up what backend Phase 7 changed.
 
 ## Architecture (decided)
 
@@ -133,7 +134,8 @@ Known gaps and decisions:
   `GET /users/@me` still notices it.
 - The server records an IP address and user agent per session but no location, so devices show the
   former.
-- Sign-in has no "forgot password" flow because the backend has none yet.
+- Sign-in has no "forgot password" flow because the backend had none yet; it arrives in Phase 8 with the
+  backend's email support.
 - Phone builds identify themselves as `Gotalk/<version> (<os>)`, and the desktop app appends the same
   token to its webview's user agent, so both show as "Gotalk for …"; browsers show as their browser.
 
@@ -373,7 +375,7 @@ Known gaps and decisions:
 - Creating voice channels and setting their user limit arrived with voice in Phase 5; per-role channel
   permissions come with the overwrite editors in Phase 6. Moving a channel into or out of a category is done
   from its settings rather than by dragging.
-- Do not disturb changes only how others see you until push notifications arrive (Phase 8).
+- Do not disturb changes only how others see you until push notifications arrive (Phase 9).
 - Gateway events update the per-query caches directly; a normalized entity cache was not needed.
 
 ## Phase 5 — Voice & video
@@ -729,11 +731,205 @@ Known gaps and decisions:
 - Per-forum unread counts in the sidebar, live "N new topics" banners, thumbnails, saved topics, custom
   multi-place feeds and a per-forum default sort remain out of scope.
 
-## Phase 8 — Distribution & polish
+## Phase 8 — Self-hosting follow-through
+
+Status: planned, not started. Backend Phase 7 (self-hosting and cloud polish) is delivered, and none of it is
+in the client yet. It is mostly additive: the app keeps working against a Phase 7 server after
+`pnpm api:sync`, apart from the typecheck fixes in step 1.
+
+Goal: take up what the backend's storage and email support made possible and what its new setup, settings and
+CORS controls changed. People can reset a forgotten password, confirm their email address and upload
+avatars and icons. Administrators can see what is wrong with their instance and fix it without leaving the
+app. The app copes with instances that restrict which sites and apps may connect.
+
+Mockups: the frames below do not exist yet, so they come first (see *Design process*):
+
+- **Forgot password** (new, `18-forgot-password.html`): the link on sign-in, request, "check your email"
+  with the resend wait, rate limited, and an instance without email (no link, a hint instead), at phone and
+  desktop widths.
+- **Uploads** (new, `19-uploads.html`): the avatar picker in Profile, place icon and banner in place
+  settings, the instance icon, uploading, too large, unsupported and storage unavailable, and the place header
+  with a banner. [Account settings](./mockups/04-account-settings.html) also gets the "Confirm your email"
+  notice, resend and the verified badge.
+- **Server settings** (new, `20-server-settings.html`): health checks, Email with test message, Storage (local
+  and S3), Voice, CORS, the read-only "managed by the server's configuration" state, secrets that are set, the
+  failed-check "Save anyway", and Reset to defaults.
+- Small updates: [Connect](./mockups/01-connect.html) (the setup-needed link, and the "this instance may not
+  allow this site" hint) and [Instance administration](./mockups/15-instance-admin.html) (the Server group
+  and an icon upload instead of the URL field).
+
+`DESIGN.md` may need an image-picker pattern for the avatar and icon controls. If it does, it changes first
+(`DESIGN.md` → tokens → `ui` → mockup). The desktop CSP already allows `https:` and `http:` images and
+connections, so instance-hosted media needs no policy change.
+
+### What changed in the backend
+
+| Backend change | Client impact |
+|---|---|
+| 18 new operations, new required fields on `GET /instance` | Regenerate the client; fix hand-built `Instance` fixtures (step 1) |
+| `POST /auth/password-reset`, `/auth/password-reset/confirm`, `/auth/verify-email`, `POST /users/@me/email/verification` | Forgot password and email confirmation (step 2) |
+| Raw-body image uploads for avatars, place icons and banners, and the instance icon; files served from `/media/` | Pickers, previews and cache handling (step 3) |
+| `status` and `degraded_features` on `/instance`; richer `/setup/status`; pre-flight checks | Admin notices and a better "setup isn't finished" screen (step 4) |
+| Operator-controlled CORS and gateway origin check, changeable at runtime | A refused connection must not read as a dead server (step 4) |
+| `GET/PATCH /instance/config`, `DELETE /instance/config/{section}`, `POST /instance/config/test`, `GET /instance/checks` | Native server settings for administrators (step 5) |
+
+### Steps
+
+1. **Contract sync** (small, first):
+   - Run `pnpm api:sync` and fix what the typechecker finds. The new required fields on `Instance`
+     (`status`, `degraded_features`, `features.email`, `features.password_reset`,
+     `features.email_verification`, `features.uploads`, `limits.upload_size`, `limits.upload_types`,
+     `limits.upload_max_side`) break the hand-built `instanceBody` in the core tests and any other fixture.
+   - `@gotalk/core` gets one `instanceCapabilities(instance)` helper next to the existing `features.*` checks
+     (`email`, `passwordReset`, `emailVerification`, `uploads`, the upload limits, `needsAttention`), so
+     screens gate on it instead of reading raw flags. Every new control below is hidden when the instance
+     lacks the feature, the way votes already are.
+   - An `uploadImage` helper in `@gotalk/api-client` sends a `Blob` (not a stream) with the right
+     `Content-Type` through the auth manager, so the single 401-refresh retry can resend it. There is no
+     upload progress bar: files are at most `limits.upload_size` (8 MiB by default), and the state is
+     "Uploading…". Errors are mapped once: `413` too large, `422` unsupported or corrupt (the server's message
+     is shown), `503` storage unavailable, `429` with the existing countdown (uploads use the content tier).
+
+2. **Forgot password and email confirmation** (`features.password_reset`, `features.email_verification`):
+   - **Forgot password:** a link under the sign-in form opens a screen that takes the email address and calls
+     `POST /auth/password-reset`. The server answers `202` whether or not an account uses the address, so the
+     copy is always "If an account uses that address, we've sent a link", never "no account found". The
+     server sends nothing to an account that asked less than a minute ago, so Resend waits 60 seconds on the
+     device. `429` reuses the countdown notice. Instances without email show no link, only a hint ("This
+     instance can't send email. Ask its administrator to reset your password").
+   - **The link opens the instance's own page, not the app.** The emailed link points at the instance's
+     `/reset-password`, so the copy says to open the link, choose a new password, then come back and sign in.
+     Handling the token inside the app would need universal links per instance, and instances are arbitrary
+     origins, so it stays out of scope.
+   - **A reset ends every session and personal access token of that account.** A device that was signed in
+     goes through the existing session-ended handling (gateway close `4010`, or the next `401`); this phase
+     checks that the copy still reads sensibly when the cause was a reset, and that token users get a clear
+     `401`.
+   - **Confirm your email:** `GET /users/@me` has always returned `email_verified`, but the client never
+     shows it. Profile gets a "Confirm your email" notice with Resend (`POST /users/@me/email/verification`:
+     `409` when already confirmed, which refreshes the profile, and `409` inside the one-minute cooldown, which
+     shows the wait; `503` explains that email is down) and, once confirmed, a Verified badge. Signing up on an
+     instance with email says where the link was sent. The server confirms in a browser page, so the app
+     refetches `GET /users/@me` when the window or app regains focus, on top of the existing 60-second poll.
+     Nothing is gated on confirmation, because the server gates nothing.
+
+3. **Uploads** (`features.uploads`):
+   - **Where:** profile avatar (replace, remove), place icon and banner in General (Manage place), and the
+     instance icon, which replaces today's URL field. Application icons stay URL fields: the server has no
+     upload for them.
+   - **Pickers:** a file input on web and desktop (accepting `limits.upload_types`), `expo-image-picker` on
+     phones. Before sending, the client checks type and size against `limits`.
+   - **Downscaling:** the server only strips metadata; it does not resize, so a phone photo would be served
+     at full size to everyone who sees it. The client center-crops avatars and icons to a square and resizes
+     them to 512 px, and fits banners to 1920 px wide, re-encoding with `expo-image-manipulator` on phones and
+     a canvas on web and desktop. GIFs are sent as they are, subject to the size limit. There is no crop
+     editor. Whether to re-encode at all is the one open question; the alternative is to send originals and
+     leave resizing to the server.
+   - **Stale images:** the server deletes a replaced file at once, and files nothing refers to any more within
+     about an hour. Every cached copy of the old URL then returns `404`: message authors, member lists, topic
+     authors, notifications, the device's saved `session.avatarUrl` and the saved instance's `iconUrl`.
+     `Avatar` has no image-error fallback today, so a deleted avatar would render blank. The fixes are:
+     `Avatar` and `InstanceIcon` fall back to the initials when the image fails to load; a changed own avatar
+     is patched into every cache and the stored session, the way `patchTopicEverywhere` handles topics; and
+     the saved instance picks up a new icon as it already does a new name. Other people's changed avatars
+     show up on the next refetch, because no gateway event announces them.
+   - **Banners:** the client has never displayed `banner_url`. The place page header shows it (a strip above
+     the header on phones, behind it on wide screens), once the mockup exists.
+   - **Without uploads:** when `features.uploads` is off, Profile and the place and instance settings keep
+     the current "Image URL" fields, since `PATCH` still accepts URLs.
+   - Media URLs are immutable and unique per upload, so the image cache needs no invalidation.
+
+4. **Health, setup and refused connections:**
+   - **Setup isn't finished:** the connect screen keys off `status === 'awaiting_setup'` and adds "Open setup
+     page" (`{origin}/setup`, in the browser or a new tab). The wizard needs the setup token from the server
+     log, so setup itself stays on the server's page and is not rebuilt in the app.
+   - **Needs attention:** administrators see `degraded_features` (for example "Email isn't set up, so
+     password resets don't work") as a notice at the top of Instance settings and a dot on the Instance group
+     in account settings. Other members see nothing; the controls that depend on a feature are already hidden
+     by `features.*`.
+   - **A refused connection is not a dead server.** A browser reports a CORS refusal the same way as an
+     unreachable host, and the gateway answers `403` when the origin isn't allowed. On the web, a failed
+     lookup, request or gateway handshake to a host other than localhost adds "This instance may not allow
+     connections from {origin}. Its administrator can allow it in the server settings". Phones send no
+     origin and are not affected. The desktop app sends `tauri://localhost` (macOS and Linux) or
+     `http://tauri.localhost` (Windows), so these origins go into the CORS settings screen as one-tap
+     suggestions for administrators who restrict origins.
+
+5. **Server settings for administrators** (a Server group under Instance, instance administrators only,
+   login sessions only):
+   - **Health:** `GET /instance/checks` as a list (database, Redis, public URL, storage, email, voice), each
+     with its status and the fix-it hint, and a Re-run button.
+   - **Sections:** Email, Storage, Voice and CORS, each with Test, Save, and Reset to defaults.
+     - Email: a provider picker (from `drivers.mail`) with that provider's fields; Send test email goes to the
+       administrator's own address through `POST /instance/config/test`.
+     - Storage: local directory or S3 (endpoint, region, bucket, prefix, keys, path-style, public URL).
+     - Voice: LiveKit URL, API URL, key and secret.
+     - CORS: allowed origins and credentials.
+     - The field lists live in `@gotalk/core`. A driver the client doesn't know (a third-party plugin) shows
+       "Configure this on the server's settings page" with a link to `{origin}/setup`, which also covers
+       anything the screens don't.
+   - **Where a section's settings come from:**
+     - `source: "config"`: read-only, with the variable that controls it (`GOTALK_MAIL_DRIVER`) and no Save.
+     - `source: "settings"`: shows when it was saved and offers Reset to defaults.
+     - Secrets are write-only: the field shows that a value is set (`secrets_set`) and leaving it empty keeps
+       it.
+   - **Saving:** the server checks the settings live and answers `422` with the failing check. The screen shows
+     the check and offers "Save anyway" (`?force=true`). A saved change reaches every replica within 15
+     seconds, which the screen says, and then refetches `/instance`.
+   - **Guard rails:**
+     - Before saving CORS from the web client, warn when the list would exclude the page the administrator is
+       using, which would lock them out of that client.
+     - Before changing storage, warn that existing files are not moved (moving between backends is
+       `gotalk backup` and `restore`).
+     - `*` with credentials is refused by the server, so the form explains it before sending.
+   - **Instance settings** keeps name, description and registration mode, and gains the icon upload from step 3.
+
+### Tests
+
+- `@gotalk/core`: `instanceCapabilities` with and without each feature, upload checks against `limits`, the
+  downscale size calculation, the resend wait, mapping of the new error codes, provider field lists and
+  secret handling (empty keeps, set shows), the CORS lock-out check, and the refused-connection copy.
+- `@gotalk/api-client`: the upload helper (content type, 401 refresh and resend, `413` and `422` mapping).
+- `Avatar` and `InstanceIcon` fall back to initials on a failed load.
+- Updated fixtures for the new `Instance` fields.
+
+### Verification
+
+Against a local server with the Compose `mail` profile (Mailpit) and a second run with S3 storage, at 1280 px
+and 390 px:
+
+- forgot password end to end through the Mailpit message, a signed-in second device being signed out, and the
+  resend wait
+- sign up on an instance with email: the notice, the message, confirming in the browser, and the badge
+  appearing on return
+- uploading an avatar, a place icon and banner and the instance icon; replacing and removing them; a stale
+  cached avatar falling back to initials; too large, unsupported and storage-unavailable errors
+- an instance without email or storage: no forgot-password link, no verification notice, URL fields instead of
+  uploads
+- a CORS allow-list that excludes the web origin: the hint instead of "unreachable", and the gateway refusal
+- an administrator editing each section: a failed check, Save anyway, a config-managed section read-only,
+  secrets kept when left empty, Reset to defaults, and a second browser seeing the change within 15 seconds
+- not yet exercised: iOS, Android and Tauri builds, and the native image picker and manipulator
+
+### Known gaps and decisions
+
+- Uploads cover avatars, place icons and banners, and the instance icon. Images in posts and chat, link
+  previews and thumbnails wait for backend attachments (the `ATTACH_FILES` flows, still deferred). Application
+  icons also stay URLs.
+- Uploaded files are served by URL without a sign-in, so the icon of a private place is not secret.
+- No change-email flow: the backend has no endpoint, so a mistyped address cannot be corrected from the app.
+- No gateway event announces a changed avatar or display name, so others see it on their next refetch.
+- No native setup wizard, and no deep-linking of reset or confirmation links into the app.
+- Backups, restore and `gotalk setup --reset` are command-line tools; the app only mentions them in the
+  warnings above.
+- Data export, retention, email digests and push notifications are still not in the backend. Push stays in
+  Phase 9.
+
+## Phase 9 — Distribution & polish
 
 - **Push notifications:** a small Gotalk-operated push relay (APNs/FCM), web push for the web app, and
-  native notifications on desktop. Blocked on the backend's push subscription endpoints (backend
-  Phase 7).
+  native notifications on desktop. Blocked on backend push subscription endpoints, which are not yet in the
+  backend plan (backend Phase 7 delivered email, not push).
 - **Release pipeline:**
   - CI runs typecheck, tests, and the web export on every change
   - Tauri build matrix (Windows/macOS/Linux) with signing
@@ -757,7 +953,9 @@ Known gaps and decisions:
   - instance branding (accent color, logo variants) in `GET /instance`
   - an optional HttpOnly refresh-token cookie mode for same-site web deployments
   - push subscription endpoints and the relay contract
-  - attachments/media (blocks image posts and avatars upload)
+  - attachments for posts and chat (avatar, place and instance image upload shipped with backend Phase 7;
+    application icon upload and a gateway event for changed avatars and display names are still missing)
+  - a change-email endpoint (email confirmation exists, but an address cannot be changed)
   - OAuth/OIDC with PKCE for native clients when backend auth providers land
 - **Decisions still open:**
   - styling stays on plain `StyleSheet` + tokens, or moves to Unistyles/Tamagui (revisit when
