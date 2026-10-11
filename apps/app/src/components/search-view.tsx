@@ -2,7 +2,7 @@ import { splitHighlights, relativeTime } from '@gotalk/core';
 import { Badge, Button, Checkbox, hoverTransition, Notice, PillTabs, Stack, Text, TextField, useTheme, type PressState } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 
 import { Empty } from '@/components/forum';
 import { boardTree, usePlaceSearch, type SearchParams, type SearchResult } from '@/lib/forums';
@@ -93,19 +93,30 @@ export function SearchView({ slug, board: initialBoard }: { slug: string; board?
     sort,
   });
   const active = [author, tag, board, solved !== 'any' ? solved : '', after, before, topicsOnly ? 'x' : ''].filter(Boolean).length;
+  const clearFilters = () => {
+    setAuthor('');
+    setTag('');
+    setBoard('');
+    setSolved('any');
+    setAfter('');
+    setBefore('');
+    setTopicsOnly(false);
+  };
+  const forumTabs = <PillTabs options={[{ value: '', label: 'Any forum' }, ...boards.map((n) => ({ value: n.board.id, label: n.board.name }))]} value={board} onChange={setBoard} />;
 
+  // Two fields per row on phones; the minimum width stops a field squeezing below a usable size.
   const field = (label: string, value: string, set: (v: string) => void, placeholder: string) => (
-    <View style={{ flex: 1, minWidth: 140 }}>
+    <View style={{ flexGrow: 1, flexBasis: wide ? 140 : '45%', minWidth: 120 }}>
       <TextField label={label} value={value} onChangeText={set} placeholder={placeholder} autoCapitalize="none" autoCorrect={false} />
     </View>
   );
 
   return (
-    <Stack gap="lg" style={wide ? undefined : { paddingHorizontal: 0 }}>
+    <Stack gap="lg">
       <View style={{ paddingHorizontal: wide ? 0 : theme.space.lg, gap: theme.space.md }}>
         <TextField accessibilityLabel="Search" value={text} onChangeText={setText} placeholder='Search words, "quoted phrases", -exclusions' returnKeyType="search" autoCapitalize="none" onSubmitEditing={() => setQ(text.trim().slice(0, 200))} />
         {wide ? null : (
-          <Button title={filters ? 'Hide filters' : active ? `Filters (${active})` : 'Filters'} variant="tertiary" size="sm" onPress={() => setFilters((f) => !f)} style={{ alignSelf: 'flex-start' }} />
+          <Button title={filters ? 'Hide filters' : active ? `Filters (${active})` : 'Filters'} variant="tertiary" size="sm" onPress={() => setFilters((f) => !f)} style={{ alignSelf: 'flex-start', flexDirection: 'row' }} />
         )}
         {filters ? (
           <Stack gap="md">
@@ -121,11 +132,17 @@ export function SearchView({ slug, board: initialBoard }: { slug: string; board?
                 <Text variant="bodySmStrong" tone="onDark">
                   Forum
                 </Text>
-                <PillTabs options={[{ value: '', label: 'Any forum' }, ...boards.map((n) => ({ value: n.board.id, label: n.board.name }))]} value={board} onChange={setBoard} />
+                {wide ? (
+                  forumTabs
+                ) : (
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -theme.space.lg }} contentContainerStyle={{ paddingHorizontal: theme.space.lg }}>
+                    {forumTabs}
+                  </ScrollView>
+                )}
               </Stack>
             ) : null}
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.space.xl }}>
-              <Stack gap="xs">
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: wide ? theme.space.xl : theme.space.md }}>
+              <Stack gap="xs" style={wide ? undefined : { width: '100%' }}>
                 <Text variant="bodySmStrong" tone="onDark">
                   Answered
                 </Text>
@@ -139,7 +156,7 @@ export function SearchView({ slug, board: initialBoard }: { slug: string; board?
                   onChange={setSolved}
                 />
               </Stack>
-              <Stack gap="xs">
+              <Stack gap="xs" style={wide ? undefined : { width: '100%' }}>
                 <Text variant="bodySmStrong" tone="onDark">
                   Sort
                 </Text>
@@ -157,6 +174,7 @@ export function SearchView({ slug, board: initialBoard }: { slug: string; board?
             <Checkbox checked={topicsOnly} onChange={setTopicsOnly}>
               Only opening posts
             </Checkbox>
+            {active ? <Button title="Clear filters" variant="tertiary" size="sm" onPress={clearFilters} style={{ alignSelf: 'flex-start', flexDirection: 'row' }} /> : null}
           </Stack>
         ) : null}
       </View>
