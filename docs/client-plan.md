@@ -1,8 +1,8 @@
 # Gotalk — Client Plan
 
 This document lays out the phases for the official Gotalk client in
-[`repos/gotalk-client`](../repos/gotalk-client/README.md). It is the client counterpart to
-[backend-plan.md](./backend-plan.md); backend phases 1–7 are delivered, so the client can work
+[`gotalk-client`](../README.md). It is the client counterpart to
+[backend-plan.md](https://github.com/parkerbrown98/gotalk-server/blob/main/docs/backend-plan.md); backend phases 1–7 are delivered, so the client can work
 against a complete API. Phase 7 (topic feeds) uses backend Phase 6, and Phase 8 (self-hosting
 follow-through) takes up what backend Phase 7 changed.
 
