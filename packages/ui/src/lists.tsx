@@ -381,6 +381,61 @@ export function PillTabs<T extends string>({ options, value, onChange }: PillTab
   );
 }
 
+export interface SegmentedTabsProps<T extends string> {
+  options: ReadonlyArray<{ value: T; label: string; icon?: IconName }>;
+  value: T;
+  onChange: (value: T) => void;
+}
+
+/** Mutually exclusive views of one screen: a bordered track of equal-width segments with an obvious selected one. Pill tabs suit filters; this suits switching what the page shows. */
+export function SegmentedTabs<T extends string>({ options, value, onChange }: SegmentedTabsProps<T>) {
+  const theme = useTheme();
+  const c = theme.colors;
+  return (
+    <View
+      accessibilityRole="tablist"
+      style={{ flexDirection: 'row', padding: 3, gap: 3, borderRadius: theme.radii.md, borderWidth: 1, borderColor: c.hairline, backgroundColor: c.surface }}
+    >
+      {options.map((o) => {
+        const active = o.value === value;
+        return (
+          <Pressable
+            key={o.value}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: active }}
+            onPress={() => onChange(o.value)}
+            style={[
+              {
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: theme.space.xs,
+                minHeight: 34,
+                paddingHorizontal: theme.space.md,
+                borderRadius: theme.radii.sm,
+                borderWidth: 1,
+                borderColor: active ? c.hairlineStrong : 'transparent',
+                backgroundColor: active ? c.surfaceRaised : 'transparent',
+              },
+              hoverTransition,
+            ]}
+          >
+            {({ hovered }: PressState) => (
+              <>
+                {o.icon ? <Icon name={o.icon} size={14} color={active || hovered ? c.onDark : c.mute} /> : null}
+                <Text variant={active ? 'bodySmStrong' : 'bodySm'} tone={active || hovered ? 'onDark' : 'muted'} numberOfLines={1} style={{ flexShrink: 1 }}>
+                  {o.label}
+                </Text>
+              </>
+            )}
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
 export interface RadioOptionsProps<T extends string> {
   options: ReadonlyArray<{ value: T; label: string; description?: string }>;
   value: T;

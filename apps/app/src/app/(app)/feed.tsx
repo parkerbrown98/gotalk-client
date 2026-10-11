@@ -1,5 +1,5 @@
 import { activeFilterCount, availableSorts, feedParams, parseFeedParams, type FeedFilters, type FeedScope, type FeedTopic } from '@gotalk/core';
-import { Button, Icon, Notice, PillTabs, Stack, Text, useTheme } from '@gotalk/ui';
+import { Button, Icon, Notice, SegmentedTabs, Stack, Text, useTheme } from '@gotalk/ui';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, View } from 'react-native';
@@ -42,17 +42,17 @@ export default function HomeFeed() {
   };
   const switchScope = (next: FeedScope) => router.setParams({ scope: next === 'all' ? 'all' : undefined, sort: undefined, t: undefined });
 
-  const scopes = <PillTabs options={[{ value: 'home', label: 'Your places' }, { value: 'all', label: `All of ${active?.name ?? 'this instance'}` }]} value={scope} onChange={switchScope} />;
+  const scopes = <SegmentedTabs options={[{ value: 'home', label: 'Your places' }, { value: 'all', label: `All of ${active?.name ?? 'this instance'}` }]} value={scope} onChange={switchScope} />;
   const markAllButton = unread.length > 0 ? <Button title="Mark all as read" variant="tertiary" size="sm" onPress={() => setMarkAll(true)} /> : null;
   const header = (
     <View>
       {wide ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space.md, paddingHorizontal: 16, height: 52, borderBottomWidth: 1, borderBottomColor: c.hairline }}>
-          <Icon name="arrowUp" size={16} color={c.mute} />
+          <Icon name="home" size={16} color={c.mute} />
           <Text variant="bodyStrong" tone="onDark" accessibilityRole="header">
             Home
           </Text>
-          {scopes}
+          <View style={{ width: 360, maxWidth: '60%' }}>{scopes}</View>
           <View style={{ flex: 1 }} />
           {markAllButton}
           <Button title="Search" variant="tertiary" size="sm" onPress={() => router.push('/search')} />

@@ -1,6 +1,6 @@
 import { ApiError } from '@gotalk/api-client';
 import { activeFilterCount, availableSorts, feedParams, parseFeedParams, type FeedFilters, type FeedTopic } from '@gotalk/core';
-import { Button, Icon, NavRow, Notice, PillTabs, Stack, Text, useImageFallback, useTheme } from '@gotalk/ui';
+import { Button, Icon, NavRow, Notice, SegmentedTabs, Stack, Text, useImageFallback, useTheme } from '@gotalk/ui';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -104,7 +104,7 @@ export default function PlaceScreen() {
   );
   const viewSwitch = wide ? null : (
     <View style={{ paddingHorizontal: 16, paddingBottom: 10 }}>
-      <PillTabs
+      <SegmentedTabs
         options={[
           { value: 'feed', label: 'Feed' },
           { value: 'browse', label: 'Forums and chat' },
