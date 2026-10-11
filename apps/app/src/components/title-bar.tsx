@@ -126,7 +126,6 @@ function TitleBar() {
         borderBottomColor: c.hairline,
         // The traffic lights hide in fullscreen, so the bar reclaims their space.
         paddingLeft: isMac && !fullscreen ? TRAFFIC_LIGHTS_INSET : 0,
-        userSelect: 'none',
       }}
     >
       {/* Centered on the window rather than the space left of the controls; clicks fall through to drag. */}
