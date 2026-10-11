@@ -1,5 +1,5 @@
 import { describeTopicReadState, QUICK_REACTIONS, relativeTime, shortTime, validatePost } from '@gotalk/core';
-import { Avatar, Badge, Button, Dialog, hoverTransition, Icon, ListCard, ListRow, Notice, RadioOptions, Text, useTheme, type IconName, type PressState } from '@gotalk/ui';
+import { Avatar, Badge, Button, Dialog, hoverTransition, Icon, ListCard, ListRow, Notice, RadioOptions, Text, useModalDismissal, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
 
@@ -421,9 +421,14 @@ export function ActionList({
   anchor?: Anchor;
   onClose: () => void;
 }) {
-  if (anchor) {
+  const { dismissWithAction, onDismiss } = useModalDismissal(onClose);
+  // Clearing an anchor while closing must not replace the native modal before onDismiss.
+  const [lastAnchor, setLastAnchor] = useState(anchor);
+  if (visible && anchor !== lastAnchor) setLastAnchor(anchor);
+  const at = visible ? anchor : lastAnchor;
+  if (at) {
     return (
-      <MenuPopover visible={visible} onClose={onClose} anchor={anchor}>
+      <MenuPopover visible={visible} onClose={onClose} onDismiss={onDismiss} anchor={at}>
         {items.map((item) => (
           <View key={item.key}>
             {item.danger ? <MenuSeparator /> : null}
@@ -431,10 +436,7 @@ export function ActionList({
               label={item.label}
               icon={item.icon}
               danger={item.danger}
-              onPress={() => {
-                onClose();
-                item.onPress();
-              }}
+              onPress={() => dismissWithAction(item.onPress)}
             />
           </View>
         ))}
@@ -442,7 +444,7 @@ export function ActionList({
     );
   }
   return (
-    <Dialog visible={visible} onClose={onClose}>
+    <Dialog visible={visible} onClose={onClose} onDismiss={onDismiss}>
       <ListCard style={{ borderWidth: 0, backgroundColor: 'transparent' }}>
         {items.map((item) => (
           <ListRow
@@ -450,10 +452,7 @@ export function ActionList({
             icon={item.icon}
             title={item.label}
             tone={item.danger ? 'danger' : 'default'}
-            onPress={() => {
-              onClose();
-              item.onPress();
-            }}
+            onPress={() => dismissWithAction(item.onPress)}
           />
         ))}
       </ListCard>

@@ -1,4 +1,4 @@
-import { CSS_EASE_OUT, hoverTransition, Icon, motion, NavRow, Text, useTheme, type PressState } from '@gotalk/ui';
+import { CSS_EASE_OUT, hoverTransition, Icon, motion, NavRow, Text, useModalDismissal, useTheme, type PressState } from '@gotalk/ui';
 import { router, usePathname } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
@@ -209,6 +209,7 @@ export function AccountFooter() {
   const me = useMe().data;
   const status = useMyStatus();
   const [open, setOpen] = useState(false);
+  const { dismissWithAction, onDismiss } = useModalDismissal(() => setOpen(false));
   if (!session) return null;
   const name = me?.display_name ?? session.displayName;
   return (
@@ -230,16 +231,13 @@ export function AccountFooter() {
         </View>
         <Icon name="chevronDown" size={16} color={c.mute} />
       </Pressable>
-      <MenuPopover visible={open} onClose={() => setOpen(false)} anchor={{ left: 72, bottom: 56 }}>
+      <MenuPopover visible={open} onClose={() => setOpen(false)} onDismiss={onDismiss} anchor={{ left: 72, bottom: 56 }}>
         <PresenceMenuItems onDone={() => setOpen(false)} />
         <MenuSeparator />
         <MenuItem
           label="Account settings"
           icon="settings"
-          onPress={() => {
-            setOpen(false);
-            router.push('/settings');
-          }}
+          onPress={() => dismissWithAction(() => router.push('/settings'))}
         />
       </MenuPopover>
     </>

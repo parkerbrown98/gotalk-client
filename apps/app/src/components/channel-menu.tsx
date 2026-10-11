@@ -1,5 +1,5 @@
 import { channelSiblings, moveChannel } from '@gotalk/core';
-import { Button, Checkbox, Dialog, Notice, PillTabs, Stack, Text, TextField, useTheme, type IconName } from '@gotalk/ui';
+import { Button, Checkbox, Dialog, Notice, PillTabs, Stack, Text, TextField, useModalDismissal, useTheme, type IconName } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { View } from 'react-native';
@@ -246,9 +246,14 @@ export function useChannelMenu(channel: Channel | undefined, all: Channel[], slu
 
 /** The channel menu: a popover on wide screens (given an anchor), a sheet on phones. */
 export function ChannelMenu({ items, visible, onClose, anchor }: { items: ChannelMenuItem[]; visible: boolean; onClose: () => void; anchor?: Anchor }) {
-  if (!anchor) return <ActionList items={items} visible={visible} onClose={onClose} />;
+  const { dismissWithAction, onDismiss } = useModalDismissal(onClose);
+  // Clearing an anchor while closing must not replace the native modal before onDismiss.
+  const [lastAnchor, setLastAnchor] = useState(anchor);
+  if (visible && anchor !== lastAnchor) setLastAnchor(anchor);
+  const at = visible ? anchor : lastAnchor;
+  if (!at) return <ActionList items={items} visible={visible} onClose={onClose} />;
   return (
-    <MenuPopover visible={visible} onClose={onClose} anchor={anchor}>
+    <MenuPopover visible={visible} onClose={onClose} onDismiss={onDismiss} anchor={at}>
       {items.map((item, i) => (
         <View key={item.key}>
           {i > 0 && (item.key === 'edit' || item.key === 'delete') ? <MenuSeparator /> : null}
@@ -256,10 +261,7 @@ export function ChannelMenu({ items, visible, onClose, anchor }: { items: Channe
             label={item.label}
             icon={item.icon}
             danger={item.danger}
-            onPress={() => {
-              onClose();
-              item.onPress();
-            }}
+            onPress={() => dismissWithAction(item.onPress)}
           />
         </View>
       ))}

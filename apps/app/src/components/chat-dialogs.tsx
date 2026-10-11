@@ -1,5 +1,5 @@
 import { clockTime, messagePreview, previewText, QUICK_REACTIONS, relativeTime, type Message } from '@gotalk/core';
-import { Button, Dialog, hoverTransition, Icon, ListCard, ListRow, Notice, Text, TextField, useTheme, type IconName, type PressState } from '@gotalk/ui';
+import { Button, Dialog, hoverTransition, Icon, ListCard, ListRow, Notice, Text, TextField, useModalDismissal, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
 
@@ -51,9 +51,10 @@ export function messageActions(
 
 /** Wide screens: the actions as a popover under the message's "more" button. */
 export function MessageMenu({ actions, anchor, visible, onClose }: { actions: MessageAction[]; anchor: Anchor; visible: boolean; onClose: () => void }) {
+  const { dismissWithAction, onDismiss } = useModalDismissal(onClose);
   const firstPersonal = actions.findIndex((a) => a.key === 'edit' || a.key === 'history' || a.key === 'delete');
   return (
-    <MenuPopover visible={visible} onClose={onClose} anchor={anchor} width={220}>
+    <MenuPopover visible={visible} onClose={onClose} onDismiss={onDismiss} anchor={anchor} width={220}>
       {actions.map((a, i) => (
         <View key={a.key}>
           {i === firstPersonal && i > 0 ? <MenuSeparator /> : null}
@@ -61,10 +62,7 @@ export function MessageMenu({ actions, anchor, visible, onClose }: { actions: Me
             label={a.label}
             icon={a.icon}
             danger={a.danger}
-            onPress={() => {
-              onClose();
-              a.onPress();
-            }}
+            onPress={() => dismissWithAction(a.onPress)}
           />
         </View>
       ))}
@@ -76,10 +74,11 @@ export function MessageMenu({ actions, anchor, visible, onClose }: { actions: Me
 export function MessageSheet({ message, actions, canReact, onReact, onMoreReactions, visible, onClose }: { message: Message | null; actions: MessageAction[]; canReact: boolean; onReact: (emoji: string) => void; onMoreReactions: () => void; visible: boolean; onClose: () => void }) {
   const theme = useTheme();
   const c = theme.colors;
+  const { dismissWithAction, onDismiss } = useModalDismissal(onClose);
   const quick = QUICK_REACTIONS.slice(0, 5);
   const mine = new Set((message?.reactions ?? []).filter((r) => r.me).map((r) => r.emoji));
   return (
-    <Dialog visible={visible} onClose={onClose}>
+    <Dialog visible={visible} onClose={onClose} onDismiss={onDismiss}>
       {canReact ? (
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           {quick.map((e) => (
@@ -88,10 +87,7 @@ export function MessageSheet({ message, actions, canReact, onReact, onMoreReacti
               accessibilityRole="button"
               accessibilityLabel={`React with ${e}`}
               accessibilityState={{ selected: mine.has(e) }}
-              onPress={() => {
-                onClose();
-                onReact(e);
-              }}
+              onPress={() => dismissWithAction(() => onReact(e))}
               style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: mine.has(e) ? c.surface : c.surfaceCard, borderWidth: mine.has(e) ? 1 : 0, borderColor: c.hairlineStrong }}
             >
               <Text variant="headingSm">{e}</Text>
@@ -100,10 +96,7 @@ export function MessageSheet({ message, actions, canReact, onReact, onMoreReacti
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="More reactions"
-            onPress={() => {
-              onClose();
-              onMoreReactions();
-            }}
+            onPress={() => dismissWithAction(onMoreReactions)}
             style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: c.surfaceCard }}
           >
             <Icon name="smile" size={18} color={c.mute} />
@@ -117,10 +110,7 @@ export function MessageSheet({ message, actions, canReact, onReact, onMoreReacti
             icon={a.icon}
             title={a.label}
             tone={a.danger ? 'danger' : 'default'}
-            onPress={() => {
-              onClose();
-              a.onPress();
-            }}
+            onPress={() => dismissWithAction(a.onPress)}
           />
         ))}
       </ListCard>

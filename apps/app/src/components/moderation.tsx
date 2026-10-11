@@ -1,5 +1,5 @@
 import { BAN_DURATIONS, REPORT_REASONS, TIMEOUT_DURATIONS, canManageRole, isTimedOut, sortRoles, timeLeft, type ReportReason } from '@gotalk/core';
-import { Avatar, Badge, Button, Checkbox, Dialog, ListCard, ListRow, Notice, PillTabs, RadioOptions, Stack, Text, TextField, useTheme } from '@gotalk/ui';
+import { Avatar, Badge, Button, Checkbox, Dialog, ListCard, ListRow, Notice, PillTabs, RadioOptions, Stack, Text, TextField, useModalDismissal, useTheme } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { ActivityIndicator, ScrollView, View, useWindowDimensions } from 'react-native';
@@ -150,16 +150,17 @@ type Pane = 'menu' | 'warn' | 'timeout' | 'kick' | 'ban';
 export function MemberModerationDialog({ slug, userId, visible, onClose }: { slug: string; userId: string | null; visible: boolean; onClose: () => void }) {
   const openings = useOpenings(visible);
   const { height } = useWindowDimensions();
+  const { dismissWithAction, onDismiss } = useModalDismissal(onClose);
   return (
-    <Dialog visible={visible} onClose={onClose}>
+    <Dialog visible={visible} onClose={onClose} onDismiss={onDismiss}>
       <ScrollView style={{ maxHeight: height * 0.8 }} contentContainerStyle={{ gap: 16 }} keyboardShouldPersistTaps="handled">
-        {openings > 0 && userId ? <MemberModeration key={`${openings}-${userId}`} slug={slug} userId={userId} onClose={onClose} /> : null}
+        {openings > 0 && userId ? <MemberModeration key={`${openings}-${userId}`} slug={slug} userId={userId} onClose={onClose} dismissWithAction={dismissWithAction} /> : null}
       </ScrollView>
     </Dialog>
   );
 }
 
-function MemberModeration({ slug, userId, onClose }: { slug: string; userId: string; onClose: () => void }) {
+function MemberModeration({ slug, userId, onClose, dismissWithAction }: { slug: string; userId: string; onClose: () => void; dismissWithAction: (action: () => void) => void }) {
   const theme = useTheme();
   const place = usePlace(slug).data;
   const access = usePlaceAccess(place);
@@ -239,10 +240,7 @@ function MemberModeration({ slug, userId, onClose }: { slug: string; userId: str
               icon="clock"
               title="Moderation history"
               chevron
-              onPress={() => {
-                onClose();
-                router.push({ pathname: '/places/[slug]/settings/audit-log', params: { slug, target: m.user.id, name } });
-              }}
+              onPress={() => dismissWithAction(() => router.push({ pathname: '/places/[slug]/settings/audit-log', params: { slug, target: m.user.id, name } }))}
             />
           ) : null}
         </ListCard>

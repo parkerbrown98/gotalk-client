@@ -1,4 +1,4 @@
-import { Icon, Keycap, Text, popoverIn, useTheme, type IconName } from '@gotalk/ui';
+import { Icon, Keycap, Text, popoverIn, useModalDismissal, useTheme, type IconName } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Modal, Platform, Pressable, TextInput, View } from 'react-native';
@@ -36,6 +36,7 @@ export function useCommandPaletteShortcut(onOpen: () => void) {
 }
 
 export function CommandPalette({ visible, onClose }: { visible: boolean; onClose: () => void }) {
+  const { dismissWithAction, onDismiss } = useModalDismissal(onClose);
   const theme = useTheme();
   const c = theme.colors;
   const reduced = useReducedMotion();
@@ -79,13 +80,12 @@ export function CommandPalette({ visible, onClose }: { visible: boolean; onClose
   const chosen = Math.min(index, Math.max(entries.length - 1, 0));
   const run = (e: Entry | undefined) => {
     if (!e) return;
-    onClose();
-    e.open();
+    dismissWithAction(e.open);
   };
 
   let lastGroup = '';
   return (
-    <Modal visible={visible} transparent animationType="none" onRequestClose={onClose} statusBarTranslucent>
+    <Modal visible={visible} transparent animationType="none" onRequestClose={onClose} onDismiss={onDismiss} statusBarTranslucent>
       <View style={{ flex: 1, alignItems: 'center', paddingTop: 88 }}>
         <Animated.View entering={backdropEntering} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.55)' }}>
           <Pressable accessibilityLabel="Close" onPress={onClose} style={{ flex: 1 }} />

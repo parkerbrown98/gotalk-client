@@ -256,11 +256,13 @@ export function Avatar({ name, uri, size = 36 }: { name: string; uri?: string | 
 export interface DialogProps {
   visible: boolean;
   onClose: () => void;
+  /** Native iOS dismissal has completed; safe to present another modal. */
+  onDismiss?: () => void;
   children: ReactNode;
 }
 
 /** A centered dialog from the tablet breakpoint up, a bottom sheet below it. Controls inside step up one surface. */
-export function Dialog({ visible, onClose, children }: DialogProps) {
+export function Dialog({ visible, onClose, onDismiss, children }: DialogProps) {
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const wide = width >= theme.breakpoints.tablet;
@@ -269,7 +271,7 @@ export function Dialog({ visible, onClose, children }: DialogProps) {
   const present = usePresence(visible, motion.close + 100);
   const c = theme.colors;
   return (
-    <Modal visible={present} transparent animationType="none" onRequestClose={onClose} statusBarTranslucent>
+    <Modal visible={present} transparent animationType="none" onRequestClose={onClose} onDismiss={onDismiss} statusBarTranslucent>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1, justifyContent: wide ? 'center' : 'flex-end', alignItems: wide ? 'center' : 'stretch' }}

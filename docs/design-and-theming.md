@@ -36,6 +36,13 @@ Buttons shrink slightly while pressed, dialogs and sheets animate in and out, an
 fade in quickly. Frequent actions, such as tab and screen switches in the shell, do not
 animate. Every animation respects the system's reduced-motion setting.
 
+On iOS, a menu must finish dismissing its native modal before presenting another dialog
+or navigating away. Use `useModalDismissal(onClose)` for menu selections, pass its
+`onDismiss` to `Dialog` or `MenuPopover`, and run the selection through
+`dismissWithAction`. Keep the source menu mounted while it closes. Do not substitute a
+fixed timeout: `Dialog` has an exit animation, and UIKit dismissal completes separately.
+Web and Android selections continue to run immediately after requesting close.
+
 ## Updating the design
 
 When [DESIGN.md](../DESIGN.md) changes, update:

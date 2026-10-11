@@ -1,4 +1,4 @@
-import { Button, Dialog, ListCard, ListRow, Notice, Text, useTheme, type IconName } from '@gotalk/ui';
+import { Button, Dialog, ListCard, ListRow, Notice, Text, useModalDismissal, useTheme, type IconName } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { View } from 'react-native';
@@ -89,8 +89,9 @@ export function usePlaceMenu(place: Place | undefined): { items: PlaceMenuItem[]
 
 /** Phone: the menu as a bottom sheet. */
 export function PlaceMenuSheet({ items, visible, onClose }: { items: PlaceMenuItem[]; visible: boolean; onClose: () => void }) {
+  const { dismissWithAction, onDismiss } = useModalDismissal(onClose);
   return (
-    <Dialog visible={visible} onClose={onClose}>
+    <Dialog visible={visible} onClose={onClose} onDismiss={onDismiss}>
       <ListCard style={{ borderWidth: 0, backgroundColor: 'transparent' }}>
         {items.map((item) => (
           <ListRow
@@ -98,10 +99,7 @@ export function PlaceMenuSheet({ items, visible, onClose }: { items: PlaceMenuIt
             icon={item.icon}
             title={item.label}
             tone={item.danger ? 'danger' : 'default'}
-            onPress={() => {
-              onClose();
-              item.onPress();
-            }}
+            onPress={() => dismissWithAction(item.onPress)}
           />
         ))}
       </ListCard>
@@ -111,8 +109,9 @@ export function PlaceMenuSheet({ items, visible, onClose }: { items: PlaceMenuIt
 
 /** Wide: a popover under the sidebar header, or at the pointer when right-clicked. */
 export function PlaceMenuPopover({ items, visible, anchor, onClose }: { items: PlaceMenuItem[]; visible: boolean; anchor: { left: number; top: number }; onClose: () => void }) {
+  const { dismissWithAction, onDismiss } = useModalDismissal(onClose);
   return (
-    <MenuPopover visible={visible} onClose={onClose} anchor={anchor}>
+    <MenuPopover visible={visible} onClose={onClose} onDismiss={onDismiss} anchor={anchor}>
       {items.map((item) => (
         <View key={item.key}>
           {item.danger ? <MenuSeparator /> : null}
@@ -120,10 +119,7 @@ export function PlaceMenuPopover({ items, visible, anchor, onClose }: { items: P
             label={item.label}
             icon={item.icon}
             danger={item.danger}
-            onPress={() => {
-              onClose();
-              item.onPress();
-            }}
+            onPress={() => dismissWithAction(item.onPress)}
           />
         </View>
       ))}

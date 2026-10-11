@@ -452,8 +452,11 @@ function FiltersForm({ onClose, filters, onChange, boards, canHideRead, showPinn
 }
 
 /** The row menu: mark read or unread, open the forum, copy the link (web). A popover at `anchor` when right-clicked. */
-export function FeedItemMenu({ item, visible, anchor, onClose, onError }: { item: FeedTopic | null; visible: boolean; anchor?: Anchor; onClose: () => void; onError: (message: string) => void }) {
+export function FeedItemMenu({ item: nextItem, visible, anchor, onClose, onError }: { item: FeedTopic | null; visible: boolean; anchor?: Anchor; onClose: () => void; onError: (message: string) => void }) {
   const actions = useFeedActions();
+  // Keep the source modal mounted until iOS delivers onDismiss, even when its selection is cleared.
+  const [item, setItem] = useState(nextItem);
+  if (nextItem && nextItem !== item) setItem(nextItem);
   if (!item) return null;
   const read = item.viewer?.read ?? false;
   const path = `/places/${item.place.slug}/topics/${item.id}`;

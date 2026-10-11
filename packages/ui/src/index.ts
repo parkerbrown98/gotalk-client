@@ -5,3 +5,4 @@ export * from './icons.tsx';
 export * from './image-fallback.ts';
 export * from './lists.tsx';
 export * from './motion.ts';
+export * from './modal-dismissal.ts';

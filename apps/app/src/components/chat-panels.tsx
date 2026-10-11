@@ -1,5 +1,5 @@
 import { conversationTitle, relativeTime, type Message } from '@gotalk/core';
-import { Avatar, hoverTransition, Icon, Notice, Text, useTheme, type PressState } from '@gotalk/ui';
+import { Avatar, hoverTransition, Icon, Notice, Text, useModalDismissal, useTheme, type PressState } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
@@ -71,6 +71,7 @@ export function MembersPanel({ slug }: { slug: string }) {
   const access = usePlaceAccess(place);
   const canModerate = access.can('KICK_MEMBERS') || access.can('BAN_MEMBERS') || access.can('MODERATE_MEMBERS') || access.can('MANAGE_ROLES') || access.can('MANAGE_NICKNAMES');
   const [menu, setMenu] = useState<{ userId: string; name: string; anchor: Anchor } | null>(null);
+  const { dismissWithAction, onDismiss } = useModalDismissal(() => setMenu(null));
   const [reporting, setReporting] = useState<{ userId: string; name: string } | null>(null);
   const [moderating, setModerating] = useState<string | null>(null);
   const online = list.filter((m) => presence[m.user.id] && presence[m.user.id] !== 'offline');
@@ -121,25 +122,19 @@ export function MembersPanel({ slug }: { slug: string }) {
         </Text>
         {offline.map((m) => row(m, true))}
       </ScrollView>
-      <MenuPopover visible={!!menu} onClose={() => setMenu(null)} anchor={menu?.anchor ?? {}}>
+      <MenuPopover visible={!!menu} onClose={() => setMenu(null)} onDismiss={onDismiss} anchor={menu?.anchor ?? {}}>
         {menu && !self ? (
           <MenuItem
             label="Send a message"
             icon="forum"
-            onPress={() => {
-              setMenu(null);
-              void message.start(menu.userId);
-            }}
+            onPress={() => dismissWithAction(() => void message.start(menu.userId))}
           />
         ) : null}
         {menu && canModerate ? (
           <MenuItem
             label={self ? 'Roles and nickname' : 'Moderate'}
             icon="shield"
-            onPress={() => {
-              setMenu(null);
-              setModerating(menu.userId);
-            }}
+            onPress={() => dismissWithAction(() => setModerating(menu.userId))}
           />
         ) : null}
         {menu && !self ? (
@@ -149,10 +144,7 @@ export function MembersPanel({ slug }: { slug: string }) {
               label={`Report ${menu.name}`}
               icon="flag"
               danger
-              onPress={() => {
-                setMenu(null);
-                setReporting({ userId: menu.userId, name: menu.name });
-              }}
+              onPress={() => dismissWithAction(() => setReporting({ userId: menu.userId, name: menu.name }))}
             />
           </>
         ) : null}
@@ -291,4 +283,3 @@ export function ConversationHeading({ channel }: { channel: Channel }) {
     </View>
   );
 }
-

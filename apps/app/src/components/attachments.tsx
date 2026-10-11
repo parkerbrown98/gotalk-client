@@ -1,5 +1,5 @@
 import { embedSite, fileLabel, fitSize, formatBytes, isImageAttachment, type Attachment, type Embed } from '@gotalk/core';
-import { Icon, Text, hoverTransition, useTheme, type PressState } from '@gotalk/ui';
+import { Icon, Text, hoverTransition, useModalDismissal, useTheme, type PressState } from '@gotalk/ui';
 import { Image } from 'expo-image';
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { ActivityIndicator, Modal, Platform, Pressable, View, useWindowDimensions, type TextInput } from 'react-native';
@@ -27,10 +27,10 @@ export function AttachButton({ draft, size = 30 }: { draft: AttachmentDraft; siz
   const caps = useInstanceCapabilities();
   const button = useRef<View>(null);
   const [menu, setMenu] = useState<Anchor | null>(null);
+  const { dismissWithAction, onDismiss } = useModalDismissal(() => setMenu(null));
   if (!draft.enabled) return null;
   const full = draft.items.length >= draft.max;
   const pick = async (source: AttachSource) => {
-    setMenu(null);
     draft.add(await chooseAttachments(source, caps));
   };
   return (
@@ -59,9 +59,9 @@ export function AttachButton({ draft, size = 30 }: { draft: AttachmentDraft; siz
       >
         <Icon name="plus" size={18} color={c.mute} />
       </Pressable>
-      <MenuPopover visible={!!menu} onClose={() => setMenu(null)} anchor={menu ?? {}} width={200}>
-        <MenuItem label="Photos" icon="image" onPress={() => void pick('photos')} />
-        <MenuItem label="Files" icon="upload" onPress={() => void pick('files')} />
+      <MenuPopover visible={!!menu} onClose={() => setMenu(null)} onDismiss={onDismiss} anchor={menu ?? {}} width={200}>
+        <MenuItem label="Photos" icon="image" onPress={() => dismissWithAction(() => void pick('photos'))} />
+        <MenuItem label="Files" icon="upload" onPress={() => dismissWithAction(() => void pick('files'))} />
       </MenuPopover>
     </>
   );

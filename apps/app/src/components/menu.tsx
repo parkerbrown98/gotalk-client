@@ -14,7 +14,7 @@ export interface Anchor {
 }
 
 /** A small floating menu on the elevated surface; tapping outside closes it. */
-export function MenuPopover({ visible, onClose, anchor, width = 232, children }: { visible: boolean; onClose: () => void; anchor: Anchor; width?: number; children: ReactNode }) {
+export function MenuPopover({ visible, onClose, onDismiss, anchor, width = 232, children }: { visible: boolean; onClose: () => void; onDismiss?: () => void; anchor: Anchor; width?: number; children: ReactNode }) {
   const theme = useTheme();
   const c = theme.colors;
   const { width: screen, height: screenHeight } = useWindowDimensions();
@@ -25,7 +25,7 @@ export function MenuPopover({ visible, onClose, anchor, width = 232, children }:
   const top = anchor.top === undefined ? undefined : fits ? anchor.top : Math.max(8, (anchor.flipAt ?? screenHeight - 8) - height - 4);
   const reduced = useReducedMotion();
   return (
-    <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="none" onRequestClose={onClose} onDismiss={onDismiss}>
       <Pressable accessibilityLabel="Close menu" onPress={onClose} style={{ flex: 1 }}>
         {/* The outer view places the menu (and hides it until measured, for flipping); the inner one animates in. */}
         <View

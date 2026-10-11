@@ -1,5 +1,5 @@
 import { bindingLabels, callDuration, gridColumns, micStatus, orderTiles, qualityLook, voiceStatesByChannel, type CallQuality } from '@gotalk/core';
-import { Avatar, Button, CSS_EASE_OUT, Dialog, hoverTransition, Icon, Keycap, ListCard, ListRow, motion, Notice, Stack, Text, useTheme, type IconName, type PressState } from '@gotalk/ui';
+import { Avatar, Button, CSS_EASE_OUT, Dialog, hoverTransition, Icon, Keycap, ListCard, ListRow, motion, Notice, Stack, Text, useModalDismissal, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Platform, Pressable, ScrollView, View, type GestureResponderEvent, type ViewStyle } from 'react-native';
@@ -772,18 +772,16 @@ export function VoiceChannelScreen({ channel, slug }: { channel: Channel; slug: 
 }
 
 function SheetList({ visible, onClose, items }: { visible: boolean; onClose: () => void; items: { key: string; label: string; icon: IconName; onPress: () => void }[] }) {
+  const { dismissWithAction, onDismiss } = useModalDismissal(onClose);
   return (
-    <Dialog visible={visible} onClose={onClose}>
+    <Dialog visible={visible} onClose={onClose} onDismiss={onDismiss}>
       <ListCard style={{ borderWidth: 0, backgroundColor: 'transparent' }}>
         {items.map((item) => (
           <ListRow
             key={item.key}
             icon={item.icon}
             title={item.label}
-            onPress={() => {
-              onClose();
-              item.onPress();
-            }}
+            onPress={() => dismissWithAction(item.onPress)}
           />
         ))}
       </ListCard>
@@ -794,9 +792,10 @@ function SheetList({ visible, onClose, items }: { visible: boolean; onClose: () 
 /** Phones: everyone in the call as a list; moderators pick someone for the voice actions. */
 function PeopleSheet({ visible, onClose, tiles, onPick }: { visible: boolean; onClose: () => void; tiles: Tile[]; onPick?: (t: Tile) => void }) {
   const theme = useTheme();
+  const { dismissWithAction, onDismiss } = useModalDismissal(onClose);
   const speaking = useVoice((s) => s.speaking);
   return (
-    <Dialog visible={visible} onClose={onClose}>
+    <Dialog visible={visible} onClose={onClose} onDismiss={onDismiss}>
       <Text variant="headingSm" accessibilityRole="header">
         In the call
       </Text>
@@ -819,10 +818,7 @@ function PeopleSheet({ visible, onClose, tiles, onPick }: { visible: boolean; on
               key={t.userId}
               accessibilityRole="button"
               accessibilityLabel={`${t.name}. Voice actions`}
-              onPress={() => {
-                onClose();
-                setTimeout(() => onPick(t), 250);
-              }}
+              onPress={() => dismissWithAction(() => onPick(t))}
             >
               {row}
             </Pressable>
