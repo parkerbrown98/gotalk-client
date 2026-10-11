@@ -1,8 +1,7 @@
-import { CSS_EASE_OUT, hoverTransition, Icon, motion, NavRow, Text, useModalDismissal, useTheme, type PressState } from '@gotalk/ui';
+import { hoverTransition, Icon, NavRow, Text, useModalDismissal, useTheme, type PressState } from '@gotalk/ui';
 import { router, usePathname } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
-import Animated, { useReducedMotion } from 'react-native-reanimated';
+import { Platform, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SidebarCallPanel } from '@/components/call-bar';
@@ -41,6 +40,48 @@ export function useRouteSlug(): string | undefined {
   return match && match[1] !== 'new' ? decodeURIComponent(match[1]!) : undefined;
 }
 
+function RailLink({ label, active, onPress, onShowLabel, onHideLabel, children }: {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+  onShowLabel: (node: View, label: string) => void;
+  onHideLabel: () => void;
+  children: React.ReactNode | ((hovered: boolean) => React.ReactNode);
+}) {
+  const theme = useTheme();
+  const ref = useRef<View>(null);
+  const showLabel = () => {
+    if (Platform.OS === 'web' && ref.current) onShowLabel(ref.current, label);
+  };
+  return (
+    <Pressable
+      ref={ref}
+      accessibilityRole="link"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: active }}
+      {...(Platform.OS === 'web' ? { 'aria-current': active ? 'page' : undefined } : {})}
+      onPress={() => { onHideLabel(); onPress(); }}
+      onHoverIn={showLabel}
+      onHoverOut={onHideLabel}
+      onFocus={showLabel}
+      onBlur={onHideLabel}
+      {...(Platform.OS === 'web' ? { onKeyDown: (e: { key: string }) => { if (e.key === 'Escape') onHideLabel(); } } : {})}
+      style={{ width: 64, paddingHorizontal: 8 }}
+    >
+      {({ hovered }: PressState) => (
+        <>
+          <View style={{
+            position: 'absolute', left: 0, top: active ? 8 : 18, bottom: active ? 8 : 18,
+            width: 3, borderTopRightRadius: 3, borderBottomRightRadius: 3,
+            backgroundColor: theme.colors.onDark, opacity: active || hovered ? 1 : 0,
+          }} />
+          {typeof children === 'function' ? children(!!hovered) : children}
+        </>
+      )}
+    </Pressable>
+  );
+}
+
 /** Far-left column on wide screens: one tile per joined place, plus Discover, Create and the account. */
 export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
   const theme = useTheme();
@@ -51,36 +92,17 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
   const places = useMyPlaces().data ?? [];
   const unread = useUnreadCount().data ?? 0;
   const unreadMessages = useUnreadConversations();
-  const reduced = useReducedMotion();
+  const rail = useRef<View>(null);
+  const [tooltip, setTooltip] = useState<{ label: string; top: number } | null>(null);
   const inMessages = pathname === '/messages' || pathname.startsWith('/messages/');
   if (!active) return null;
 
   const link = (key: string, label: string, onPress: () => void, isActive: boolean, children: React.ReactNode | ((hovered: boolean) => React.ReactNode)) => (
-    <Pressable key={key} accessibilityRole="link" accessibilityLabel={label} accessibilityState={{ selected: isActive }} onPress={onPress}>
-      {({ hovered }: PressState) => (
-        <>
-          {/* On the rail's left edge: a short nub on hover that grows into the full bar for where you are. */}
-          <Animated.View
-            style={{
-              position: 'absolute',
-              left: -8,
-              top: 8,
-              bottom: 8,
-              width: 3,
-              borderTopRightRadius: 3,
-              borderBottomRightRadius: 3,
-              backgroundColor: c.onDark,
-              opacity: isActive || hovered ? 1 : 0,
-              transform: [{ scaleY: isActive ? 1 : 0.3 }],
-              transitionProperty: reduced ? 'opacity' : ['transform', 'opacity'],
-              transitionDuration: motion.open,
-              transitionTimingFunction: CSS_EASE_OUT,
-            }}
-          />
-          {typeof children === 'function' ? children(!!hovered) : children}
-        </>
-      )}
-    </Pressable>
+    <RailLink key={key} label={label} active={isActive} onPress={onPress} onHideLabel={() => setTooltip(null)} onShowLabel={(node, text) => {
+      node.measureInWindow((_x, y, _w, h) => rail.current?.measureInWindow((_rx, ry) => setTooltip({ label: text, top: Math.max(8, y - ry + h / 2 - 16) })));
+    }}>
+      {children}
+    </RailLink>
   );
   const iconTile = (name: 'compass' | 'plus' | 'search' | 'bell' | 'forum' | 'home', dashed: boolean, isActive: boolean, count: number, hovered: boolean) => (
     <View
@@ -105,19 +127,28 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
   );
 
   return (
-    <View style={{ width: 64, backgroundColor: c.canvas, borderRightWidth: 1, borderRightColor: c.hairline, paddingVertical: 12, alignItems: 'center' }}>
-      <ScrollView contentContainerStyle={{ alignItems: 'center', gap: 10 }} showsVerticalScrollIndicator={false}>
+    <View ref={rail} style={{ width: 64, zIndex: 10, backgroundColor: c.canvas, borderRightWidth: 1, borderRightColor: c.hairline, paddingVertical: 12, alignItems: 'center' }}>
+      <ScrollView style={{ width: 64 }} contentContainerStyle={{ alignItems: 'center', gap: 10 }} showsVerticalScrollIndicator={false} onScroll={tooltip ? () => setTooltip(null) : undefined}>
         {link('feed', 'Home: topics from your places', () => router.push('/feed'), pathname === '/feed', (hovered) => iconTile('home', false, pathname === '/feed', 0, hovered))}
         {link('messages', unreadMessages > 0 ? `Direct messages, ${unreadMessages} unread` : 'Direct messages', () => router.push('/messages'), inMessages, (hovered) => iconTile('forum', false, inMessages, unreadMessages, hovered))}
         {link('palette', 'Jump to a place or channel', onOpenPalette, false, (hovered) => iconTile('search', false, false, 0, hovered))}
         {link('inbox', unread > 0 ? `Inbox, ${unread} unread` : 'Inbox', () => router.push('/inbox'), pathname === '/inbox', (hovered) => iconTile('bell', false, pathname === '/inbox', unread, hovered))}
         {places.map((p) =>
-          link(p.id, p.name, () => router.push({ pathname: '/places/[slug]', params: { slug: p.slug } }), p.slug === slug, <InstanceIcon name={p.name} iconUrl={p.icon_url} origin={active.origin} size={48} />),
+          link(p.id, p.name, () => router.push({ pathname: '/places/[slug]', params: { slug: p.slug } }), p.slug === slug, (hovered) => (
+            <View style={{ borderRadius: theme.radii.md, outlineWidth: p.slug === slug || hovered ? 2 : 0, outlineStyle: 'solid', outlineColor: p.slug === slug ? c.onDark : c.hairlineStrong, outlineOffset: 2 }}>
+              <InstanceIcon name={p.name} iconUrl={p.icon_url} origin={active.origin} size={48} />
+            </View>
+          )),
         )}
         {link('discover', 'Discover places', () => router.push('/discover'), pathname === '/discover', (hovered) => iconTile('compass', false, pathname === '/discover', 0, hovered))}
         {link('new', 'Create a place', () => router.push('/places/new'), pathname === '/places/new', (hovered) => iconTile('plus', true, pathname === '/places/new', 0, hovered))}
       </ScrollView>
       <AccountControl />
+      {tooltip ? (
+        <View role="tooltip" style={{ pointerEvents: 'none', position: 'absolute', left: 72, top: tooltip.top, width: 232, paddingHorizontal: 12, paddingVertical: 6, borderRadius: theme.radii.md, backgroundColor: c.surfaceElevated, borderWidth: 1, borderColor: c.hairlineStrong }}>
+          <Text variant="bodySm" tone="onDark">{tooltip.label}</Text>
+        </View>
+      ) : null}
     </View>
   );
 }

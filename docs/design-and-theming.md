@@ -52,6 +52,10 @@ The You hub shares settings groups and their feature/administrator gates with th
 sidebar, and keeps status, sign-out and instance switching together. Phone `/settings`
 links open this hub; individual editors return there when no navigation history exists.
 
+Rail selection uses a visible left-edge bar and an outline on the active place tile.
+Web/desktop labels appear on hover or keyboard focus, and dismiss on blur, scroll or Escape.
+Selection changes are immediate, not animated.
+
 ## Updating the design
 
 When [DESIGN.md](../DESIGN.md) changes, update:
