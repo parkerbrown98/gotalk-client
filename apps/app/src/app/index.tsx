@@ -20,5 +20,5 @@ export default function Index() {
     );
   }
   if (!active) return <Redirect href="/welcome" />;
-  return <Redirect href={session ? '/home' : welcomeHref(active.origin)} />;
+  return <Redirect href={session ? '/feed' : welcomeHref(active.origin)} />;
 }

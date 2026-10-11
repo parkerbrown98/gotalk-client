@@ -56,7 +56,7 @@ export function usePlaceMenu(place: Place | undefined): { items: PlaceMenuItem[]
     try {
       await actions.leave(place.slug);
       setLeaveOpen(false);
-      resetTo('/home');
+      resetTo('/feed');
     } catch (e) {
       const f = classifyFailure(e);
       setLeaveError(f.kind === 'rejected' ? f.message : 'Could not leave the place. Try again.');

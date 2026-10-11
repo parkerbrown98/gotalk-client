@@ -30,11 +30,11 @@ export default function Consent() {
   if (!active || !session) return <Redirect href="/welcome" />;
   const outstanding = consents.data?.outstanding ?? [];
   const given = new Set((consents.data?.consents ?? []).filter((c) => c.granted).map((c) => c.purpose));
-  if (consents.isSuccess && outstanding.length === 0) return <Redirect href="/home" />;
+  if (consents.isSuccess && outstanding.length === 0) return <Redirect href="/feed" />;
 
   function notNow() {
     consentDismissed.add(active!.id);
-    resetTo('/home');
+    resetTo('/feed');
   }
 
   async function accept() {
@@ -46,7 +46,7 @@ export default function Consent() {
         unwrap(await client.POST('/users/@me/consents', { body: { purpose: p.kind, granted: true, policy_version: p.version } }));
       }
       await queryClient.invalidateQueries({ queryKey: ['consents', active!.id] });
-      resetTo('/home');
+      resetTo('/feed');
     } catch (e) {
       setFailure(classifyFailure(e));
     } finally {

@@ -8,7 +8,7 @@ import { useActiveInstance } from '@/lib/instances';
 import { useWide } from '@/lib/layout';
 import { useMyPlaces } from '@/lib/places';
 
-/** Phones: the places tab. Wide screens open the first place instead, or Discover when there are none. */
+/** Phones: the places tab. Wide screens have no such tab, so they open the instance home feed. */
 export default function Home() {
   const theme = useTheme();
   const c = theme.colors;
@@ -16,12 +16,7 @@ export default function Home() {
   const active = useActiveInstance();
   const places = useMyPlaces();
   if (!active) return null;
-
-  if (wide) {
-    if (places.isPending) return <ActivityIndicator style={{ flex: 1 }} />;
-    const first = places.data?.[0];
-    return first ? <Redirect href={{ pathname: '/places/[slug]', params: { slug: first.slug } }} /> : <Redirect href="/discover" />;
-  }
+  if (wide) return <Redirect href="/feed" />;
 
   const list = places.data ?? [];
   return (

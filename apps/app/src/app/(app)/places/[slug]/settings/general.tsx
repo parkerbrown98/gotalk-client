@@ -40,7 +40,7 @@ export default function PlaceGeneralSettings() {
     try {
       await actions.remove(place.slug);
       setConfirm(false);
-      resetTo('/home');
+      resetTo('/feed');
     } catch (e) {
       const f = classifyFailure(e);
       setError(f.kind === 'rejected' ? f.message : 'The place could not be deleted. Try again.');

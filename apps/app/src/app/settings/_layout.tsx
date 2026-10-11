@@ -27,7 +27,7 @@ function SettingsNav() {
       }}
     >
       <View style={{ marginBottom: theme.space.sm }}>
-        <NavRow label={`Back to ${active?.name ?? 'home'}`} icon="chevronLeft" onPress={() => router.replace('/home')} />
+        <NavRow label={`Back to ${active?.name ?? 'home'}`} icon="chevronLeft" onPress={() => router.replace('/feed')} />
       </View>
       <ScrollView contentContainerStyle={{ gap: 2 }}>
         {groups.map((g) => (

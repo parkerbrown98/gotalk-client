@@ -26,7 +26,7 @@ const hostOf = (origin: string) => origin.replace(/^https?:\/\//, '');
 function nextAfterAuth(server: DiscoveredInstance): Href {
   const invite = pendingInvite.get();
   pendingInvite.clear();
-  return invite && invite.origin.replace(/\/+$/, '') === server.origin ? inviteHref(invite) : '/home';
+  return invite && invite.origin.replace(/\/+$/, '') === server.origin ? inviteHref(invite) : '/feed';
 }
 
 export interface AccountFormProps {
@@ -225,7 +225,7 @@ export function CreateAccountForm({ server, onAuthenticated, onSignIn, policyHre
       let next: Href;
       if (inviteOnly) {
         pendingInvite.clear();
-        next = '/home';
+        next = '/feed';
       } else {
         next = nextAfterAuth(server);
       }

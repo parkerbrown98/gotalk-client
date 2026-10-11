@@ -106,7 +106,7 @@ function ServerRow({ instance, username, primary }: { instance: SavedInstance; u
           accessibilityLabel={`Open ${instanceDisplayName(instance.origin, instance.name)}`}
           onPress={() => {
             instancesStore.getState().setActive(instance.id);
-            resetTo('/home');
+            resetTo('/feed');
           }}
         />
       ) : (
@@ -255,7 +255,7 @@ function AccountStep({ param, tab }: { param: string; tab: AccountTab }) {
           onPress={() => {
             adoptServer(server);
             pendingInvite.clear();
-            resetTo(invite && invite.origin.replace(/\/+$/, '') === server.origin ? inviteHref(invite) : '/home');
+            resetTo(invite && invite.origin.replace(/\/+$/, '') === server.origin ? inviteHref(invite) : '/feed');
           }}
         />
       </Stack>

@@ -82,7 +82,7 @@ export default function You() {
                 variant="tertiary"
                 onPress={() => {
                   instancesStore.getState().setActive(i.id);
-                  resetTo('/home');
+                  resetTo('/feed');
                 }}
               />
             </Card>
