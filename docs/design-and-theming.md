@@ -17,8 +17,8 @@ surface ladder, Inter typography and Gotalk brand assets across all targets.
 ## Theme and typography
 
 Every color, spacing and type value comes from `@gotalk/tokens`, which mirrors
-[DESIGN.md](../DESIGN.md). The system is dark-only: there is no light theme and no shadows;
-depth comes from the surface ladder.
+[DESIGN.md](../DESIGN.md). The system is dark-only: there is no light theme;
+depth comes from the surface ladder, with a subtle shadow on floating rail tooltips.
 
 Components read the active theme through `useTheme()` from `@gotalk/ui`.
 `ThemeProvider` accepts `overrides` for per-instance branding. Text is Inter, registered in
@@ -54,7 +54,8 @@ links open this hub; individual editors return there when no navigation history 
 
 Rail selection uses a visible left-edge bar and an outline on the active place tile.
 Web/desktop labels appear on hover or keyboard focus, and dismiss on blur, scroll or Escape.
-Selection changes are immediate, not animated.
+Tooltip boxes fit their text up to 320px, wrapping longer labels, with a subtle shadow
+to separate them from the sidebar. Selection changes are immediate, not animated.
 
 Web and desktop scrollbars use the shared dark surface palette in
 [the web shell](../apps/app/public/index.html). Standard scrollbar properties cover Firefox

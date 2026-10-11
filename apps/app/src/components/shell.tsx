@@ -145,8 +145,10 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
       </ScrollView>
       <AccountControl />
       {tooltip ? (
-        <View role="tooltip" style={{ pointerEvents: 'none', position: 'absolute', left: 72, top: tooltip.top, width: 232, paddingHorizontal: 12, paddingVertical: 6, borderRadius: theme.radii.md, backgroundColor: c.surfaceElevated, borderWidth: 1, borderColor: c.hairlineStrong }}>
-          <Text variant="bodySm" tone="onDark">{tooltip.label}</Text>
+        <View style={{ pointerEvents: 'none', position: 'absolute', left: 72, top: tooltip.top, width: 320, alignItems: 'flex-start' }}>
+          <View role="tooltip" style={{ maxWidth: '100%', paddingHorizontal: 12, paddingVertical: 6, borderRadius: theme.radii.md, backgroundColor: c.surfaceElevated, borderWidth: 1, borderColor: c.hairlineStrong, boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)' }}>
+            <Text variant="bodySm" tone="onDark">{tooltip.label}</Text>
+          </View>
         </View>
       ) : null}
     </View>
