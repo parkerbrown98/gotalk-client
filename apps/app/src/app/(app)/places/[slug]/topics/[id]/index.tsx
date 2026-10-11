@@ -1,6 +1,6 @@
 import { ApiError } from '@gotalk/api-client';
 import { validateTopic } from '@gotalk/core';
-import { Badge, Button, Dialog, Icon, Notice, PillTabs, Stack, Text, TextField, useTheme } from '@gotalk/ui';
+import { Badge, Button, Dialog, Icon, Notice, PillTabs, Stack, Text, TextField, useTheme, type PressState } from '@gotalk/ui';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
@@ -207,22 +207,41 @@ export default function TopicScreen() {
     </View>
   );
 
+  const openPlace = () => router.push({ pathname: '/places/[slug]', params: { slug } });
+  const openBoard = () => router.push({ pathname: '/places/[slug]/boards/[id]', params: { slug, id: topic.board_id } });
+  const crumb = (label: string, onPress: () => void) => (
+    <Pressable accessibilityRole="link" onPress={onPress} hitSlop={6} style={{ flexShrink: 1 }}>
+      {({ hovered }: PressState) => (
+        <Text variant="bodySm" tone={hovered ? 'onDark' : 'muted'} numberOfLines={1}>
+          {label}
+        </Text>
+      )}
+    </Pressable>
+  );
+  const breadcrumb = (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space.xs, flexShrink: 1 }}>
+      {wide ? (
+        <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={back} hitSlop={8}>
+          <Icon name="chevronLeft" size={16} color={c.mute} />
+        </Pressable>
+      ) : null}
+      {crumb(place?.name ?? slug, openPlace)}
+      {board ? (
+        <>
+          <Icon name="chevronRight" size={12} color={c.mute} />
+          {crumb(board.name, openBoard)}
+        </>
+      ) : null}
+    </View>
+  );
+
   return (
-    <ScreenFrame title={board?.name ?? 'Topic'} onBack={back} end={items.length > 0 && !wide ? <Pressable accessibilityRole="button" accessibilityLabel="Topic actions" onPress={() => setMenu(true)} hitSlop={12}><Icon name="more" size={20} color={c.onDark} /></Pressable> : undefined} maxWidth={820} contentStyle={wide ? { paddingVertical: 24, paddingHorizontal: 40 } : { padding: theme.space.lg }}>
+    <ScreenFrame title={place?.name ?? 'Topic'} onBack={back} end={items.length > 0 && !wide ? <Pressable accessibilityRole="button" accessibilityLabel="Topic actions" onPress={() => setMenu(true)} hitSlop={12}><Icon name="more" size={20} color={c.onDark} /></Pressable> : undefined} maxWidth={820} contentStyle={wide ? { paddingVertical: 24, paddingHorizontal: 40 } : { padding: theme.space.lg }}>
       <Stack gap="md">
-        {wide ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: theme.space.md }}>
-            <Pressable accessibilityRole="link" onPress={back} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              <Icon name="chevronLeft" size={16} color={c.mute} />
-              <Text variant="bodySm" tone="muted">
-                {board?.name ?? 'Back'}
-              </Text>
-            </Pressable>
-            {controls}
-          </View>
-        ) : (
-          <View style={{ alignItems: 'flex-end' }}>{controls}</View>
-        )}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: theme.space.md }}>
+          {breadcrumb}
+          {controls}
+        </View>
         {heading}
         {problem ? <Notice tone="danger">{problem}</Notice> : null}
         {postsQuery.isPending ? <ActivityIndicator style={{ marginTop: 24 }} /> : null}
