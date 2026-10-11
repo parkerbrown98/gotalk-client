@@ -1,7 +1,7 @@
 import { describeTopicReadState, QUICK_REACTIONS, relativeTime, shortTime, validatePost } from '@gotalk/core';
 import { Avatar, Badge, Button, Dialog, hoverTransition, Icon, ListCard, ListRow, Notice, RadioOptions, Text, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { useState, type ReactNode } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
 
 import { MessageMedia } from '@/components/attachments';
 import { Composer } from '@/components/composer';
@@ -169,6 +169,7 @@ export function TopicRow({ topic, wide, onPress }: { topic: Topic; wide: boolean
 function RevisionsDialog({ post, visible, onClose }: { post: Post; visible: boolean; onClose: () => void }) {
   const theme = useTheme();
   const c = theme.colors;
+  const { height } = useWindowDimensions();
   const revisions = usePostRevisions(visible ? post.id : undefined);
   const card = (key: string, title: string, subtitle: string, content: string, current?: boolean) => (
     <View key={key} style={{ gap: 6, padding: theme.space.md, borderRadius: theme.radii.md, borderWidth: 1, borderColor: current ? c.hairlineStrong : c.hairline, backgroundColor: c.surface }}>
@@ -194,10 +195,10 @@ function RevisionsDialog({ post, visible, onClose }: { post: Post; visible: bool
       </Text>
       {revisions.isPending ? <ActivityIndicator /> : null}
       {revisions.isError ? <Notice tone="danger">The history could not be loaded.</Notice> : null}
-      <View style={{ gap: theme.space.sm }}>
+      <ScrollView style={{ maxHeight: height * 0.6 }} contentContainerStyle={{ gap: theme.space.sm }}>
         {card('current', 'Current', `${post.author.display_name} · ${relativeTime(post.edited_at ?? post.created_at)}`, post.content, true)}
         {items.map((r) => card(r.id, 'Earlier version', `edited by ${r.editor.display_name} · ${relativeTime(r.created_at)}`, r.content))}
-      </View>
+      </ScrollView>
       <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
         <Button title="Close" variant="tertiary" onPress={onClose} />
       </View>

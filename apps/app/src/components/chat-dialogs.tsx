@@ -1,7 +1,7 @@
 import { clockTime, messagePreview, previewText, QUICK_REACTIONS, relativeTime, type Message } from '@gotalk/core';
 import { Button, Dialog, hoverTransition, Icon, ListCard, ListRow, Notice, Text, TextField, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
 
 import { Markdown } from '@/components/markdown';
 import { MenuItem, MenuPopover, MenuSeparator, type Anchor } from '@/components/menu';
@@ -234,6 +234,7 @@ function DeleteBody({ message, mine, onClose, onDelete }: { message: Message; mi
 export function MessageHistoryDialog({ message, onClose }: { message: Message | null; onClose: () => void }) {
   const theme = useTheme();
   const c = theme.colors;
+  const { height } = useWindowDimensions();
   const revisions = useMessageRevisions(message?.id);
   const card = (key: string, title: string, subtitle: string, content: string, current?: boolean) => (
     <View key={key} style={{ gap: 6, padding: theme.space.md, borderRadius: theme.radii.md, borderWidth: 1, borderColor: current ? c.hairlineStrong : c.hairline, backgroundColor: c.surface }}>
@@ -258,10 +259,10 @@ export function MessageHistoryDialog({ message, onClose }: { message: Message | 
       {revisions.isPending ? <ActivityIndicator /> : null}
       {revisions.isError ? <Notice tone="danger">The history could not be loaded.</Notice> : null}
       {message ? (
-        <View style={{ gap: theme.space.sm }}>
+        <ScrollView style={{ maxHeight: height * 0.6 }} contentContainerStyle={{ gap: theme.space.sm }}>
           {card('current', 'Current', relativeTime(message.edited_at ?? message.created_at), message.content, true)}
           {items.map((r, i) => card(r.id, i === items.length - 1 ? 'Original' : 'Earlier version', relativeTime(r.created_at), r.content))}
-        </View>
+        </ScrollView>
       ) : null}
       <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
         <Button title="Close" variant="tertiary" onPress={onClose} />
