@@ -51,6 +51,7 @@ export function useRoles(slug: string | undefined, enabled = true) {
   return useQuery({
     queryKey: moderationKeys.roles(inst, slug),
     enabled: !!client && !!slug && enabled,
+    staleTime: 60_000,
     queryFn: async () => unwrap(await client!.GET('/places/{place}/roles', { params: { path: { place: slug! } } })) ?? [],
   });
 }
@@ -175,7 +176,7 @@ export function useModerationActions(slug: string | undefined) {
     const place = () => ({ place: slug! });
     // Permission changes can change what the caller sees anywhere in the place.
     const permissionsChanged = () =>
-      refresh(moderationKeys.roles(inst, slug), moderationKeys.standing(inst, slug), ['place', inst, slug], ['boards', inst, slug], ['channels', inst, slug], ['channel', inst]);
+      refresh(moderationKeys.roles(inst, slug), moderationKeys.standing(inst, slug), ['place', inst, slug], ['boards', inst, slug], ['channels', inst, slug], ['channel', inst], ['member', inst]);
     const membersChanged = (userId: string) =>
       refresh(moderationKeys.members(inst, slug), moderationKeys.member(inst, slug, userId), chatKeys.members(inst, slug), ['member', inst]);
 

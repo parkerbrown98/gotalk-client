@@ -1,10 +1,11 @@
-import { conversationTitle, relativeTime, type Message } from '@gotalk/core';
+import { conversationTitle, memberRoleColor, relativeTime, type Message } from '@gotalk/core';
 import { Avatar, hoverTransition, Icon, Notice, Text, useModalDismissal, useTheme, type PressState } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 
 import { ChatView } from '@/components/chat-view';
+import { AuthorName } from '@/components/author-name';
 import { contextMenu } from '@/components/context-menu';
 import { Markdown } from '@/components/markdown';
 import { MenuItem, MenuPopover, MenuSeparator, type Anchor } from '@/components/menu';
@@ -13,6 +14,7 @@ import { PresenceAvatar, presenceLabels } from '@/components/presence';
 import { useSession } from '@/lib/auth';
 import { useChannel, useChatActions, useMessage, usePins, usePlaceMembers, type Channel } from '@/lib/chat';
 import { failureMessage } from '@/lib/failure';
+import { useRoles } from '@/lib/moderation';
 import { usePlace, usePlaceAccess } from '@/lib/places';
 import { usePresences } from '@/lib/realtime';
 
@@ -63,6 +65,7 @@ export function useMessageSomeone() {
 export function MembersPanel({ slug }: { slug: string }) {
   const theme = useTheme();
   const members = usePlaceMembers(slug, true);
+  const roles = useRoles(slug);
   const list = useMemo(() => members.data ?? [], [members.data]);
   const presence = usePresences(list.map((m) => m.user.id));
   const myId = useSession()?.userId;
@@ -81,6 +84,7 @@ export function MembersPanel({ slug }: { slug: string }) {
     const status = presence[m.user.id];
     const label = m.nickname ?? m.user.display_name;
     const self = m.user.id === myId;
+    const color = memberRoleColor(roles.data ?? [], m.role_ids);
     return (
       <Pressable
         key={m.user.id}
@@ -95,7 +99,7 @@ export function MembersPanel({ slug }: { slug: string }) {
         style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 10, paddingVertical: 6, borderRadius: theme.radii.sm, backgroundColor: pressed || hovered ? theme.colors.surfaceCard : 'transparent' })}
       >
         <PresenceAvatar user={m.user} size={24} ring={theme.colors.surface} />
-        <Text variant="bodySm" tone={dim ? 'muted' : 'default'} numberOfLines={1} style={{ flex: 1 }}>
+        <Text variant="bodySm" tone={dim ? 'muted' : 'default'} numberOfLines={1} style={[{ flex: 1 }, color ? { color } : null]}>
           {label}
         </Text>
         {status === 'idle' || status === 'dnd' ? (
@@ -112,6 +116,7 @@ export function MembersPanel({ slug }: { slug: string }) {
     <SidePanel>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 8, paddingVertical: 12, gap: 2 }}>
         {members.isPending ? <ActivityIndicator /> : null}
+        {roles.error ? <Notice tone="warning">Role colors could not be loaded. <Text accessibilityRole="button" onPress={() => void roles.refetch()}>Retry</Text></Notice> : null}
         {message.problem ? <Notice tone="danger">{message.problem}</Notice> : null}
         <Text variant="captionMd" tone="muted" style={{ paddingHorizontal: 10, paddingVertical: 4 }}>
           Online · {online.length}
@@ -177,9 +182,9 @@ export function PinsList({ channelId, canUnpin, onJump }: { channelId: string; c
         <View key={m.id} style={{ gap: 6, padding: 12, borderRadius: theme.radii.md, borderWidth: 1, borderColor: c.hairline, backgroundColor: c.canvas }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <Avatar name={m.author?.display_name ?? '?'} uri={m.author?.avatar_url} size={24} />
-            <Text variant="bodySmStrong" tone="onDark" numberOfLines={1} style={{ flexShrink: 1 }}>
+            <AuthorName placeId={m.place_id} userId={m.author?.id} variant="bodySmStrong" tone="onDark" numberOfLines={1} style={{ flexShrink: 1 }}>
               {m.author?.display_name ?? 'Deleted account'}
-            </Text>
+            </AuthorName>
             <Text variant="captionMd" tone="faint">
               {relativeTime(m.created_at)}
             </Text>

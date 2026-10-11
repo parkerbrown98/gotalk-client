@@ -4,6 +4,7 @@ import { useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
 
 import { MessageMedia } from '@/components/attachments';
+import { AuthorName } from '@/components/author-name';
 import { Composer } from '@/components/composer';
 import { Markdown } from '@/components/markdown';
 import { MenuItem, MenuPopover, MenuSeparator, type Anchor } from '@/components/menu';
@@ -121,9 +122,9 @@ export function TopicRow({ topic, wide, onPress }: { topic: Topic; wide: boolean
   const solved = !!topic.solution_post_id;
   const meta = (
     <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: theme.space.sm }}>
-      <Text variant="captionMd" tone="muted">
+      <AuthorName placeId={topic.place_id} userId={topic.author?.id} variant="captionMd" tone="muted">
         {topic.author.display_name}
-      </Text>
+      </AuthorName>
       {read.state === 'new' ? <Badge label={`${read.newCount} new`} tone="info" /> : null}
       {topic.is_pinned ? <Badge label="Pinned" /> : null}
       {topic.is_locked ? <Badge label="Locked" /> : null}
@@ -313,9 +314,9 @@ export function PostItem({ post, topic, indent = 0, wide, userId, canModerate, c
       <Avatar name={post.author.display_name} uri={post.author.avatar_url} size={small ? 32 : 40} />
       <View style={{ flex: 1, gap: theme.space.sm }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: theme.space.sm }}>
-          <Text variant="bodySmStrong" tone="onDark">
+          <AuthorName placeId={post.place_id} userId={post.author?.id} variant="bodySmStrong" tone="onDark">
             {post.author.display_name}
-          </Text>
+          </AuthorName>
           <Text variant="captionMd" tone="muted">
             #{post.post_number}
             {note ? ` · ${note}` : ''} · {relativeTime(post.created_at)}

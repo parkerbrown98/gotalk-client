@@ -229,6 +229,13 @@ export function roleColorHex(color: number | null | undefined): string | null {
   return `#${(color & 0xffffff).toString(16).padStart(6, '0')}`;
 }
 
+/** Highest-ranked colored assigned role, then the implicit @everyone role. */
+export function memberRoleColor(roles: readonly (RankedRole & { color: number })[], roleIds: readonly string[] | null | undefined): string | null {
+  const assigned = new Set(roleIds ?? []);
+  const role = sortRoles(roles).find((r) => (r.is_default || assigned.has(r.id)) && roleColorHex(r.color));
+  return role ? roleColorHex(role.color) : null;
+}
+
 /** The integer the API expects for a `#rrggbb` color. */
 export function roleColorValue(hex: string | null): number {
   if (!hex) return 0;

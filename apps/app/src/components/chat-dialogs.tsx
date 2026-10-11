@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
 
 import { Markdown } from '@/components/markdown';
+import { AuthorName } from '@/components/author-name';
 import { MenuItem, MenuPopover, MenuSeparator, type Anchor } from '@/components/menu';
 import type { ChatScope } from '@/components/chat-message';
 import { useMessageRevisions } from '@/lib/chat';
@@ -150,9 +151,9 @@ function Quote({ message }: { message: Message }) {
   return (
     <View style={{ gap: 2, padding: theme.space.md, borderRadius: theme.radii.md, borderWidth: 1, borderColor: theme.colors.hairline, backgroundColor: theme.colors.surface }}>
       <View style={{ flexDirection: 'row', gap: theme.space.sm, alignItems: 'baseline' }}>
-        <Text variant="bodySmStrong" tone="onDark">
+        <AuthorName placeId={message.place_id} userId={message.author?.id} variant="bodySmStrong" tone="onDark">
           {message.author?.display_name ?? 'Deleted account'}
-        </Text>
+        </AuthorName>
         <Text variant="captionMd" tone="faint">
           {clockTime(message.created_at)}
         </Text>

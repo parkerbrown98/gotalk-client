@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { Composer } from '@/components/composer';
+import { AuthorName } from '@/components/author-name';
 import { messageFor } from '@/components/forum';
 import { useAttachmentDraft } from '@/lib/attachments';
 import { draftKeys, useForumActions, useServerDraft, type Post } from '@/lib/forums';
@@ -68,7 +69,7 @@ export function ReplyForm({ topicId, slug, parent, onClearParent, onPosted, auto
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space.sm }}>
           <Icon name="reply" size={14} color={c.mute} />
           <Text variant="captionMd" tone="muted" style={{ flex: 1 }} numberOfLines={1}>
-            Replying to {parent.author.display_name} (#{parent.post_number})
+            Replying to <AuthorName placeId={parent.place_id} userId={parent.author?.id} variant="captionMd" tone="muted">{parent.author.display_name}</AuthorName> (#{parent.post_number})
           </Text>
           {onClearParent ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Reply to the topic instead" hitSlop={8} onPress={onClearParent}>

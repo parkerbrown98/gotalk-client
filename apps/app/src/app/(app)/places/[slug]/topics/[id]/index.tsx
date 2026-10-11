@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import { VoteControl, useVoteMode } from '@/components/feed';
+import { AuthorName } from '@/components/author-name';
 import { ActionList, Empty, messageFor, PostItem, TagBadges, WatchButton } from '@/components/forum';
 import { ReplyForm } from '@/components/reply-form';
 import { ScreenFrame } from '@/components/screen-frame';
@@ -173,7 +174,7 @@ export default function TopicScreen() {
         <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: theme.space.sm }}>
           <TagBadges tags={topic.tags} />
           <Text variant="captionMd" tone="muted">
-            Started by {topic.author.display_name} · {topic.reply_count} {topic.reply_count === 1 ? 'reply' : 'replies'}
+            Started by <AuthorName placeId={topic.place_id} userId={topic.author?.id} variant="captionMd" tone="muted">{topic.author.display_name}</AuthorName> · {topic.reply_count} {topic.reply_count === 1 ? 'reply' : 'replies'}
           </Text>
         </View>
         {voteProblem ? (

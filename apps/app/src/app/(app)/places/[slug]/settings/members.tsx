@@ -1,4 +1,4 @@
-import { isTimedOut, timeLeft } from '@gotalk/core';
+import { isTimedOut, memberRoleColor, timeLeft } from '@gotalk/core';
 import { Avatar, Badge, Button, hoverTransition, ListCard, Notice, Stack, Text, TextField, useTheme, type PressState } from '@gotalk/ui';
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -14,7 +14,7 @@ export default function Members() {
   const allowed = access.can('KICK_MEMBERS') || access.can('BAN_MEMBERS') || access.can('MODERATE_MEMBERS') || access.can('MANAGE_ROLES') || access.can('MANAGE_NICKNAMES');
   const [query, setQuery] = useState('');
   const members = useMemberSearch(place?.slug, query, allowed);
-  const roles = useRoles(place?.slug, allowed).data ?? [];
+  const roles = useRoles(place?.slug, allowed);
   const [open, setOpen] = useState<string | null>(null);
 
   if (!place) return null;
@@ -26,6 +26,7 @@ export default function Members() {
       <Stack gap="lg">
         <TextField placeholder="Search by name" value={query} onChangeText={setQuery} autoCapitalize="none" autoCorrect={false} accessibilityLabel="Search members" />
         {members.isPending ? <ActivityIndicator /> : null}
+        {roles.error ? <Notice tone="warning">Roles could not be loaded. <Text accessibilityRole="button" onPress={() => void roles.refetch()}>Retry</Text></Notice> : null}
         {members.isError ? (
           <Notice tone="danger" title="Members could not be loaded.">
             Check your connection and try again.
@@ -39,7 +40,7 @@ export default function Members() {
         {list.length > 0 ? (
           <ListCard>
             {list.map((m) => (
-              <MemberRow key={m.user.id} member={m} roles={roles} owner={m.user.id === place.owner_id} onPress={() => setOpen(m.user.id)} />
+              <MemberRow key={m.user.id} member={m} roles={roles.data ?? []} owner={m.user.id === place.owner_id} onPress={() => setOpen(m.user.id)} />
             ))}
           </ListCard>
         ) : null}
@@ -54,13 +55,14 @@ function MemberRow({ member, roles, owner, onPress }: { member: Member; roles: R
   const theme = useTheme();
   const c = theme.colors;
   const name = memberName(member);
+  const color = memberRoleColor(roles, member.role_ids);
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`${name}, actions`} onPress={onPress} style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, backgroundColor: pressed || hovered ? c.surfaceElevated : 'transparent' })}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space.md, paddingHorizontal: theme.space.lg, paddingVertical: theme.space.md }}>
         <Avatar name={member.user.display_name} uri={member.user.avatar_url} size={36} />
         <Stack gap="none" style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: theme.space.sm }}>
-            <Text variant="bodySmStrong" tone="onDark">
+            <Text variant="bodySmStrong" tone="onDark" style={color ? { color } : undefined}>
               {name}
             </Text>
             {owner ? <Badge label="Owner" /> : null}

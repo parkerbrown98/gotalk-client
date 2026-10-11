@@ -1,14 +1,16 @@
-import { commandQuery, completeMention, findMentionQuery, MESSAGE_LIMIT, parseCommand, validateMessage, type ChannelCommand, type Message, type ParsedCommand, type Selection } from '@gotalk/core';
+import { commandQuery, completeMention, findMentionQuery, memberRoleColor, MESSAGE_LIMIT, parseCommand, validateMessage, type ChannelCommand, type Message, type ParsedCommand, type Selection } from '@gotalk/core';
 import { Avatar, hoverTransition, Icon, Text, typeStyle, useTheme, type PressState } from '@gotalk/ui';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, TextInput, View, type NativeSyntheticEvent, type TextInputKeyPressEventData, type TextStyle } from 'react-native';
 
 import { AttachButton, AttachmentTray, usePasteFiles } from '@/components/attachments';
+import { AuthorName } from '@/components/author-name';
 import { ReactionPickerDialog } from '@/components/chat-dialogs';
 import type { Attachment, AttachmentDraft } from '@/lib/attachments';
 import type { Channel } from '@/lib/chat';
 import { failureMessage } from '@/lib/failure';
 import { useMemberSuggestions } from '@/lib/forums';
+import { useRoles } from '@/lib/moderation';
 
 /** Unsent text per channel, kept while the app runs so switching channels does not lose it. */
 const drafts = new Map<string, string>();
@@ -36,6 +38,7 @@ interface Suggestion {
   key: string;
   title: string;
   detail: string;
+  color?: string | null;
   avatar?: { name: string; uri: string | null };
   apply: () => void;
 }
@@ -70,18 +73,20 @@ export function ChatComposer({ channel, slug, placeholder, wide, replyTo, onClea
   const mention = caret >= 0 && focused ? findMentionQuery(value, caret) : null;
   const inPlace = !!channel.place_id;
   const members = useMemberSuggestions(inPlace ? slug : undefined, mention && inPlace ? mention.query : null).data ?? [];
+  const roles = useRoles(inPlace ? slug : undefined, !!mention);
   const command = focused ? commandQuery(value) : null;
 
   let suggestions: Suggestion[] = [];
   if (mention) {
     const q = mention.query.toLowerCase();
     const people = inPlace
-      ? members.map((m) => ({ user: m.user, label: m.nickname ?? m.user.display_name }))
-      : (channel.recipients ?? []).filter((u) => !q || u.username.toLowerCase().startsWith(q) || u.display_name.toLowerCase().startsWith(q)).map((u) => ({ user: u, label: u.display_name }));
-    suggestions = people.slice(0, 6).map(({ user, label }) => ({
+      ? members.map((m) => ({ user: m.user, label: m.nickname ?? m.user.display_name, color: memberRoleColor(roles.data ?? [], m.role_ids) }))
+      : (channel.recipients ?? []).filter((u) => !q || u.username.toLowerCase().startsWith(q) || u.display_name.toLowerCase().startsWith(q)).map((u) => ({ user: u, label: u.display_name, color: null }));
+    suggestions = people.slice(0, 6).map(({ user, label, color }) => ({
       key: user.id,
       title: label,
       detail: `@${user.username}`,
+      color,
       avatar: { name: user.display_name, uri: user.avatar_url },
       apply: () => {
         const next = completeMention(value, caret, mention, user.username);
@@ -163,9 +168,9 @@ export function ChatComposer({ channel, slug, placeholder, wide, replyTo, onClea
           <Icon name="reply" size={14} color={c.mute} />
           <Text variant="captionMd" tone="muted" numberOfLines={1} style={{ flex: 1 }}>
             Replying to{' '}
-            <Text variant="captionMd" tone="onDark" style={{ fontFamily: theme.fontFaces['500'] }}>
+            <AuthorName placeId={replyTo.place_id} userId={replyTo.author?.id} variant="captionMd" tone="onDark" style={{ fontFamily: theme.fontFaces['500'] }}>
               {replyTo.author?.display_name ?? 'Deleted account'}
-            </Text>
+            </AuthorName>
           </Text>
           <Pressable accessibilityRole="button" accessibilityLabel="Cancel reply" onPress={onClearReply} hitSlop={8}>
             <Icon name="x" size={14} color={c.mute} />
@@ -186,7 +191,7 @@ export function ChatComposer({ channel, slug, placeholder, wide, replyTo, onClea
                 style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 8, paddingVertical: 6, borderRadius: theme.radii.sm, backgroundColor: pressed || hovered || i === 0 ? c.surfaceCard : 'transparent' })}
               >
                 {s.avatar ? <Avatar name={s.avatar.name} uri={s.avatar.uri} size={24} /> : <Icon name="command" size={16} color={c.mute} />}
-                <Text variant="bodySm" tone="onDark" numberOfLines={1}>
+                <Text variant="bodySm" tone="onDark" numberOfLines={1} style={s.color ? { color: s.color } : undefined}>
                   {s.title}
                 </Text>
                 <Text variant="captionMd" tone="muted" numberOfLines={1} style={{ marginLeft: 'auto', flexShrink: 1 }}>
@@ -194,6 +199,7 @@ export function ChatComposer({ channel, slug, placeholder, wide, replyTo, onClea
                 </Text>
               </Pressable>
             ))}
+            {roles.error ? <Text variant="captionMd" tone="danger">Role colors could not be loaded.</Text> : null}
           </View>
         ) : null}
         <View

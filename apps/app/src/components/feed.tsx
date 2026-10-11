@@ -20,6 +20,7 @@ import { ActivityIndicator, FlatList, Platform, Pressable, RefreshControl, Scrol
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FeedImages, FeedThumbnail } from '@/components/attachments';
+import { AuthorName } from '@/components/author-name';
 import { contextMenu } from '@/components/context-menu';
 import { ActionList, Chip, Empty, messageFor, TagBadges } from '@/components/forum';
 import type { Anchor } from '@/components/menu';
@@ -153,7 +154,7 @@ export function FeedCard({ item, wide, showPlace, vote, locallyRead, onOpen, onM
   const embed = hidden ? null : (item.embed as FeedTopic['embed'] | null);
   const pictures = item.image_count > 0 ? `, ${item.image_count} ${item.image_count === 1 ? 'image' : 'images'}` : '';
 
-  const meta = [showPlace ? item.place.name : null, item.board.name, item.author.display_name, shortTime(item.created_at)].filter(Boolean).join(' · ');
+  const meta = [showPlace ? item.place.name : null, item.board.name].filter(Boolean).join(' · ');
   const badges =
     read.state === 'new' || item.is_pinned || item.is_locked || solved || item.tags?.length || item.is_nsfw ? (
       <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: theme.space.sm }}>
@@ -209,7 +210,7 @@ export function FeedCard({ item, wide, showPlace, vote, locallyRead, onOpen, onM
           </View>
         ) : null}
         <Text variant="captionMd" tone="muted" numberOfLines={1}>
-          {meta}
+          {meta} · <AuthorName placeId={item.place.id} userId={item.author?.id} variant="captionMd" tone="muted">{item.author.display_name}</AuthorName> · {shortTime(item.created_at)}
         </Text>
         {badges}
         {problem ? (

@@ -62,6 +62,17 @@ and modern engines; WebKit pseudo-elements cover older webviews. Intentionally h
 scrollbars stay hidden. Forced-colors mode restores system colors and sizing. Native
 iOS/Android scroll indicators are unchanged.
 
+Author names in place chat, topic lists, posts, feeds and member lists use the highest-ranked
+**colored** assigned role; uncolored higher roles are skipped and the implicit `@everyone`
+role is the last fallback. DMs, former members and public places the viewer has not joined
+remain neutral. Names keep their existing typography; role badges still use color dots.
+Role resolution is shared in `@gotalk/core`. Author lookups reuse member-list/moderation
+data and the typing-indicator cache, and only fetch missing members when a colored role
+exists. Cache keys include instance and place. Local moderation changes invalidate these
+queries; one foreground-only timer refreshes active role/member queries every minute
+because the gateway does not currently emit role-change events. Decoration failures keep content usable and
+are reported in the console/accessibility hint (and inline in member lists and mention suggestions).
+
 ## Updating the design
 
 When [DESIGN.md](../DESIGN.md) changes, update:

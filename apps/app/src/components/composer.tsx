@@ -1,4 +1,4 @@
-import { applyFormat, completeMention, findMentionQuery, LIMITS, type Format, type Selection } from '@gotalk/core';
+import { applyFormat, completeMention, findMentionQuery, memberRoleColor, LIMITS, type Format, type Selection } from '@gotalk/core';
 import { Avatar, hoverTransition, Icon, Text, typeStyle, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { useRef, useState } from 'react';
 import { Platform, Pressable, TextInput, View, type NativeSyntheticEvent, type TextInputKeyPressEventData, type TextStyle } from 'react-native';
@@ -7,6 +7,7 @@ import { AttachButton, AttachmentTray, DropOverlay, MessageMedia, useFileDrop, u
 import { Markdown } from '@/components/markdown';
 import type { AttachmentDraft } from '@/lib/attachments';
 import { useMemberSuggestions, type DraftState } from '@/lib/forums';
+import { useRoles } from '@/lib/moderation';
 
 const NO_ATTACHMENTS: AttachmentDraft = {
   enabled: false,
@@ -63,7 +64,8 @@ export function Composer({ value, onChange, slug, placeholder, minHeight = 120, 
   const caret = sel.start === sel.end ? sel.start : -1;
   const mention = caret >= 0 && focused && mode === 'write' ? findMentionQuery(value, caret) : null;
   const suggestions = useMemberSuggestions(slug, mention ? mention.query : null);
-  const names = mention ? (suggestions.data ?? []) : [];
+  const roles = useRoles(slug, !!mention);
+  const names = (mention ? (suggestions.data ?? []) : []).map((member) => ({ member, color: memberRoleColor(roles.data ?? [], member.role_ids) }));
 
   const edit = (next: { value: string; selection: Selection }) => {
     onChange(next.value);
@@ -167,7 +169,7 @@ export function Composer({ value, onChange, slug, placeholder, minHeight = 120, 
         ) : null}
         {mention && names.length > 0 ? (
           <View accessibilityRole="menu" style={{ position: 'absolute', left: theme.space.lg, bottom: 8, minWidth: 240, padding: 6, gap: 2, backgroundColor: c.surfaceElevated, borderColor: c.hairlineStrong, borderWidth: 1, borderRadius: theme.radii.md, zIndex: 5 }}>
-            {names.map((m) => (
+            {names.map(({ member: m, color }) => (
               <Pressable
                 key={m.user.id}
                 accessibilityRole="menuitem"
@@ -175,7 +177,7 @@ export function Composer({ value, onChange, slug, placeholder, minHeight = 120, 
                 style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 8, paddingVertical: 6, borderRadius: theme.radii.sm, backgroundColor: pressed || hovered ? c.surfaceCard : 'transparent' })}
               >
                 <Avatar name={m.user.display_name} uri={m.user.avatar_url} size={24} />
-                <Text variant="bodySm" tone="onDark">
+                <Text variant="bodySm" tone="onDark" style={color ? { color } : undefined}>
                   {m.nickname ?? m.user.display_name}
                 </Text>
                 <Text variant="captionMd" tone="muted" style={{ marginLeft: 'auto' }}>
@@ -183,6 +185,7 @@ export function Composer({ value, onChange, slug, placeholder, minHeight = 120, 
                 </Text>
               </Pressable>
             ))}
+            {roles.error ? <Text variant="captionMd" tone="danger">Role colors could not be loaded.</Text> : null}
           </View>
         ) : null}
       </View>

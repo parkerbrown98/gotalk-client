@@ -5,9 +5,10 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 
 import { Empty } from '@/components/forum';
+import { AuthorName } from '@/components/author-name';
 import { boardTree, usePlaceSearch, type SearchParams, type SearchResult } from '@/lib/forums';
 import { useWide } from '@/lib/layout';
-import { useBoards } from '@/lib/places';
+import { useBoards, usePlace } from '@/lib/places';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -31,6 +32,7 @@ function Snippet({ text }: { text: string }) {
 function Result({ result, slug, wide }: { result: SearchResult; slug: string; wide: boolean }) {
   const theme = useTheme();
   const c = theme.colors;
+  const placeId = usePlace(slug).data?.id;
   return (
     <Pressable
       accessibilityRole="link"
@@ -41,7 +43,7 @@ function Result({ result, slug, wide }: { result: SearchResult; slug: string; wi
         {result.topic.title}
       </Text>
       <Text variant="captionMd" tone="muted">
-        {result.author.display_name} · #{result.post_number} · {relativeTime(result.created_at)}
+        <AuthorName placeId={placeId} userId={result.author?.id} variant="captionMd" tone="muted">{result.author.display_name}</AuthorName> · #{result.post_number} · {relativeTime(result.created_at)}
       </Text>
       <Snippet text={result.snippet} />
       {result.topic.solved || result.topic.tags?.length ? (

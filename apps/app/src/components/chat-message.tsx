@@ -5,6 +5,7 @@ import { Platform, Pressable, TextInput, View, type TextStyle } from 'react-nati
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { MessageMedia } from '@/components/attachments';
+import { AuthorName } from '@/components/author-name';
 import { contextMenu } from '@/components/context-menu';
 import { Chip } from '@/components/forum';
 import { Markdown } from '@/components/markdown';
@@ -223,9 +224,9 @@ function ReplyQuote({ message, scope }: { message: Message; scope: ChatScope }) 
       />
       {ref ? (
         <Text variant="captionMd" tone="muted" numberOfLines={1} style={{ flex: 1 }}>
-          <Text variant="captionMd" tone="muted" style={{ fontFamily: theme.fontFaces['500'] }}>
+          <AuthorName placeId={message.place_id} userId={ref.author?.id} variant="captionMd" tone="muted" style={{ fontFamily: theme.fontFaces['500'] }}>
             {ref.author?.display_name ?? 'Deleted account'}
-          </Text>
+          </AuthorName>
           {'  '}
           <Text variant="captionMd" tone="faint">
             {previewText(ref.excerpt, 80) || 'Attachment'}
@@ -294,9 +295,9 @@ export const MessageRow = memo(function MessageRow({ message, continued, highlig
           {message.reply_to_id ? <ReplyQuote message={message} scope={scope} /> : null}
           {continued ? null : (
             <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
-              <Text variant="bodySmStrong" tone="onDark" numberOfLines={1} style={{ flexShrink: 1 }}>
+              <AuthorName placeId={message.place_id} userId={author?.id} variant="bodySmStrong" tone="onDark" numberOfLines={1} style={{ flexShrink: 1 }}>
                 {name}
-              </Text>
+              </AuthorName>
               {author?.bot ? (
                 <Text variant="captionSm" tone="muted">
                   Bot
@@ -399,14 +400,14 @@ export function OutgoingRow({ item, author, continued }: { item: OutgoingMessage
       <View style={{ flex: 1, minWidth: 0 }}>
         {item.replyTo ? (
           <Text variant="captionMd" tone="muted" numberOfLines={1}>
-            ↳ {item.replyTo.author?.display_name ?? 'Deleted account'} {messagePreview(item.replyTo, 60)}
+            ↳ <AuthorName placeId={scope.channel.place_id} userId={item.replyTo.author?.id} variant="captionMd" tone="muted">{item.replyTo.author?.display_name ?? 'Deleted account'}</AuthorName> {messagePreview(item.replyTo, 60)}
           </Text>
         ) : null}
         {continued ? null : (
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
-            <Text variant="bodySmStrong" tone="onDark">
+            <AuthorName placeId={scope.channel.place_id} userId={scope.myId} variant="bodySmStrong" tone="onDark">
               You
-            </Text>
+            </AuthorName>
             <Text variant="captionMd" tone="faint">
               {clockTime(item.createdAt)}
             </Text>

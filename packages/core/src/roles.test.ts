@@ -8,6 +8,7 @@ import {
   canManageRole,
   countPermissions,
   hasBit,
+  memberRoleColor,
   overwritablePermissions,
   overwriteCounts,
   overwriteState,
@@ -27,6 +28,37 @@ const roles = [
   { id: 'mod', name: 'Moderator', position: 2, is_default: false },
   { id: 'admin', name: 'Admin', position: 3, is_default: false },
 ];
+
+describe('member role colors', () => {
+  const colored = roles.map((r, i) => ({ ...r, color: [0x57c1ff, 0x59d499, 0xff6161, 0][i]! }));
+
+  it('uses the highest colored assigned role, regardless of input order', () => {
+    expect(memberRoleColor([...colored].reverse(), ['helper', 'mod', 'admin'])).toBe('#ff6161');
+  });
+
+  it('skips uncolored higher roles and ignores roles not assigned to the member', () => {
+    expect(memberRoleColor(colored, ['admin', 'helper'])).toBe('#59d499');
+  });
+
+  it('includes @everyone implicitly, below assigned roles', () => {
+    expect(memberRoleColor(colored, null)).toBe('#57c1ff');
+    expect(memberRoleColor(colored, [])).toBe('#57c1ff');
+    expect(memberRoleColor(colored, ['helper'])).toBe('#59d499');
+  });
+
+  it('returns neutral when no eligible role has a color or a role was deleted', () => {
+    expect(memberRoleColor(colored.map((r) => ({ ...r, color: 0 })), ['mod'])).toBeNull();
+    expect(memberRoleColor(colored.filter((r) => !r.is_default && r.id !== 'mod'), ['mod'])).toBeNull();
+    expect(memberRoleColor([], ['helper'])).toBeNull();
+  });
+
+  it('does not mutate the role list or let @everyone outrank explicit roles', () => {
+    const list = colored.map((r) => ({ ...r, position: r.is_default ? 100 : r.position }));
+    const before = [...list];
+    expect(memberRoleColor(list, ['helper'])).toBe('#59d499');
+    expect(list).toEqual(before);
+  });
+});
 
 describe('permission bits', () => {
   it('groups every built-in permission exactly once', () => {

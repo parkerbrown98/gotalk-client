@@ -1,4 +1,4 @@
-import { BAN_DURATIONS, REPORT_REASONS, TIMEOUT_DURATIONS, canManageRole, isTimedOut, sortRoles, timeLeft, type ReportReason } from '@gotalk/core';
+import { BAN_DURATIONS, REPORT_REASONS, TIMEOUT_DURATIONS, canManageRole, isTimedOut, memberRoleColor, sortRoles, timeLeft, type ReportReason } from '@gotalk/core';
 import { Avatar, Badge, Button, Checkbox, Dialog, ListCard, ListRow, Notice, PillTabs, RadioOptions, Stack, Text, TextField, useModalDismissal, useTheme } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
@@ -185,6 +185,7 @@ function MemberModeration({ slug, userId, onClose, dismissWithAction }: { slug: 
   }
   const m = member.data;
   const name = memberName(m);
+  const color = memberRoleColor(roles, m.role_ids);
   const self = m.user.id === myId;
   const owner = !!place && m.user.id === place.owner_id;
   const outranked = !!standing && !standing.is_owner && topPosition(m, roles) >= standing.top_position;
@@ -195,7 +196,7 @@ function MemberModeration({ slug, userId, onClose, dismissWithAction }: { slug: 
     <View style={{ flexDirection: 'row', gap: theme.space.md, alignItems: 'center' }}>
       <Avatar name={m.user.display_name} uri={m.user.avatar_url} size={48} />
       <Stack gap="none" style={{ flex: 1 }}>
-        <Text variant="headingSm">{name}</Text>
+        <Text variant="headingSm" style={color ? { color } : undefined}>{name}</Text>
         <Text variant="captionMd" tone="muted">
           @{m.user.username} · member since {new Date(m.joined_at).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
         </Text>

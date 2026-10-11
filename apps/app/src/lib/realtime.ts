@@ -396,6 +396,16 @@ export function RealtimeHost(): null {
     return startConnection(qc, inst, gatewayUrl, apiBaseUrl, myId);
   }, [qc, inst, gatewayUrl, apiBaseUrl, sessionId, myId]);
 
+  // Role/member changes have no gateway event. One timer avoids a poller for every author row.
+  useEffect(() => {
+    if (!inst || !sessionId) return;
+    const timer = setInterval(() => {
+      const visible = Platform.OS === 'web' ? document.visibilityState === 'visible' : AppState.currentState === 'active';
+      if (visible) void invalidate(qc, ['roles', inst], ['member', inst], ['members', inst], ['place-member', inst], ['place-members', inst]);
+    }, 60_000);
+    return () => clearInterval(timer);
+  }, [qc, inst, sessionId]);
+
   // Coming back online or to the foreground is the moment to retry, not whenever the backoff ends.
   useEffect(() => {
     const retry = () => current?.gateway.retryNow();
