@@ -56,6 +56,12 @@ Rail selection uses a visible left-edge bar and an outline on the active place t
 Web/desktop labels appear on hover or keyboard focus, and dismiss on blur, scroll or Escape.
 Selection changes are immediate, not animated.
 
+Web and desktop scrollbars use the shared dark surface palette in
+[the web shell](../apps/app/public/index.html). Standard scrollbar properties cover Firefox
+and modern engines; WebKit pseudo-elements cover older webviews. Intentionally hidden
+scrollbars stay hidden. Forced-colors mode restores system colors and sizing. Native
+iOS/Android scroll indicators are unchanged.
+
 ## Updating the design
 
 When [DESIGN.md](../DESIGN.md) changes, update:
