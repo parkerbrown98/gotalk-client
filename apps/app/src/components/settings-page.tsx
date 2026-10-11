@@ -23,7 +23,7 @@ export function SettingsPage({ title, subtitle, width = 640, children }: Setting
 
   if (!wide) {
     return (
-      <ScreenFrame title={title} onBack={() => goBack('/settings')}>
+      <ScreenFrame title={title} onBack={() => goBack('/you')}>
         <Stack gap="lg">
           {subtitle ? (
             <Text variant="bodySm" tone="muted">

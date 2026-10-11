@@ -9,6 +9,7 @@ surface ladder, Inter typography and Gotalk brand assets across all targets.
 
 - [Theme and typography](#theme-and-typography)
 - [Motion and interaction](#motion-and-interaction)
+- [Account and community chrome](#account-and-community-chrome)
 - [Updating the design](#updating-the-design)
 - [Mockups](#mockups)
 - [Brand assets and README banner](#brand-assets-and-readme-banner)
@@ -42,6 +43,14 @@ or navigating away. Use `useModalDismissal(onClose)` for menu selections, pass i
 `dismissWithAction`. Keep the source menu mounted while it closes. Do not substitute a
 fixed timeout: `Dialog` has an exit animation, and UIKit dismissal completes separately.
 Web and Android selections continue to run immediately after requesting close.
+
+## Account and community chrome
+
+Wide app screens have one account/status control at the bottom of the place rail, not a
+second avatar in each sidebar. Its menu links to the You account hub and account settings.
+The You hub shares settings groups and their feature/administrator gates with the settings
+sidebar, and keeps status, sign-out and instance switching together. Phone `/settings`
+links open this hub; individual editors return there when no navigation history exists.
 
 ## Updating the design
 

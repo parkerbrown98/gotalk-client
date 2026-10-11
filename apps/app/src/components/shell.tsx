@@ -48,7 +48,6 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
   const pathname = usePathname();
   const slug = useRouteSlug();
   const active = useActiveInstance();
-  const session = useSession();
   const places = useMyPlaces().data ?? [];
   const unread = useUnreadCount().data ?? 0;
   const unreadMessages = useUnreadConversations();
@@ -118,11 +117,7 @@ export function PlaceRail({ onOpenPalette }: { onOpenPalette: () => void }) {
         {link('discover', 'Discover places', () => router.push('/discover'), pathname === '/discover', (hovered) => iconTile('compass', false, pathname === '/discover', 0, hovered))}
         {link('new', 'Create a place', () => router.push('/places/new'), pathname === '/places/new', (hovered) => iconTile('plus', true, pathname === '/places/new', 0, hovered))}
       </ScrollView>
-      {session ? (
-        <Pressable accessibilityRole="link" accessibilityLabel="Account and instances" onPress={() => router.push('/you')} style={{ marginTop: 8 }}>
-          <PresenceAvatar user={{ id: session.userId, display_name: session.displayName, avatar_url: session.avatarUrl }} size={36} />
-        </Pressable>
-      ) : null}
+      <AccountControl />
     </View>
   );
 }
@@ -196,18 +191,18 @@ export function PlaceSidebar({ slug }: { slug: string }) {
       </ScrollView>
 
       <SidebarCallPanel />
-      <AccountFooter />
     </View>
   );
 }
 
-/** Bottom of the sidebar: who is signed in and how present they look. Opens the presence picker. */
-export function AccountFooter() {
+/** One account entry in the rail, shared by every wide app screen. */
+function AccountControl() {
   const theme = useTheme();
   const c = theme.colors;
   const session = useSession();
   const me = useMe().data;
   const status = useMyStatus();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const { dismissWithAction, onDismiss } = useModalDismissal(() => setOpen(false));
   if (!session) return null;
@@ -216,24 +211,22 @@ export function AccountFooter() {
     <>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${name}, ${presenceLabels[status]}. Change status or open account settings`}
+        accessibilityLabel={`${name}, ${presenceLabels[status]}. Account and status`}
+        accessibilityState={{ expanded: open, selected: pathname === '/you' }}
         onPress={() => setOpen(true)}
-        style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, flexDirection: 'row', alignItems: 'center', gap: 8, padding: 8, borderTopWidth: 1, borderTopColor: c.hairline, backgroundColor: pressed || hovered ? c.surfaceElevated : 'transparent' })}
+        style={({ pressed, hovered }: PressState) => ({ ...hoverTransition, marginTop: 12, padding: 6, borderRadius: theme.radii.md, borderWidth: 1, borderColor: pathname === '/you' ? c.hairlineStrong : 'transparent', backgroundColor: pressed || hovered || pathname === '/you' ? c.surfaceElevated : 'transparent' })}
       >
-        <PresenceAvatar user={{ id: session.userId, display_name: name, avatar_url: me?.avatar_url ?? session.avatarUrl }} size={32} ring={c.surface} />
-        <View style={{ flex: 1 }}>
-          <Text variant="bodySmStrong" tone="onDark" numberOfLines={1}>
-            {name}
-          </Text>
-          <Text variant="captionMd" tone="muted">
-            {presenceLabels[status]}
-          </Text>
-        </View>
-        <Icon name="chevronDown" size={16} color={c.mute} />
+        <PresenceAvatar user={{ id: session.userId, display_name: name, avatar_url: me?.avatar_url ?? session.avatarUrl }} size={36} ring={c.canvas} />
       </Pressable>
       <MenuPopover visible={open} onClose={() => setOpen(false)} onDismiss={onDismiss} anchor={{ left: 72, bottom: 56 }}>
+        <View style={{ padding: 10 }}>
+          <Text variant="bodySmStrong" tone="onDark">{name}</Text>
+          <Text variant="captionMd" tone="muted">@{session.username} · {presenceLabels[status]}</Text>
+        </View>
+        <MenuSeparator />
         <PresenceMenuItems onDone={() => setOpen(false)} />
         <MenuSeparator />
+        <MenuItem label="You and instances" icon="user" onPress={() => dismissWithAction(() => router.push('/you'))} />
         <MenuItem
           label="Account settings"
           icon="settings"
@@ -273,7 +266,6 @@ export function MessagesSidebar() {
         ) : null}
       </ScrollView>
       <SidebarCallPanel />
-      <AccountFooter />
       <NewConversationDialog visible={creating} onClose={() => setCreating(false)} />
     </View>
   );
