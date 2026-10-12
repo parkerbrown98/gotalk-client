@@ -474,7 +474,7 @@ export function FeedItemMenu({ item: nextItem, visible, anchor, onClose, onError
 }
 
 /** A feed screen's frame: safe area and, on phones, a title bar. The list scrolls itself. */
-export function FeedFrame({ title, onBack, end, children }: { title: string; onBack?: () => void; end?: ReactNode; children: ReactNode }) {
+export function FeedFrame({ title, onBack, end, children }: { title: string | ReactElement; onBack?: () => void; end?: ReactNode; children: ReactNode }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const wide = useWide();

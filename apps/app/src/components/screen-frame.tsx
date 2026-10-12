@@ -1,11 +1,11 @@
 import { Icon, Screen, Text, useTheme } from '@gotalk/ui';
-import { type ReactNode } from 'react';
+import { type ReactElement, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useWide } from '@/lib/layout';
 
-export function TitleBar({ title, onBack, end }: { title: string; onBack?: () => void; end?: ReactNode }) {
+export function TitleBar({ title, onBack, end }: { title: string | ReactElement; onBack?: () => void; end?: ReactNode }) {
   const theme = useTheme();
   return (
     <View
@@ -18,17 +18,21 @@ export function TitleBar({ title, onBack, end }: { title: string; onBack?: () =>
         borderBottomColor: theme.colors.hairline,
       }}
     >
-      <View style={{ width: 72, alignItems: 'flex-start' }}>
+      <View style={{ width: typeof title === 'string' ? 72 : 32, alignItems: 'flex-start' }}>
         {onBack ? (
           <Pressable accessibilityRole="button" accessibilityLabel="Back" hitSlop={12} onPress={onBack}>
             <Icon name="chevronLeft" size={20} color={theme.colors.onDark} />
           </Pressable>
         ) : null}
       </View>
-      <Text variant="bodySmStrong" tone="onDark" accessibilityRole="header" numberOfLines={1} style={{ flex: 1, textAlign: 'center' }}>
-        {title}
-      </Text>
-      <View style={{ width: 72, alignItems: 'flex-end' }}>{end}</View>
+      {typeof title === 'string' ? (
+        <Text variant="bodySmStrong" tone="onDark" accessibilityRole="header" numberOfLines={1} style={{ flex: 1, textAlign: 'center' }}>
+          {title}
+        </Text>
+      ) : (
+        <View style={{ flex: 1, minWidth: 0, alignItems: 'center' }}>{title}</View>
+      )}
+      <View style={{ width: typeof title === 'string' ? 72 : 32, alignItems: 'flex-end' }}>{end}</View>
     </View>
   );
 }

@@ -46,6 +46,13 @@ Web and Android selections continue to run immediately after requesting close.
 
 ## Account and community chrome
 
+The instance feed uses its current scope as a compact heading dropdown: Your places or
+All of the instance. It replaces the redundant Home heading and scope tabs on wide
+screens, and occupies the phone title bar instead of adding a separate control row.
+The menu explains both scopes and checks the current choice; Escape dismisses web menus.
+Switching keeps filters
+and resets sort/window to the destination scope's preference, as before.
+
 Wide app screens have one account/status control at the bottom of the place rail, not a
 second avatar in each sidebar. Its menu links to the You account hub and account settings.
 The You hub shares settings groups and their feature/administrator gates with the settings

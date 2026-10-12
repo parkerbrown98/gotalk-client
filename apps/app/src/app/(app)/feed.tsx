@@ -1,11 +1,11 @@
 import { activeFilterCount, availableSorts, feedParams, parseFeedParams, type FeedFilters, type FeedScope, type FeedTopic } from '@gotalk/core';
-import { Button, Icon, Notice, SegmentedTabs, Stack, Text, useTheme } from '@gotalk/ui';
+import { Button, hoverTransition, Icon, Notice, Stack, Text, useModalDismissal, useTheme, type PressState } from '@gotalk/ui';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { ActiveFilters, FeedCard, FeedFrame, FeedItemMenu, FeedList, FiltersDialog, MarkAllDialog, SortBar, useVoteMode } from '@/components/feed';
-import type { Anchor } from '@/components/menu';
+import { MenuItem, MenuPopover, type Anchor } from '@/components/menu';
 import { useFeedActions, useFeedCapabilities, useInstanceFeed, useSortPreference } from '@/lib/feeds';
 import { useActiveInstance } from '@/lib/instances';
 import { useWide } from '@/lib/layout';
@@ -29,6 +29,10 @@ export default function HomeFeed() {
   const [menuItem, setMenuItem] = useState<FeedTopic | null>(null);
   const [menuAnchor, setMenuAnchor] = useState<Anchor | undefined>(undefined);
   const [problem, setProblem] = useState<string | null>(null);
+  const scopeButton = useRef<View>(null);
+  const [scopeOpen, setScopeOpen] = useState(false);
+  const [scopeAnchor, setScopeAnchor] = useState<Anchor>({});
+  const { dismissWithAction, onDismiss } = useModalDismissal(() => setScopeOpen(false));
 
   const sorts = availableSorts(caps.sorts, caps.votes);
   const parsed = useMemo(() => parseFeedParams(params, prefs.pref), [params, prefs.pref]);
@@ -42,24 +46,40 @@ export default function HomeFeed() {
   };
   const switchScope = (next: FeedScope) => router.setParams({ scope: next === 'all' ? 'all' : undefined, sort: undefined, t: undefined });
 
-  const scopes = <SegmentedTabs options={[{ value: 'home', label: 'Your places' }, { value: 'all', label: `All of ${active?.name ?? 'this instance'}` }]} value={scope} onChange={switchScope} />;
+  const scopeLabel = scope === 'home' ? 'Your places' : `All of ${active?.name ?? 'this instance'}`;
+  const scopeHeading = (
+    <View accessibilityRole="header" style={{ maxWidth: wide ? 320 : '100%', flexShrink: 1 }}>
+      <Pressable
+        ref={scopeButton}
+        accessibilityRole="button"
+        accessibilityLabel={`${scopeLabel}. Change feed`}
+        accessibilityState={{ expanded: scopeOpen }}
+        onPress={() => scopeButton.current?.measureInWindow((x, y, _w, h) => {
+          setScopeAnchor({ left: x, top: y + h + 4, flipAt: y });
+          setScopeOpen(true);
+        })}
+        style={({ pressed, hovered }: PressState) => ({
+          ...hoverTransition, flexDirection: 'row', alignItems: 'center', gap: theme.space.xs,
+          minHeight: 44, paddingHorizontal: theme.space.sm, borderRadius: theme.radii.sm,
+          backgroundColor: pressed || hovered || scopeOpen ? c.surfaceElevated : 'transparent',
+        })}
+      >
+        <Text variant="bodyStrong" tone="onDark" numberOfLines={1} style={{ flexShrink: 1 }}>{scopeLabel}</Text>
+        <Icon name="chevronDown" size={16} color={c.mute} />
+      </Pressable>
+    </View>
+  );
   const markAllButton = unread.length > 0 ? <Button title="Mark all as read" variant="tertiary" size="sm" onPress={() => setMarkAll(true)} /> : null;
   const header = (
     <View>
       {wide ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space.md, paddingHorizontal: 16, height: 52, borderBottomWidth: 1, borderBottomColor: c.hairline }}>
-          <Icon name="home" size={16} color={c.mute} />
-          <Text variant="bodyStrong" tone="onDark" accessibilityRole="header">
-            Home
-          </Text>
-          <View style={{ width: 360, maxWidth: '60%' }}>{scopes}</View>
+          {scopeHeading}
           <View style={{ flex: 1 }} />
           {markAllButton}
           <Button title="Search" variant="tertiary" size="sm" onPress={() => router.push('/search')} />
         </View>
-      ) : (
-        <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>{scopes}</View>
-      )}
+      ) : null}
       <SortBar sorts={sorts} filters={filters} onChange={change} onFilters={() => setFiltersOpen(true)} trailing={wide ? null : markAllButton} />
       <ActiveFilters filters={filters} onChange={change} />
       {problem ? (
@@ -95,9 +115,9 @@ export default function HomeFeed() {
 
   return (
     <FeedFrame
-      title="Home"
+      title={scopeHeading}
       end={
-        <Pressable accessibilityRole="button" accessibilityLabel="Search your places" hitSlop={12} onPress={() => router.push('/search')}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Search feed" hitSlop={12} onPress={() => router.push('/search')}>
           <Icon name="search" size={20} color={c.onDark} />
         </Pressable>
       }
@@ -120,6 +140,10 @@ export default function HomeFeed() {
           />
         )}
       />
+      <MenuPopover visible={scopeOpen} onClose={() => setScopeOpen(false)} onDismiss={onDismiss} anchor={scopeAnchor}>
+        <MenuItem label="Your places" description="Topics from places you've joined" checked={scope === 'home'} onPress={() => dismissWithAction(() => switchScope('home'))} />
+        <MenuItem label={`All of ${active?.name ?? 'this instance'}`} description="Public topics across this instance" checked={scope === 'all'} onPress={() => dismissWithAction(() => switchScope('all'))} />
+      </MenuPopover>
       <FiltersDialog visible={filtersOpen} onClose={() => setFiltersOpen(false)} filters={filters} onChange={change} canHideRead showPinned={false} />
       <FeedItemMenu item={menuItem} visible={!!menuItem} anchor={menuAnchor} onClose={() => setMenuItem(null)} onError={setProblem} />
       <MarkAllDialog

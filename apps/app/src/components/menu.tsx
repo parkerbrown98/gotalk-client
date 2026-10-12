@@ -1,6 +1,6 @@
 import { Icon, Text, hoverTransition, popoverIn, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { useState, type ReactNode } from 'react';
-import { Modal, Pressable, View, useWindowDimensions } from 'react-native';
+import { Modal, Platform, Pressable, View, useWindowDimensions } from 'react-native';
 import Animated, { useReducedMotion } from 'react-native-reanimated';
 
 /** Where a popover opens, in window coordinates. Give `top` to open downward or `bottom` to open upward. */
@@ -26,7 +26,17 @@ export function MenuPopover({ visible, onClose, onDismiss, anchor, width = 232, 
   const reduced = useReducedMotion();
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose} onDismiss={onDismiss}>
-      <Pressable accessibilityLabel="Close menu" onPress={onClose} style={{ flex: 1 }}>
+      <Pressable
+        accessibilityLabel="Close menu"
+        onPress={onClose}
+        {...(Platform.OS === 'web' ? { onKeyDown: (e: { key: string; stopPropagation: () => void }) => {
+          if (e.key === 'Escape') {
+            e.stopPropagation();
+            onClose();
+          }
+        } } : {})}
+        style={{ flex: 1 }}
+      >
         {/* The outer view places the menu (and hides it until measured, for flipping); the inner one animates in. */}
         <View
           onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
