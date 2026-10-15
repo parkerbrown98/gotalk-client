@@ -15,7 +15,7 @@ Desktop installers are published to [GitHub releases](https://github.com/parkerb
 for macOS (arm64 and x64), Linux and Windows. Tags with a suffix such as `v0.1.0-beta.1`
 are marked as pre-releases.
 
-Installers are currently unsigned, so macOS and Windows show a warning on first launch.
+macOS builds are signed with a Developer ID Application certificate and notarized in the release workflow (requires the `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `KEYCHAIN_PASSWORD`, `APPLE_ID`, `APPLE_PASSWORD` and `APPLE_TEAM_ID` repository secrets). Windows installers are currently unsigned, so Windows shows a SmartScreen warning on first launch.
 For a local build, see `pnpm desktop:build` in [Development](development.md#commands).
 
 ## Continuous integration
