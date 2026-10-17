@@ -25,7 +25,7 @@ Constraints that come from the backend design:
 - **SEO is not the client's job.** A client hosted at one origin cannot make another instance's content
   crawlable. Public, indexable pages should be rendered by `gotalk-server` itself. It can use
   `tokens.css` so the pages match the app (see *Cross-cutting tracks*).
-- **Mobile push needs a relay we operate.** Operators cannot hold the official app's APNs/FCM
+- **Mobile push needs a gateway we operate.** Operators cannot hold the official app's APNs/FCM
   credentials (same model as Mastodon/Matrix push gateways).
 
 ## Design process
@@ -949,7 +949,7 @@ Known gaps:
 
 ## Phase 9 — Distribution & polish
 
-- **Push notifications:** a small Gotalk-operated push relay (APNs/FCM), web push for the web app, and
+- **Push notifications:** a small Gotalk-operated push gateway (APNs/FCM), web push for the web app, and
   native notifications on desktop. Blocked on backend push subscription endpoints, which are not yet in the
   backend plan (backend Phase 7 delivered email, not push).
 - **Release pipeline:**
@@ -974,7 +974,7 @@ Known gaps:
 - **Backend asks raised by the client:**
   - instance branding (accent color, logo variants) in `GET /instance`
   - an optional HttpOnly refresh-token cookie mode for same-site web deployments
-  - push subscription endpoints and the relay contract
+  - push subscription endpoints and the gateway contract
   - application icon upload and a gateway event for changed avatars and display names (attachments for posts
     and chat shipped; adding or removing them when editing is still missing)
   - a change-email endpoint (email confirmation exists, but an address cannot be changed)
