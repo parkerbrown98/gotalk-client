@@ -2,6 +2,7 @@
   "name": "@gotalk/desktop",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "dev": "tauri dev",
     "build": "tauri build",

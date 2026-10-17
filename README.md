@@ -100,3 +100,8 @@ pnpm build
 Shared packages are consumed as TypeScript source. See [Architecture](docs/architecture.md)
 for the layout and [Development](docs/development.md) for live-server tests, API schema
 generation and desktop builds.
+
+## License
+
+[MIT](LICENSE). The server it connects to, [gotalk-server](https://github.com/parkerbrown98/gotalk-server),
+is licensed separately under AGPL-3.0.

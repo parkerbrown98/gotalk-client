@@ -3,6 +3,7 @@ name = "gotalk-desktop"
 version = "0.1.0"
 description = "Gotalk desktop client"
 edition = "2021"
+license = "MIT"
 publish = false
 
 [lib]

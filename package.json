@@ -1,6 +1,7 @@
 {
   "name": "gotalk-client",
   "private": true,
+  "license": "MIT",
   "packageManager": "pnpm@11.24.0",
   "engines": {
     "node": ">=22.12"
