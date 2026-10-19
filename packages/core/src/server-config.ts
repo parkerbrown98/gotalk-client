@@ -3,7 +3,7 @@ import type { Schemas } from '@gotalk/api-client';
 export type InstanceConfig = Schemas['InstanceConfig'];
 export type ProviderSettings = Schemas['ProviderSettings'];
 export type ConfigCheck = Schemas['SetupCheck'];
-export type ConfigSectionName = 'mail' | 'storage' | 'voice' | 'cors';
+export type ConfigSectionName = 'mail' | 'storage' | 'voice' | 'cors' | 'directory';
 export type ConfigSection = InstanceConfig[ConfigSectionName];
 
 /** Origins the desktop app sends: `tauri://localhost` on macOS and Linux, `http://tauri.localhost` on Windows. */
@@ -19,6 +19,10 @@ export interface ConfigField {
   placeholder?: string;
   hint?: string;
   options?: readonly { value: string; label: string }[];
+  /** Rarely changed; the form tucks it under "Advanced" unless it holds a value other than `defaultValue`. */
+  advanced?: boolean;
+  /** The value the server uses when none is set, which it may echo back. */
+  defaultValue?: string;
 }
 
 export interface ConfigDriver {
@@ -111,14 +115,34 @@ export const CORS_FIELDS: readonly ConfigField[] = [
   { key: 'allow_credentials', label: 'Allow credentials', kind: 'boolean', hint: "Lets browsers send cookies. Gotalk's apps don't need it, and it can't be combined with *." },
 ];
 
+export const DIRECTORY_FIELDS: readonly ConfigField[] = [
+  {
+    key: 'listed',
+    label: 'List this instance in the public Gotalk directory',
+    kind: 'boolean',
+    hint: 'Place owners can then let their public places appear in search engines and the directory. Turning it off removes everything, usually within an hour.',
+  },
+  { key: 'contact_email', label: 'Contact email', kind: 'text', placeholder: 'ops@forum.example.com', hint: 'Shared with the index for abuse reports and crawl problems only.' },
+  { key: 'platform_url', label: 'Index URL', kind: 'text', placeholder: 'https://gotalk.sh', hint: 'Where the instance sends pings. Leave empty for the Gotalk index.', advanced: true, defaultValue: 'https://gotalk.sh' },
+  { key: 'pings_disabled', label: "Don't ping the index", kind: 'boolean', hint: 'The index still picks up changes on its next scheduled read, within minutes.', advanced: true },
+  {
+    key: 'signing_key',
+    label: 'Signing key',
+    kind: 'secret',
+    hint: 'An Ed25519 seed in unpadded base64url. Leave empty to keep the current key; without one the instance generates its own.',
+    advanced: true,
+  },
+];
+
 export const CONFIG_SECTIONS: readonly { name: ConfigSectionName; label: string }[] = [
   { name: 'mail', label: 'Email' },
   { name: 'storage', label: 'Storage' },
   { name: 'voice', label: 'Voice' },
   { name: 'cors', label: 'CORS' },
+  { name: 'directory', label: 'Public directory' },
 ];
 
-/** The driver list for a section with drivers, or null for voice and CORS. */
+/** The driver list for a section with drivers, or null for voice, CORS and the directory. */
 export function driversFor(section: ConfigSectionName): readonly ConfigDriver[] | null {
   return section === 'mail' ? MAIL_DRIVERS : section === 'storage' ? STORAGE_DRIVERS : null;
 }
@@ -127,6 +151,7 @@ export function driversFor(section: ConfigSectionName): readonly ConfigDriver[] 
 export function fieldsFor(section: ConfigSectionName, driver: string): readonly ConfigField[] | null {
   if (section === 'voice') return VOICE_FIELDS;
   if (section === 'cors') return CORS_FIELDS;
+  if (section === 'directory') return DIRECTORY_FIELDS;
   return driversFor(section)!.find((d) => d.value === driver)?.fields ?? null;
 }
 
@@ -161,6 +186,7 @@ export function formFromSection(section: ConfigSectionName, view: ConfigSection)
     else if (typeof value === 'string') out[key] = value;
   }
   if (section === 'cors' && out.allowed_origins === undefined) out.allowed_origins = '';
+  if (section === 'directory' && out.listed === undefined) out.listed = false;
   return out;
 }
 
@@ -219,6 +245,19 @@ export function missingFields(section: ConfigSectionName, values: FormValues, se
       return typeof v !== 'string' || v.trim() === '';
     })
     .map((f) => f.key);
+}
+
+/**
+ * Whether the advanced fields start open: when one holds a value, so a non-default setting is never hidden.
+ * A secret counts once the server says it is set.
+ */
+export function showAdvancedFields(fields: readonly ConfigField[] | null, values: FormValues, secretsSet: readonly string[] | null | undefined): boolean {
+  return (fields ?? []).some((f) => {
+    if (!f.advanced) return false;
+    if (f.kind === 'secret') return !!secretsSet?.includes(f.key) || (typeof values[f.key] === 'string' && values[f.key] !== '');
+    const v = values[f.key];
+    return v === true || (typeof v === 'string' && v.trim() !== '' && v.trim().replace(/\/+$/, '') !== f.defaultValue);
+  });
 }
 
 /** The placeholder for a secret: it shows that a value is set without showing the value. */
@@ -304,6 +343,7 @@ const CHECK_LABELS: Record<string, string> = {
   email: 'Email',
   voice: 'Voice',
   cors: 'CORS',
+  directory: 'Public directory',
 };
 
 export function checkLabel(name: string): string {
