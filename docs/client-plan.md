@@ -947,6 +947,46 @@ Known gaps:
   as their links.
 - Videos and audio are offered as downloads, not players.
 
+## Public directory and search engines ✅
+
+The client side of the platform's Phase 3, opt-in support for the public index. The index at
+[gotalk.sh/explore](https://gotalk.sh/explore) renders public forums for search engines, so SEO stays out of the
+client. The client links back in, lets each level opt in or out, and tells members what is public. The web
+export itself stays `noindex` (C1). Mockups: [Public directory](./mockups/22-public-directory.html). Guide:
+[Search engines and the public directory](search-and-directory.md).
+
+Delivered:
+
+- **Contract sync:** `indexable`, `indexed` and `index_notice` on places and boards; `exclude_from_index` and
+  `index_notice` on the account; `directory` on `GET /instance`; the `directory` config section;
+  `GET /instance/directory`, key rotation and revocation, and `GET /instance/audit-log`.
+- **Links (C2):** `placeLink`, `topicLink`, `parseGotalkLink`, `gotalkLinkPath` and `linkStep` in `@gotalk/core`.
+  A new top-level `/topics/[id]` route, and `?instance=` on `/places/[slug]`. Each switches to a saved instance,
+  falls back to the public reading views (a new `/explore/places/[slug]`), or offers to add the instance first,
+  like invites. Signing in carries on to the link (`pendingLink`). Phones rewrite links in `+native-intent.tsx`.
+  The desktop shell gains `tauri-plugin-deep-link` and `tauri-plugin-single-instance` for `gotalk://`.
+- **Settings (C3):** a Public directory section in **Settings > Server**: listing, contact, advanced index URL,
+  pings and signing key, the server's notice, well-known status, keys with rotate and revoke, the index's own view
+  of the instance, suggested policy text and recent changes. **Search engines** in place settings; a new forum
+  settings dialog with **Exclude from search engines**; **Settings > Privacy** for the account. Disabled
+  switches say why: private, invite-only and NSFW places, and NSFW forums.
+- **Members:** "Public: visible to search engines" on indexed places (sidebar, place page, link screens), and a
+  one-time notice per place, dismissed on the device.
+- **Tests (C4):** `links.test.ts` and `directory.test.ts` in `@gotalk/core`: building and parsing links in both forms,
+  rejecting bad origins, codes, addresses and IDs, `linkStep`, why switches are disabled, status labels, the notice
+  rule, the platform lookup (found, 404, failure), audit lines and the directory form. The app has no component test
+  setup, so the settings' rules live in core and are tested there.
+
+Verified in Chromium against a local server (port 18080), at 1280px and 390px. Place and topic links opened
+signed out on a new device: the add-instance screen, reading, a saved signed-out instance going straight to
+reading, and signing in carrying on to the topic or place. Signed in, they opened the place and topic. Also
+checked: bad and unreachable links, and a topic that doesn't exist. Listing was turned off and on with the check
+results shown. Keys were rotated and the old one revoked. The index's view was checked against a stand-in that
+answered `pending` and then `404`, and failed quietly against gotalk.sh. The place switch was turned off and on,
+and was disabled for a private place. A forum was excluded and included again, and posts were excluded from
+search. The member notice was dismissed and stayed hidden. Not exercised: iOS, Android and the Tauri shell
+(`cargo check` only), and switching between two saved signed-in instances.
+
 ## Phase 9 — Distribution & polish
 
 - **Push notifications:** a small Gotalk-operated push gateway (APNs/FCM), web push for the web app, and

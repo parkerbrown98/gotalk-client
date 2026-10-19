@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Public directory · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+<style>
+  .settings-nav { width: 248px; flex: none; background: var(--gt-color-surface); border-right: 1px solid var(--gt-color-hairline); padding: 16px 8px; display: flex; flex-direction: column; gap: 2px; }
+  .settings-body { flex: 1; min-width: 0; padding: 32px 40px; display: flex; flex-direction: column; gap: 24px; overflow: hidden; }
+  .settings-body .inner { width: 640px; display: flex; flex-direction: column; gap: 16px; }
+  .place-nav { width: 220px; flex: none; border-right: 1px solid var(--gt-color-hairline); padding: 16px 8px; display: flex; flex-direction: column; gap: 2px; }
+  .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
+  .public { display: flex; align-items: center; gap: 6px; color: var(--gt-color-mute); font-size: 12px; }
+  .public svg { width: 12px; height: 12px; }
+  .kv { display: flex; flex-direction: column; gap: 2px; padding: 8px 0; border-top: 1px solid var(--gt-color-hairline); }
+  .center-col { flex: 1; display: flex; align-items: center; justify-content: center; }
+  .center-col .inner { width: 416px; display: flex; flex-direction: column; gap: 16px; }
+  .code { padding: 12px; border: 1px solid var(--gt-color-hairline); border-radius: var(--gt-radius-md); background: var(--gt-color-canvas); font-size: 12px; white-space: pre-wrap; }
+  .sidebar .head.tall { height: auto; min-height: 52px; padding-top: 6px; padding-bottom: 6px; }
+</style>
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Public directory</nav>
+    <h1 class="t-display-lg">Search engines and the public directory</h1>
+    <p>Nothing is indexed by default. Administrators list the instance, place owners allow their place, forums can stay out, and each person can keep their posts out. Every switch says what it does and how long removal takes (within an hour). Disabled switches say why. The server's notices are shown as they are, including the pending legal review placeholder. Links from the index open places and topics, and offer to add an instance that isn't saved yet.</p>
+  </header>
+
+  <section class="group">
+    <h2>Instance administrators</h2>
+    <div class="frames">
+
+      <figure class="frame"><div class="win"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/server?section=directory</div></div><div class="viewport">
+        <nav class="settings-nav"><div class="section-label">Instance</div><a class="nav-row"><svg><use href="#server"/></svg>Instance settings</a><a class="nav-row active"><svg><use href="#settings"/></svg>Server</a><a class="nav-row"><svg><use href="#shield"/></svg>Policies</a></nav>
+        <div class="settings-body"><div class="inner">
+          <div class="pills"><span class="pill">Email</span><span class="pill">Storage</span><span class="pill">Voice</span><span class="pill">CORS</span><span class="pill active">Public directory</span></div>
+          <p class="t-caption-md mute">Saved here on 18 Oct 2026, 20:51. Saving takes effect on every server within 15 seconds.</p>
+          <label class="check"><span class="box on"><svg><use href="#check"/></svg></span><span>List this instance in the public Gotalk directory<span class="note" style="display:block">Place owners can then let their public places appear in search engines and the directory. Turning it off removes everything, usually within an hour.</span></span></label>
+          <div class="field"><label>Contact email</label><div class="input"><span>ops@woodworkers.example.org</span></div><span class="note">Shared with the index for abuse reports and crawl problems only.</span></div>
+          <span class="t-caption-md on-dark">Show advanced settings</span>
+          <div class="card compact"><span class="t-body-sm-strong">Saved. Every server picks this up within 15 seconds.</span><div class="check-row"><div class="flex between center"><span class="t-body-sm-strong">Public directory</span><span class="badge success">OK</span></div><span class="t-caption-md mute">https://woodworkers.example.org/.well-known/gotalk-instance is reachable over HTTPS</span></div></div>
+          <div class="notice info"><svg class="i"><use href="#info"/></svg><span>This instance is listed in the public Gotalk directory. Places whose owners allow it have their public boards shown in search engines and the directory. Members can exclude their own posts. Turning listing off removes everything from the index, usually within an hour. [Pending legal review: the clause that lets the public index show excerpts of public posts is not written yet. Until it is, listing does not grant anyone a license to your members' content.]</span></div>
+          <div class="card compact">
+            <div class="flex between center"><span class="t-heading-sm">This instance</span><span class="badge success">Listed</span></div>
+            <div class="kv"><span class="t-caption-md mute">Well-known document</span><span class="t-body-sm">/.well-known/gotalk-instance announces the listing and the index endpoints at https://woodworkers.example.org/api/v1/index.</span></div>
+            <div class="kv"><span class="t-caption-md mute">Places in the index</span><span class="t-body-sm">3 places</span></div>
+            <div class="kv"><span class="t-caption-md mute">Pings</span><span class="t-body-sm">On. Last sent 4 min ago.</span></div>
+          </div>
+          <div class="card compact">
+            <div class="flex between center"><div class="col"><span class="t-heading-sm">How gotalk.sh sees it</span><span class="t-caption-md mute">The index's public status for this instance.</span></div><button class="btn btn-tertiary small">Check again</button></div>
+            <div class="kv"><span class="t-caption-md mute">Status</span><span class="flex center gap-sm"><span class="badge success">Listed</span><span class="t-caption-md mute">since 2 Oct 2026</span></span><span class="t-caption-md mute">Public places appear in search engines and the directory.</span></div>
+            <div class="kv"><span class="t-caption-md mute">Indexed</span><span class="t-body-sm">3 places, 412 topics</span></div>
+            <div class="kv"><span class="t-caption-md mute">Last crawl</span><span class="t-body-sm">6 min ago</span></div>
+          </div>
+        </div></div></div></div>
+        <figcaption>The Public directory section beside Email, Storage, Voice and CORS: the form, the save's check results, the server's notice as it is, what the instance publishes and the index's own view.</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/server?section=directory</div></div><div class="viewport">
+        <nav class="settings-nav"><div class="section-label">Instance</div><a class="nav-row active"><svg><use href="#settings"/></svg>Server</a></nav>
+        <div class="settings-body"><div class="inner">
+          <div class="card compact">
+            <div class="col"><span class="t-heading-sm">Signing keys</span><span class="t-caption-md mute">Pings to the index are signed. These public keys are published in the well-known document so the index can check them.</span></div>
+            <div class="kv"><span class="t-caption-md mute">Current key · Ed25519</span><span class="t-body-sm">A6EHv_POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg</span></div>
+            <div class="kv"><span class="t-caption-md mute">Previous key, still published</span><span class="t-body-sm">nGRAFu…O7YeoE</span></div>
+            <div class="kv"><span class="t-caption-md mute">Source</span><span class="t-caption-md mute">Generated and stored by the instance.</span></div>
+            <div class="flex gap-sm"><button class="btn btn-tertiary small">Rotate key</button><button class="btn small">Stop publishing previous key</button></div>
+          </div>
+          <div class="card compact">
+            <div class="flex between center"><div class="col"><span class="t-heading-sm">Suggested policy text</span><span class="t-caption-md mute">Sections to add to your terms, privacy policy and guidelines. Nothing is published until you do it in Policies.</span></div><svg class="i mute"><use href="#chevronDown"/></svg></div>
+            <div class="notice warning"><svg class="i"><use href="#alert"/></svg><span><b>Pending legal review.</b> The clause that would let the index show excerpts of posts isn't written yet, so the suggested terms hold a placeholder in its place and grant no license.</span></div>
+            <div class="flex between center"><span class="t-body-sm-strong">Privacy policy</span><span class="flex gap-sm"><button class="btn btn-tertiary small">Copy</button><button class="btn small">Open</button></span></div>
+            <div class="code">## Search engines and the public directory
+
+If a place you post in allows search indexing, your public posts there, your username and your display name can appear in search engines and the public Gotalk directory…</div>
+          </div>
+          <p class="t-caption-md mute">What listing means for your members and how removal works: <a class="on-dark">read the operator guide</a>.</p>
+        </div></div></div></div>
+        <figcaption>Keys with Rotate and Stop publishing (each confirms first), suggested policy text with Copy and a link to its editor, and the operator guide.</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/server?section=directory</div></div><div class="viewport">
+        <nav class="settings-nav"><div class="section-label">Instance</div><a class="nav-row active"><svg><use href="#settings"/></svg>Server</a></nav>
+        <div class="settings-body"><div class="inner">
+          <div class="pills"><span class="pill">Email</span><span class="pill">Storage</span><span class="pill">Voice</span><span class="pill">CORS</span><span class="pill active">Public directory</span></div>
+          <div class="notice info"><svg class="i"><use href="#lock"/></svg><span><b>Managed by the server's configuration.</b> GOTALK_DIRECTORY_LISTED is set, so public directory is read-only here. Change it in the config file or environment and restart the server.</span></div>
+          <label class="check" style="opacity:.5"><span class="box"></span><span>List this instance in the public Gotalk directory</span></label>
+          <div class="card compact">
+            <div class="flex between center"><span class="t-heading-sm">How gotalk.sh sees it</span><button class="btn btn-tertiary small">Check again</button></div>
+            <span class="t-body-sm mute">Not registered with the index yet.</span>
+          </div>
+          <div class="card compact">
+            <div class="flex between center"><span class="t-heading-sm">How gotalk.sh sees it</span><button class="btn btn-tertiary small">Check again</button></div>
+            <span class="t-caption-md mute">gotalk.sh couldn't be reached from here, so its view isn't shown. This doesn't affect the listing.</span>
+          </div>
+        </div></div></div></div>
+        <figcaption>Set by the configuration: read-only, naming the variable. The index answering 404, and the index out of reach (a quiet line, not an error).</figcaption></figure>
+
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Places, forums and members</h2>
+    <div class="frames">
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/places/open-woodworkers/settings/general</div></div><div class="viewport">
+        <nav class="place-nav"><div class="section-label">Place</div><a class="nav-row active"><svg><use href="#settings"/></svg>General</a><a class="nav-row"><svg><use href="#users"/></svg>Invites</a></nav>
+        <div class="settings-body"><div class="inner" style="width:480px">
+          <div class="check"><span class="box on"><svg><use href="#check"/></svg></span><span>Topic voting</span></div>
+          <div class="hairline-t" style="padding-top:16px;display:flex;flex-direction:column;gap:12px">
+            <div class="flex between center"><span class="t-body-sm-strong">Search engines</span><span class="badge success">In search engines</span></div>
+            <label class="check"><span class="box on"><svg><use href="#check"/></svg></span><span>Allow this place to appear in search engines<span class="note" style="display:block">Forums that signed-out visitors can read are shown in search engines and the public Gotalk directory, with links back here. Chat, other forums and member lists never are. Turning this off removes the place within an hour. Saved right away.</span></span></label>
+            <span class="t-caption-md mute">Public boards in this place are shown in search engines and the public Gotalk directory. Members can exclude their own posts in account settings. Removed posts leave the index, usually within an hour.</span>
+            <span class="t-caption-md mute">To leave out a single forum, use Exclude from search engines in its settings.</span>
+          </div>
+        </div></div></div></div>
+        <figcaption>Place settings, Manage place: the switch, what is and isn't indexed, and the server's notice.</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/places/members-only/settings/general</div></div><div class="viewport">
+        <nav class="place-nav"><div class="section-label">Place</div><a class="nav-row active"><svg><use href="#settings"/></svg>General</a></nav>
+        <div class="settings-body"><div class="inner" style="width:480px">
+          <div class="flex between center"><span class="t-body-sm-strong">Search engines</span><span class="badge">Not in search engines</span></div>
+          <label class="check" style="opacity:.5"><span class="box"></span><span>Allow this place to appear in search engines</span></label>
+          <div class="notice info"><svg class="i"><use href="#lock"/></svg><span>Private places are never shown in search engines. Make the place public to allow it.</span></div>
+          <div class="notice warning"><svg class="i"><use href="#alert"/></svg><span>This instance isn't listed in the public directory, so nothing is indexed until an administrator turns listing on. <a class="on-dark">Open the directory settings</a></span></div>
+        </div></div></div></div>
+        <figcaption>Disabled with the reason for private, invite-only and NSFW places. An allowed place on an unlisted instance waits, with a link for administrators.</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><span class="title">Gotalk</span></div><div class="viewport"><div class="main"></div><div class="scrim">
+        <div class="card dialog" style="width:430px;background:var(--gt-color-surface-elevated);border-color:var(--gt-color-hairline-strong);border-radius:var(--gt-radius-xl)">
+          <h2 class="t-heading-md">Forum settings</h2>
+          <div class="field"><label>Name</label><div class="input"><span>Show your work</span></div></div>
+          <div class="field"><label>Description</label><div class="input"><span>Finished pieces and works in progress</span></div></div>
+          <div class="flex between center"><span class="t-body-sm-strong">Search engines</span><span class="badge">Excluded</span></div>
+          <label class="check"><span class="box on"><svg><use href="#check"/></svg></span><span>Exclude from search engines<span class="note" style="display:block">Keeps this forum and any forums under it out of search engines and the public Gotalk directory, even when the place appears there. Removal takes effect within an hour.</span></span></label>
+          <div class="flex gap-sm" style="justify-content:flex-end"><button class="btn btn-tertiary">Cancel</button><button class="btn btn-primary">Save</button></div>
+        </div>
+      </div></div></div>
+        <figcaption>Forum settings, from Settings on a forum's page (Manage boards). NSFW forums show the switch on and disabled.</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/places/open-woodworkers</div></div><div class="viewport">
+        <div class="rail"><div class="tile yellow place active">O</div><div class="tile blue place">H</div><div style="margin-top:auto" class="avatar blue">MK<span class="presence"></span></div></div>
+        <aside class="sidebar">
+          <div class="head tall"><span class="col"><span class="t-body-strong">Open Woodworkers</span><span class="public"><svg><use href="#globe"/></svg>Public: visible to search engines</span></span><svg class="i mute"><use href="#chevronDown"/></svg></div>
+          <div class="items"><a class="nav-row active"><svg><use href="#home"/></svg>Home</a><div class="section-label">Forums</div><a class="nav-row"><svg><use href="#forum"/></svg>Joinery</a></div>
+        </aside>
+        <div class="main" style="padding:24px 16px;gap:12px">
+          <div class="flex center gap-md"><div class="tile yellow">O</div><div class="col"><span class="t-heading-lg">Open Woodworkers</span><span class="t-caption-md mute">1,204 members · 6 forums · 4 channels</span><span class="public"><svg><use href="#globe"/></svg>Public: visible to search engines</span></div></div>
+          <div class="notice info"><svg class="i"><use href="#globe"/></svg><span><b>This place is public.</b> Public boards in this place are shown in search engines and the public Gotalk directory. Members can exclude their own posts in account settings. Removed posts leave the index, usually within an hour. Write here as you would in public. <a class="on-dark">Search privacy settings</a></span></div>
+          <div><button class="btn btn-tertiary small">Got it</button></div>
+        </div>
+      </div></div>
+        <figcaption>Members: the indicator under the place's name, and the notice the first time they open an indexed place, until Got it on this device.</figcaption></figure>
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.io/settings/privacy</div></div><div class="viewport">
+        <nav class="settings-nav"><div class="section-label">Account</div><a class="nav-row"><svg><use href="#user"/></svg>Profile</a><a class="nav-row"><svg><use href="#lock"/></svg>Password</a><a class="nav-row"><svg><use href="#laptop"/></svg>Devices</a><a class="nav-row active"><svg><use href="#globe"/></svg>Privacy</a><a class="nav-row"><svg><use href="#trash"/></svg>Delete account</a></nav>
+        <div class="settings-body"><div class="inner">
+          <div class="col gap-xs"><h2 class="t-heading-xl">Privacy</h2><p class="mute t-body-sm">How your posts appear outside this instance.</p></div>
+          <span class="t-heading-sm">Search engines</span>
+          <label class="check"><span class="box"></span><span>Don't show my posts in public search results<span class="note" style="display:block">Keeps everything you post, past and future, out of search engines and the public Gotalk directory. People on this instance still see your posts as usual. Changes take effect within an hour. Saved right away.</span></span></label>
+          <span class="t-caption-md mute">Your posts in places that allow search indexing can appear in search engines and the public Gotalk directory. Turn this on to remove them, usually within an hour.</span>
+        </div></div></div></div>
+        <figcaption>Account settings: off by default, saved right away, with the server's notice.</figcaption></figure>
+
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Links from the index</h2>
+    <div class="frames">
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.sh/topics/01a1…f4ce?instance=https://woodworkers.example.org</div></div><div class="viewport">
+        <div class="center-col"><div class="inner">
+          <div class="tile yellow s64">O</div>
+          <div class="col gap-xs"><span class="t-heading-xl">How do I flatten a warped board?</span><span class="t-body-sm mute">Open Woodworkers on woodworkers.example.org · 14 replies</span><span class="public"><svg><use href="#globe"/></svg>Public: visible to search engines</span></div>
+          <p class="t-body-sm mute">woodworkers.example.org isn't saved on this device yet. Reading adds it to your list of servers; signing in or creating an account does too.</p>
+          <button class="btn btn-primary">Read this topic</button>
+          <button class="btn">Sign in to woodworkers.example.org</button>
+          <button class="btn btn-tertiary">Create an account</button>
+        </div></div>
+      </div></div>
+        <figcaption>"Open in Gotalk" for an instance not saved here. Signing in carries on to the topic; a saved instance skips this screen.</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="group"><h2>Phone</h2><div class="frames">
+    <figure class="frame"><div class="phone"><div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div><div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Topic</span><span class="side"></span></div><div class="body">
+      <div class="tile yellow s64">O</div>
+      <span class="t-heading-md">How do I flatten a warped board?</span>
+      <span class="t-body-sm mute">Open Woodworkers on woodworkers.example.org · 14 replies</span>
+      <button class="btn btn-primary">Read this topic</button>
+      <button class="btn">Sign in to woodworkers.example.org</button>
+    </div><div class="home-bar"></div></div><figcaption>The link screen on a phone, opened from gotalk://topics/….</figcaption></figure>
+    <figure class="frame"><div class="phone"><div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div><div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Open Woodworkers</span><span class="side"></span></div><div class="body">
+      <div class="flex center gap-md"><div class="tile yellow">O</div><div class="col"><span class="t-heading-sm">Open Woodworkers</span><span class="t-caption-md mute">1,204 members · 6 forums</span><span class="public"><svg><use href="#globe"/></svg>Public: visible to search engines</span></div></div>
+      <div class="notice info"><svg class="i"><use href="#globe"/></svg><span><b>This place is public.</b> Its public forums appear in search engines. <a class="on-dark">Search privacy settings</a></span></div>
+    </div><div class="home-bar"></div></div><figcaption>The indicator and first-time notice on a phone.</figcaption></figure>
+    <figure class="frame"><div class="phone"><div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div><div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Server</span><span class="side"></span></div><div class="body">
+      <div class="pills"><span class="pill">CORS</span><span class="pill active">Public directory</span></div>
+      <label class="check"><span class="box on"><svg><use href="#check"/></svg></span><span>List this instance in the public Gotalk directory</span></label>
+      <div class="card compact"><div class="flex between center"><span class="t-heading-sm">This instance</span><span class="badge success">Listed</span></div><div class="kv"><span class="t-caption-md mute">Places in the index</span><span class="t-body-sm">3 places</span></div></div>
+    </div><div class="home-bar"></div></div><figcaption>The Public directory section on a phone.</figcaption></figure>
+  </div></section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>

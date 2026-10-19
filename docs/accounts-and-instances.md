@@ -19,6 +19,14 @@ Users enter an instance address, and the client discovers the API and gateway us
 before HTTPS. See [Getting started](getting-started.md#connect-to-a-server) for a local
 instance and [Places and invites](places-and-invites.md#invite-links) for instance-aware links.
 
+Invite, place and topic links name their instance. A link to a saved instance switches to it. Signed in, it
+opens the target; signed out, it opens the public reading view. A link to an instance that isn't saved looks it
+up without saving it, the same way the welcome screen does. The instance is saved only when someone chooses to
+read, sign in or create an account. Signing in then carries on to the invite, place or topic. See
+[Search engines and the public directory](search-and-directory.md#links-from-the-index).
+
+**Settings > Privacy** holds the account's search choice: "Don't show my posts in public search results".
+
 ## Session management
 
 `createAuthManager` in `@gotalk/core` signs in, refreshes and signs out. Refresh is

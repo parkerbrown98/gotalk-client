@@ -11,6 +11,7 @@ theme. Deep routes fall back to `index.html`, so reloads work.
 - [Window chrome](#window-chrome)
 - [Native-feeling interaction](#native-feeling-interaction)
 - [Context menus](#context-menus)
+- [gotalk links](#gotalk-links)
 - [User agent and platform behavior](#user-agent-and-platform-behavior)
 - [Content-Security-Policy](#content-security-policy)
 - [Debugging on Windows](#debugging-on-windows)
@@ -64,6 +65,22 @@ text, and **Open** or **Copy link** on links marked with `externalLink(url)`.
 Components open their own menus at the pointer with
 `{...contextMenu((anchor) => ...)}`: messages, feed rows, members, the place header and
 channel categories.
+
+## gotalk links
+
+The shell registers the `gotalk` scheme with `tauri-plugin-deep-link` (`plugins.deep-link` in
+[tauri.conf.json](../apps/desktop/src-tauri/tauri.conf.json)), so invite, place and topic links open the app.
+On Windows and Linux a link starts a second process. `tauri-plugin-single-instance` hands the link to the running
+app and focuses its window. On macOS the system delivers it to the running app.
+
+[src-tauri/src/lib.rs](../apps/desktop/src-tauri/src/lib.rs) queues the links, including the one that launched
+the app, and fires a `deep-link` event. The page drains the queue with the `deep_links_take` command on start
+and on each event (`useDesktopDeepLinks` in [apps/app/src/lib/links.ts](../apps/app/src/lib/links.ts)). It reads
+each link with `parseGotalkLink` and routes it like the web does.
+
+Installers register the scheme. Windows and Linux builds also register it at startup, which covers `tauri dev`
+and AppImages started without an integration tool. On macOS the scheme comes from the bundle's `Info.plist`, so
+links only reach an installed app, not `tauri dev`.
 
 ## User agent and platform behavior
 

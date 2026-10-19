@@ -26,6 +26,7 @@ To host an instance, use the [Gotalk server documentation](https://github.com/pa
 | Guide | Covers |
 |---|---|
 | [Places and invites](places-and-invites.md) | Responsive navigation, permissions and instance-aware invite links |
+| [Search engines and the public directory](search-and-directory.md) | Place and topic links from the index, listing, place and forum opt-in, members' notices and privacy |
 | [Forums and feeds](forums-and-feeds.md) | Markdown, drafts, forum paging, ranked feeds, optimistic updates and offline read sync |
 | [Real-time and chat](realtime-and-chat.md) | Gateway reconnection, cache updates, channels, threads, offline sends and presence |
 | [Desktop](desktop.md) | Tauri window chrome, splash, clipboard, context menus, CSP and debugging |
