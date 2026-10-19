@@ -20,6 +20,7 @@ import { shouldRetry } from '@/lib/api';
 import { authManager, useAuthHydrated } from '@/lib/auth';
 import { FeedSyncHost } from '@/lib/feeds';
 import { useInstancesHydrated } from '@/lib/instances';
+import { useDesktopDeepLinks } from '@/lib/links';
 import { RealtimeHost } from '@/lib/realtime';
 import { hideSplash } from '@/lib/splash';
 
@@ -38,6 +39,7 @@ authManager.store.subscribe((state, previous) => {
 
 function Navigation() {
   const theme = useTheme();
+  useDesktopDeepLinks();
   const navTheme = useMemo(() => {
     const c = theme.colors;
     return {
@@ -75,6 +77,7 @@ function Navigation() {
         <Stack.Screen name="settings" options={{ headerShown: false }} />
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
         <Stack.Screen name="invite/[code]" options={{ headerShown: false }} />
+        <Stack.Screen name="topics/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="explore" options={{ headerShown: false }} />
       </Stack>
     </NavigationThemeProvider>

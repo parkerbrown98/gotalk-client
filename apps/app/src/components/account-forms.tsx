@@ -13,7 +13,7 @@ import { useCountdown } from '@/lib/countdown';
 import { isDesktop } from '@/lib/desktop';
 import { classifyFailure, fieldFor, type FailureKind } from '@/lib/failure';
 import { resetTo } from '@/lib/layout';
-import { inviteHref, pendingInvite } from '@/lib/pending-invite';
+import { pendingInvite, takePendingHref } from '@/lib/pending-invite';
 import { adoptServer, useSignUpPolicies } from '@/lib/welcome';
 
 const USERNAME = /^[A-Za-z0-9_.-]{3,32}$/;
@@ -22,11 +22,9 @@ const MIN_PASSWORD = 10;
 
 const hostOf = (origin: string) => origin.replace(/^https?:\/\//, '');
 
-/** Where to go once signed in: an invite opened for this server, otherwise home. */
+/** Where to go once signed in: an invite, place or topic opened for this server, otherwise home. */
 function nextAfterAuth(server: DiscoveredInstance): Href {
-  const invite = pendingInvite.get();
-  pendingInvite.clear();
-  return invite && invite.origin.replace(/\/+$/, '') === server.origin ? inviteHref(invite) : '/feed';
+  return takePendingHref(server.origin);
 }
 
 export interface AccountFormProps {
@@ -222,13 +220,8 @@ export function CreateAccountForm({ server, onAuthenticated, onSignIn, policyHre
       onAuthenticated();
       adoptServer(server);
       // An invite-only sign-up already joined the place with its code; otherwise carry on to the invite.
-      let next: Href;
-      if (inviteOnly) {
-        pendingInvite.clear();
-        next = '/feed';
-      } else {
-        next = nextAfterAuth(server);
-      }
+      if (inviteOnly) pendingInvite.clear();
+      const next = nextAfterAuth(server);
       // Where the confirmation link went, before moving on; nothing waits for it.
       if (instanceCapabilities(server.instance).emailVerification) setCreated({ email: email.trim(), next });
       else resetTo(next);

@@ -10,10 +10,11 @@ import { ScreenFrame } from '@/components/screen-frame';
 import { useSession } from '@/lib/auth';
 import { useFeedActions } from '@/lib/feeds';
 import { usePosts, useTopic } from '@/lib/forums';
+import { pendingLink } from '@/lib/pending-invite';
 import { useActiveInstance } from '@/lib/instances';
 import { goBack, useWide } from '@/lib/layout';
 import { useBoards, usePlace } from '@/lib/places';
-import { welcomeHref } from '@/lib/welcome';
+import { welcomeHref, type AccountTab } from '@/lib/welcome';
 
 /** A public topic, read-only, for people who have not signed in. */
 export default function ExploreTopic() {
@@ -36,7 +37,12 @@ export default function ExploreTopic() {
   }, [topic?.id, actions]);
 
   if (session) return <Redirect href={topic && place ? { pathname: '/places/[slug]/topics/[id]', params: { slug: place.slug, id: topic.id } } : '/feed'} />;
-  const back = () => goBack('/explore');
+  const back = () => goBack(place ? { pathname: '/explore/places/[slug]', params: { slug: place.slug } } : '/explore');
+  // Signing in from here carries on to this topic.
+  const account = (tab: AccountTab) => {
+    if (active && topic) pendingLink.set({ kind: 'topic', topicId: topic.id, origin: active.origin });
+    router.push(welcomeHref(active?.origin, tab));
+  };
   if (topicQuery.isPending) return <ActivityIndicator style={{ flex: 1 }} />;
   if (!topic) {
     const gone = topicQuery.error instanceof ApiError && topicQuery.error.status < 500;
@@ -99,8 +105,8 @@ export default function ExploreTopic() {
           Sign in or create an account to reply, react and vote.
         </Notice>
         <View style={{ flexDirection: 'row', gap: theme.space.sm }}>
-          <Button title="Sign in" onPress={() => router.push(welcomeHref(active?.origin))} />
-          <Button title="Create an account" variant="tertiary" onPress={() => router.push(welcomeHref(active?.origin, 'create'))} />
+          <Button title="Sign in" onPress={() => account('sign-in')} />
+          <Button title="Create an account" variant="tertiary" onPress={() => account('create')} />
         </View>
       </Stack>
     </ScreenFrame>

@@ -12,7 +12,7 @@ import { useAuth } from '@/lib/auth';
 import { openExternal } from '@/lib/desktop';
 import { instancesStore, useInstances } from '@/lib/instances';
 import { goBack, resetTo, useWide } from '@/lib/layout';
-import { inviteHref, pendingInvite } from '@/lib/pending-invite';
+import { takePendingHref } from '@/lib/pending-invite';
 import { adoptServer, describeLookupError, lookUpServer, prefetchServer, useServer, welcomeHref, type AccountTab } from '@/lib/welcome';
 
 /**
@@ -246,7 +246,6 @@ function AccountStep({ param, tab }: { param: string; tab: AccountTab }) {
       </Stack>
     );
   } else if (session && !finishing) {
-    const invite = pendingInvite.get();
     body = (
       <Stack gap="md">
         <Text variant="bodySm" tone="muted">{`You're signed in to ${name} as ${session.username}.`}</Text>
@@ -254,8 +253,7 @@ function AccountStep({ param, tab }: { param: string; tab: AccountTab }) {
           title={`Open ${name}`}
           onPress={() => {
             adoptServer(server);
-            pendingInvite.clear();
-            resetTo(invite && invite.origin.replace(/\/+$/, '') === server.origin ? inviteHref(invite) : '/feed');
+            resetTo(takePendingHref(server.origin));
           }}
         />
       </Stack>
