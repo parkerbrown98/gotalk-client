@@ -180,15 +180,21 @@ export interface CheckboxProps {
   disabled?: boolean;
   /** A second, muted line under the label. */
   description?: string;
+  /** What screen readers announce, when the visible label alone isn't enough. */
+  accessibilityLabel?: string;
+  /** Read after the label, e.g. why the box can't be changed. */
+  accessibilityHint?: string;
   children: ReactNode;
 }
 
-export function Checkbox({ checked, onChange, disabled, description, children }: CheckboxProps) {
+export function Checkbox({ checked, onChange, disabled, description, accessibilityLabel, accessibilityHint, children }: CheckboxProps) {
   const theme = useTheme();
   const c = theme.colors;
   return (
     <Pressable
       accessibilityRole="checkbox"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint}
       accessibilityState={{ checked, disabled: !!disabled }}
       disabled={disabled}
       onPress={() => onChange(!checked)}
