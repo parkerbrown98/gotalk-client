@@ -13,6 +13,7 @@ import {
   parseCheckFailure,
   parseList,
   secretPlaceholder,
+  showAdvancedFields,
   suggestedOrigins,
   type ConfigCheck,
   type ConfigField,
@@ -22,10 +23,11 @@ import {
   type InstanceConfig,
 } from '@gotalk/core';
 import { Badge, Button, Card, Checkbox, Dialog, Notice, PillTabs, Stack, Text, TextField, useTheme, type BadgeTone } from '@gotalk/ui';
-import { Redirect } from 'expo-router';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
+import { DirectoryPanel } from '@/components/directory-settings';
 import { InlineLink } from '@/components/inline-link';
 import { SettingsPage } from '@/components/settings-page';
 import { useMe } from '@/lib/api';
@@ -42,28 +44,34 @@ const STATUS: Record<ConfigCheck['status'], { label: string; tone: BadgeTone }> 
   skipped: { label: 'Off', tone: 'neutral' },
 };
 
-/** Storage, email, voice and CORS for instance administrators, with the live health checks above them. */
+/**
+ * Storage, email, voice, CORS and the public directory for instance administrators, with the live health
+ * checks above them. `?section=directory` opens a section directly.
+ */
 export default function ServerSettings() {
   const me = useMe();
   const admin = me.data?.is_instance_admin ?? false;
   const host = useActiveInstance()?.origin.replace(/^https?:\/\//, '') ?? 'this instance';
   const config = useInstanceConfig(admin);
-  const [section, setSection] = useState<ConfigSectionName>('mail');
+  const params = useLocalSearchParams<{ section?: string }>();
+  const [section, setSection] = useState<ConfigSectionName>(() => CONFIG_SECTIONS.find((s) => s.name === params.section)?.name ?? 'mail');
   // Kept here so a result survives the form reloading with the saved settings.
   const [outcomes, setOutcomes] = useState<Partial<Record<ConfigSectionName, Outcome | null>>>({});
 
   if (me.data && !admin) return <Redirect href="/settings" />;
   const data = config.data;
+  // Servers from before the public directory have no directory section.
+  const sections = CONFIG_SECTIONS.filter((s) => !data || data[s.name]);
   const view = data?.[section];
 
   return (
-    <SettingsPage title="Server" subtitle={`Health, storage, email, voice and CORS for ${host}. Only instance administrators see this page.`} width={640}>
+    <SettingsPage title="Server" subtitle={`Health, storage, email, voice, CORS and the public directory for ${host}. Only instance administrators see this page.`} width={640}>
       {admin ? <Health /> : <ActivityIndicator />}
       {config.isError ? <Notice tone="danger">{failureMessage(config.error, 'The server settings could not be loaded. Try again in a moment.')}</Notice> : null}
       {config.isPending && admin ? <ActivityIndicator /> : null}
       {data && view ? (
         <Stack gap="lg">
-          <PillTabs options={CONFIG_SECTIONS.map((s) => ({ value: s.name, label: s.label }))} value={section} onChange={setSection} />
+          <PillTabs options={sections.map((s) => ({ value: s.name, label: s.label }))} value={section} onChange={setSection} />
           <SectionForm
             key={`${section}|${view.source}|${view.updated_at ?? ''}`}
             section={section}
@@ -73,6 +81,7 @@ export default function ServerSettings() {
             outcome={outcomes[section] ?? null}
             setOutcome={(o) => setOutcomes((s) => ({ ...s, [section]: o }))}
           />
+          {section === 'directory' ? <DirectoryPanel /> : null}
         </Stack>
       ) : null}
     </SettingsPage>
@@ -209,6 +218,7 @@ function SectionForm({
   const [values, setValues] = useState<FormValues>(initial);
   const [busy, setBusy] = useState<'save' | 'force' | 'test' | 'reset' | null>(null);
   const [confirm, setConfirm] = useState<Confirm>(null);
+  const [advanced, setAdvanced] = useState(() => showAdvancedFields(fieldsFor(section, typeof initial.driver === 'string' ? initial.driver : ''), initial, view.secrets_set));
 
   const editable = view.editable && view.source !== 'config';
   const secrets = view.secrets_set ?? [];
@@ -311,9 +321,18 @@ function SectionForm({
               {"Without email, people can't reset a forgotten password or confirm their address."}
             </Text>
           ) : null}
-          {fields.map((f) => (
-            <FieldInput key={f.key} field={f} value={values[f.key]} isSet={secrets.includes(f.key)} editable={editable} onChange={set(f.key)} />
-          ))}
+          {fields
+            .filter((f) => advanced || !f.advanced)
+            .map((f) => (
+              <FieldInput key={f.key} field={f} value={values[f.key]} isSet={secrets.includes(f.key)} editable={editable} onChange={set(f.key)} />
+            ))}
+          {fields.some((f) => f.advanced) ? (
+            <Text variant="captionMd" tone="muted">
+              <InlineLink variant="captionMd" accessibilityRole="button" accessibilityState={{ expanded: advanced }} onPress={() => setAdvanced((a) => !a)}>
+                {advanced ? 'Hide advanced settings' : 'Show advanced settings'}
+              </InlineLink>
+            </Text>
+          ) : null}
         </Stack>
       )}
 

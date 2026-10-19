@@ -14,7 +14,7 @@ export const configKeys = {
   checks: (inst: string | undefined) => ['instance-checks', inst] as const,
 };
 
-/** Storage, email, voice and CORS settings with where each comes from. Instance administrators only. */
+/** Storage, email, voice, CORS and directory settings with where each comes from. Instance administrators only. */
 export function useInstanceConfig(enabled = true) {
   const inst = useActiveInstance()?.id;
   const client = useApiClient();
@@ -50,6 +50,8 @@ export function useConfigActions() {
     const settle = () => {
       void qc.invalidateQueries({ queryKey: ['instance', inst] });
       void qc.invalidateQueries({ queryKey: configKeys.checks(inst) });
+      void qc.invalidateQueries({ queryKey: ['instance-directory', inst] });
+      void qc.invalidateQueries({ queryKey: ['instance-directory-audit', inst] });
       setTimeout(() => void qc.invalidateQueries({ queryKey: ['instance', inst] }), CONFIG_PROPAGATION_SECONDS * 1000);
     };
     return {
