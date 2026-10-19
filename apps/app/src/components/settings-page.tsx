@@ -65,6 +65,7 @@ const account: SettingsLink[] = [
   { path: '/settings/profile', label: 'Profile', icon: 'user' },
   { path: '/settings/password', label: 'Password', icon: 'lock' },
   { path: '/settings/devices', label: 'Devices', icon: 'laptop' },
+  { path: '/settings/privacy', label: 'Privacy', icon: 'globe' },
   { path: '/settings/delete', label: 'Delete account', icon: 'trash' },
 ];
 
@@ -76,7 +77,10 @@ const account: SettingsLink[] = [
 export function useSettingsGroups(): { label: string; links: SettingsLink[]; attention?: boolean }[] {
   const info = useInstanceInfo().data;
   const features = info?.features;
-  const admin = useMe().data?.is_instance_admin ?? false;
+  const me = useMe().data;
+  const admin = me?.is_instance_admin ?? false;
+  // Privacy holds the search-engine choice, which servers from before the public directory don't have.
+  const accountLinks = me && typeof me.exclude_from_index !== 'boolean' ? account.filter((l) => l.path !== '/settings/privacy') : account;
   const developer: SettingsLink[] = [
     ...(features?.api_tokens !== false ? [{ path: '/settings/tokens', label: 'Access tokens', icon: 'key' } as const] : []),
     ...(features?.bots !== false ? [{ path: '/settings/applications', label: 'Applications', icon: 'command' } as const] : []),
@@ -88,7 +92,7 @@ export function useSettingsGroups(): { label: string; links: SettingsLink[]; att
     ...(features?.transparency ? [{ path: '/settings/transparency', label: 'Transparency report', icon: 'eye' } as const] : []),
   ];
   return [
-    { label: 'Account', links: account },
+    { label: 'Account', links: accountLinks },
     ...(developer.length ? [{ label: 'Developer', links: developer }] : []),
     ...(instance.length ? [{ label: 'Instance', links: instance, attention: admin && instanceCapabilities(info).needsAttention }] : []),
   ];

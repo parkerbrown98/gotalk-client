@@ -13,6 +13,7 @@ import { ActiveFilters, FeedCard, FeedFrame, FeedItemMenu, FeedList, FiltersDial
 import { InstanceIcon } from '@/components/instance-summary';
 import { PlaceMenuSheet, usePlaceMenu } from '@/components/place-menu';
 import { ScreenFrame } from '@/components/screen-frame';
+import { IndexedIndicator, IndexedPlaceNotice } from '@/components/search-index';
 import { useSession } from '@/lib/auth';
 import { classifyFailure } from '@/lib/failure';
 import { useFeedActions, useFeedCapabilities, usePlaceFeed, useSortPreference } from '@/lib/feeds';
@@ -287,6 +288,7 @@ function PlaceHeader({
           <Text variant="captionMd" tone="muted">
             {meta}
           </Text>
+          {place.indexed ? <IndexedIndicator /> : null}
         </Stack>
         {wide ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space.sm }}>
@@ -301,6 +303,7 @@ function PlaceHeader({
         </Text>
       ) : null}
       {join_}
+      <IndexedPlaceNotice place={place} isMember={isMember} />
     </Stack>
   );
 

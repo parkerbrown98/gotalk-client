@@ -13,6 +13,7 @@ import { InstanceIcon } from '@/components/instance-summary';
 import { MenuItem, MenuPopover, MenuSeparator } from '@/components/menu';
 import { PlaceMenuPopover, usePlaceMenu } from '@/components/place-menu';
 import { PresenceAvatar, PresenceMenuItems, presenceLabels } from '@/components/presence';
+import { IndexedIndicator } from '@/components/search-index';
 import { useMe } from '@/lib/api';
 import { useSession } from '@/lib/auth';
 import { useConversations, useUnreadConversations } from '@/lib/chat';
@@ -183,16 +184,19 @@ export function PlaceSidebar({ slug }: { slug: string }) {
       <Pressable
         ref={header}
         accessibilityRole="button"
-        accessibilityLabel={`${place?.name ?? 'Place'} menu`}
+        accessibilityLabel={`${place?.name ?? 'Place'} menu${place?.indexed ? '. Public: visible to search engines' : ''}`}
         disabled={menu.items.length === 0}
         // Measured, so the menu sits under the header wherever the window chrome puts it.
         onPress={() => header.current?.measureInWindow((x, y, _w, h) => setMenuAt({ left: x + 8, top: y + h - 8 }))}
         {...(menu.items.length > 0 ? contextMenu((at) => setMenuAt({ left: at.left ?? 0, top: at.top ?? 0 })) : {})}
-        style={{ height: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: c.hairline }}
+        style={{ minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: place?.indexed ? 6 : 0, borderBottomWidth: 1, borderBottomColor: c.hairline }}
       >
-        <Text variant="bodyStrong" tone="onDark" numberOfLines={1} style={{ flex: 1 }}>
-          {place?.name ?? ''}
-        </Text>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text variant="bodyStrong" tone="onDark" numberOfLines={1}>
+            {place?.name ?? ''}
+          </Text>
+          {place?.indexed ? <IndexedIndicator compact /> : null}
+        </View>
         {menu.items.length > 0 ? <Icon name="chevronDown" size={16} color={c.mute} /> : null}
       </Pressable>
       <PlaceMenuPopover items={menu.items} visible={!!menuAt} anchor={menuAt ?? { left: 0, top: 0 }} onClose={() => setMenuAt(null)} />

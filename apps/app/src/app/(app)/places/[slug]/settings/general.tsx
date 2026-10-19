@@ -6,6 +6,7 @@ import { View } from 'react-native';
 import { ImagePicker } from '@/components/image-picker';
 import { PlaceForm } from '@/components/place-form';
 import { PlaceSettingsPage, sectionHref, usePlaceSettings } from '@/components/place-settings';
+import { PlaceSearchSetting } from '@/components/search-index';
 import { classifyFailure, failureMessage } from '@/lib/failure';
 import { useFeedActions, useFeedCapabilities } from '@/lib/feeds';
 import { useActiveInstance } from '@/lib/instances';
@@ -120,6 +121,8 @@ export default function PlaceGeneralSettings() {
             {votingError ? <Notice tone="danger">{votingError}</Notice> : null}
           </View>
         ) : null}
+        {/* Servers from before the public directory don't report it. */}
+        {typeof place.indexable === 'boolean' ? <PlaceSearchSetting place={place} /> : null}
         {access.isOwner ? (
           <View style={{ borderTopWidth: 1, borderTopColor: theme.colors.hairline, paddingTop: theme.space.lg, gap: theme.space.md }}>
             <Stack gap="none">

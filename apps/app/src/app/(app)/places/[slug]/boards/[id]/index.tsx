@@ -5,6 +5,7 @@ import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import { Empty, TopicRow, WatchButton } from '@/components/forum';
 import { ScreenFrame } from '@/components/screen-frame';
+import { BoardSettingsDialog } from '@/components/search-index';
 import { boardTree, useForumActions, useTopics, type TopicFilter } from '@/lib/forums';
 import { goBack, useWide } from '@/lib/layout';
 import { useBoardAccess, useBoards, usePlace, usePlaceAccess } from '@/lib/places';
@@ -29,6 +30,7 @@ export default function Board() {
   const actions = useForumActions();
   const [filter, setFilter] = useState<TopicFilter>('latest');
   const [archived, setArchived] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const isForum = board?.kind === 'board';
   const topics = useTopics(isForum ? id : undefined, { tag, filter, archived });
   const children = boardTree(boards.data ?? []).filter((n) => n.board.parent_id === id);
@@ -39,6 +41,7 @@ export default function Board() {
   const search = () => router.push({ pathname: '/places/[slug]/search', params: { slug, board: board?.id ?? '' } });
   const canPermissions = !!board && boardAccess.can('MANAGE_BOARDS');
   const permissions = () => board && router.push({ pathname: '/places/[slug]/settings/permissions/[id]', params: { slug, id: board.id, kind: 'board' } });
+  const settings = canPermissions ? <Button title="Settings" variant="tertiary" size="sm" accessibilityLabel={`${board?.name ?? 'Forum'} settings`} onPress={() => setSettingsOpen(true)} /> : null;
 
   const watch = board ? <WatchButton scope="board" level={board.subscription} onChange={(level) => actions.watchBoard(board.id, slug, level)} /> : null;
 
@@ -56,6 +59,7 @@ export default function Board() {
         <View style={{ flex: 1 }} />
       )}
       {watch}
+      {settings}
       {canPermissions ? <Button title="Permissions" variant="tertiary" size="sm" onPress={permissions} /> : null}
       <Button title="Search" variant="tertiary" size="sm" onPress={search} />
       {canPost ? <Button title="New topic" onPress={newTopic} /> : null}
@@ -86,7 +90,12 @@ export default function Board() {
 
       {board && !isForum ? (
         <Stack gap="lg" style={{ padding: wide ? 24 : theme.space.lg }}>
-          <Text variant="headingLg">{board.name}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space.sm }}>
+            <Text variant="headingLg" style={{ flex: 1 }}>
+              {board.name}
+            </Text>
+            {wide ? null : settings}
+          </View>
           {children.length === 0 ? (
             <Empty>No forums in this category yet.</Empty>
           ) : (
@@ -106,6 +115,7 @@ export default function Board() {
               <Text variant="captionMd" tone="muted" style={{ flex: 1 }} numberOfLines={2}>
                 {board.description}
               </Text>
+              {settings}
               {canPermissions ? <Button title="Permissions" variant="tertiary" size="sm" onPress={permissions} /> : null}
               {watch}
             </View>
@@ -169,6 +179,7 @@ export default function Board() {
         </View>
       ) : null}
 
+      {board && canPermissions ? <BoardSettingsDialog slug={slug} board={board} place={place} visible={settingsOpen} onClose={() => setSettingsOpen(false)} /> : null}
     </ScreenFrame>
   );
 }
