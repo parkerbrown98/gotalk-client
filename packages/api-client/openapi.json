@@ -426,6 +426,18 @@
             "format": "uuid",
             "type": "string"
           },
+          "index_notice": {
+            "description": "Plain-language explanation of the board's search indexing, for display",
+            "type": "string"
+          },
+          "indexable": {
+            "description": "The board may appear in search engines when its place is indexed (default true)",
+            "type": "boolean"
+          },
+          "indexed": {
+            "description": "The board is in the public index right now",
+            "type": "boolean"
+          },
           "is_nsfw": {
             "type": "boolean"
           },
@@ -516,6 +528,9 @@
           "solutions_enabled",
           "is_nsfw",
           "is_public",
+          "indexable",
+          "indexed",
+          "index_notice",
           "topic_count",
           "post_count",
           "last_post_at",
@@ -964,6 +979,60 @@
           },
           "settings": {
             "$ref": "#/components/schemas/CORSSettings"
+          },
+          "source": {
+            "description": "default: built-in defaults; config: set by the config file or environment (read-only here); settings: saved through the wizard or this API",
+            "enum": [
+              "default",
+              "config",
+              "settings"
+            ],
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_by": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "editable",
+          "config_key",
+          "settings",
+          "secrets_set"
+        ],
+        "type": "object"
+      },
+      "ConfigSectionDirectorySettings": {
+        "additionalProperties": false,
+        "properties": {
+          "config_key": {
+            "description": "Setting this key in the config file or environment makes the section read-only",
+            "type": "string"
+          },
+          "editable": {
+            "type": "boolean"
+          },
+          "error": {
+            "description": "Why the section's provider could not be opened",
+            "type": "string"
+          },
+          "secrets_set": {
+            "description": "Secret fields that hold a value",
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "settings": {
+            "$ref": "#/components/schemas/DirectorySettings"
           },
           "source": {
             "description": "default: built-in defaults; config: set by the config file or environment (read-only here); settings: saved through the wizard or this API",
@@ -1749,6 +1818,162 @@
         ],
         "type": "object"
       },
+      "DirectorySettings": {
+        "additionalProperties": false,
+        "properties": {
+          "contact_email": {
+            "description": "Shared with the index for abuse reports and crawl problems only",
+            "type": "string"
+          },
+          "listed": {
+            "description": "Advertise the instance in /.well-known/gotalk-instance and serve the index endpoints",
+            "type": "boolean"
+          },
+          "pings_disabled": {
+            "description": "Stop pinging the index after changes; it then picks them up on its next scheduled read (within minutes)",
+            "type": "boolean"
+          },
+          "platform_url": {
+            "description": "Index that receives pings (default https://gotalk.sh)",
+            "type": "string"
+          },
+          "signing_key": {
+            "description": "Ed25519 seed (32 bytes, unpadded base64url) for signing pings; write-only, leave empty to keep the current value. Without one, the instance generates and stores a key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "listed"
+        ],
+        "type": "object"
+      },
+      "DirectoryStatus": {
+        "additionalProperties": false,
+        "properties": {
+          "editable": {
+            "description": "Change listing with PATCH /instance/config (section directory) unless it is set in the config file or environment",
+            "type": "boolean"
+          },
+          "index_url": {
+            "description": "Base URL of this instance's index endpoints",
+            "type": "string"
+          },
+          "key_source": {
+            "description": "Where the ping signing key comes from; none while listing is off",
+            "enum": [
+              "none",
+              "generated",
+              "configured"
+            ],
+            "type": "string"
+          },
+          "last_ping_at": {
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "license_pending": {
+            "description": "The policy clause that licenses excerpts to the index is pending legal review",
+            "type": "boolean"
+          },
+          "listed": {
+            "type": "boolean"
+          },
+          "notice": {
+            "description": "Plain-language explanation to show next to the listing switch",
+            "type": "string"
+          },
+          "operator_guide_url": {
+            "type": "string"
+          },
+          "pings": {
+            "type": "boolean"
+          },
+          "places_indexed": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "platform_status_url": {
+            "description": "The index's public status for this instance (status, counts, last crawl)",
+            "type": "string"
+          },
+          "platform_url": {
+            "type": "string"
+          },
+          "policy_text": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Suggested policy sections (terms, privacy, guidelines) for a listed instance, in Markdown",
+            "type": "object"
+          },
+          "previous_key": {
+            "description": "Retired key still published after a rotation, until revoked",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "public_keys": {
+            "description": "Keys published in the well-known document; the signing key first",
+            "items": {
+              "$ref": "#/components/schemas/PublicKeyInfo"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "source": {
+            "enum": [
+              "default",
+              "config",
+              "settings"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "listed",
+          "source",
+          "editable",
+          "index_url",
+          "platform_url",
+          "platform_status_url",
+          "operator_guide_url",
+          "pings",
+          "key_source",
+          "public_keys",
+          "previous_key",
+          "places_indexed",
+          "last_ping_at",
+          "notice",
+          "license_pending",
+          "policy_text"
+        ],
+        "type": "object"
+      },
+      "DirectorySummary": {
+        "additionalProperties": false,
+        "properties": {
+          "listed": {
+            "description": "The instance is listed in the public Gotalk directory",
+            "type": "boolean"
+          },
+          "places_indexed": {
+            "description": "Places currently in the public index",
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "listed",
+          "places_indexed"
+        ],
+        "type": "object"
+      },
       "Draft": {
         "additionalProperties": false,
         "properties": {
@@ -2416,6 +2641,472 @@
         ],
         "type": "object"
       },
+      "IndexAuthor": {
+        "additionalProperties": false,
+        "properties": {
+          "display_name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "display_name"
+        ],
+        "type": "object"
+      },
+      "IndexBoard": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "category",
+              "board"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parent_id": {
+            "description": "Parent board or category; null at the top level",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "position": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "parent_id",
+          "kind",
+          "slug",
+          "name",
+          "description",
+          "position",
+          "updated_at"
+        ],
+        "type": "object"
+      },
+      "IndexChangesPage": {
+        "additionalProperties": false,
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/IndexEvent"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "next_cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "events",
+          "next_cursor",
+          "has_more"
+        ],
+        "type": "object"
+      },
+      "IndexEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "board_id": {
+            "type": "string"
+          },
+          "place_id": {
+            "type": "string"
+          },
+          "seq": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "topic_id": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "place.upsert",
+              "place.delete",
+              "board.upsert",
+              "board.delete",
+              "topic.upsert",
+              "topic.delete",
+              "user.exclude",
+              "user.include"
+            ],
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "type",
+          "at"
+        ],
+        "type": "object"
+      },
+      "IndexPlace": {
+        "additionalProperties": false,
+        "properties": {
+          "boards": {
+            "description": "Indexable boards and the categories that group them, in display order",
+            "items": {
+              "$ref": "#/components/schemas/IndexBoard"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "icon_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "locale": {
+            "type": "string"
+          },
+          "member_count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "description",
+          "icon_url",
+          "member_count",
+          "tags",
+          "locale",
+          "updated_at",
+          "boards"
+        ],
+        "type": "object"
+      },
+      "IndexPlacesPage": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/IndexPlace"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "type": "object"
+      },
+      "IndexPost": {
+        "additionalProperties": false,
+        "properties": {
+          "author": {
+            "$ref": "#/components/schemas/IndexAuthor"
+          },
+          "content": {
+            "description": "Markdown source",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "edited_at": {
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "is_solution": {
+            "type": "boolean"
+          },
+          "number": {
+            "description": "Stable; posts left out of the index leave gaps",
+            "format": "int32",
+            "type": "integer"
+          },
+          "parent_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "parent_id",
+          "author",
+          "content",
+          "created_at",
+          "edited_at",
+          "is_solution"
+        ],
+        "type": "object"
+      },
+      "IndexTopicPage": {
+        "additionalProperties": false,
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "author": {
+            "$ref": "#/components/schemas/IndexAuthor"
+          },
+          "board_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "locked": {
+            "type": "boolean"
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "place_id": {
+            "type": "string"
+          },
+          "posts": {
+            "items": {
+              "$ref": "#/components/schemas/IndexPost"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "reply_count": {
+            "description": "Indexable replies",
+            "format": "int32",
+            "type": "integer"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "solved": {
+            "type": "boolean"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Last change visible to the index (edits, replies, removals, moves)",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "place_id",
+          "board_id",
+          "posts",
+          "next_cursor",
+          "id",
+          "slug",
+          "title",
+          "author",
+          "created_at",
+          "updated_at",
+          "reply_count",
+          "pinned",
+          "locked",
+          "archived",
+          "solved",
+          "tags"
+        ],
+        "type": "object"
+      },
+      "IndexTopicSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "author": {
+            "$ref": "#/components/schemas/IndexAuthor"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "locked": {
+            "type": "boolean"
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "reply_count": {
+            "description": "Indexable replies",
+            "format": "int32",
+            "type": "integer"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "solved": {
+            "type": "boolean"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Last change visible to the index (edits, replies, removals, moves)",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "title",
+          "author",
+          "created_at",
+          "updated_at",
+          "reply_count",
+          "pinned",
+          "locked",
+          "archived",
+          "solved",
+          "tags"
+        ],
+        "type": "object"
+      },
+      "IndexTopicsPage": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/IndexTopicSummary"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "type": "object"
+      },
       "Instance": {
         "additionalProperties": false,
         "properties": {
@@ -2434,6 +3125,9 @@
           },
           "description": {
             "type": "string"
+          },
+          "directory": {
+            "$ref": "#/components/schemas/DirectorySummary"
           },
           "features": {
             "$ref": "#/components/schemas/Features"
@@ -2515,7 +3209,55 @@
           "limits",
           "webhooks",
           "feed",
-          "stats"
+          "stats",
+          "directory"
+        ],
+        "type": "object"
+      },
+      "InstanceAuditEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "actor_id": {
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": {},
+            "type": "object"
+          },
+          "target_id": {
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "target_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "actor_id",
+          "action",
+          "target_type",
+          "target_id",
+          "metadata",
+          "created_at"
         ],
         "type": "object"
       },
@@ -2524,6 +3266,10 @@
         "properties": {
           "cors": {
             "$ref": "#/components/schemas/ConfigSectionCORSSettings"
+          },
+          "directory": {
+            "$ref": "#/components/schemas/ConfigSectionDirectorySettings",
+            "description": "Listing in the public Gotalk directory; see GET /instance/directory for keys and status"
           },
           "drivers": {
             "$ref": "#/components/schemas/ConfigDrivers",
@@ -2544,6 +3290,7 @@
           "mail",
           "voice",
           "cors",
+          "directory",
           "drivers"
         ],
         "type": "object"
@@ -3820,6 +4567,18 @@
             "format": "uuid",
             "type": "string"
           },
+          "index_notice": {
+            "description": "Plain-language explanation of the place's search indexing, for display to owners and members",
+            "type": "string"
+          },
+          "indexable": {
+            "description": "The place's owners allow its public boards in search engines and the public Gotalk directory",
+            "type": "boolean"
+          },
+          "indexed": {
+            "description": "The place is in the public index right now (indexable, public, not NSFW, and the instance is listed)",
+            "type": "boolean"
+          },
           "is_nsfw": {
             "type": "boolean"
           },
@@ -3871,7 +4630,10 @@
           "owner_id",
           "member_count",
           "created_at",
-          "voting_enabled"
+          "voting_enabled",
+          "indexable",
+          "indexed",
+          "index_notice"
         ],
         "type": "object"
       },
@@ -4186,6 +4948,10 @@
             "maxLength": 64,
             "type": "string"
           },
+          "exclude_from_index": {
+            "description": "Keep your posts out of search engines and the public Gotalk directory; removal takes effect within an hour",
+            "type": "boolean"
+          },
           "pronouns": {
             "maxLength": 40,
             "type": "string"
@@ -4199,6 +4965,9 @@
           "cors": {
             "$ref": "#/components/schemas/CORSSettings"
           },
+          "directory": {
+            "$ref": "#/components/schemas/DirectorySettings"
+          },
           "mail": {
             "$ref": "#/components/schemas/MailSettings"
           },
@@ -4209,6 +4978,26 @@
             "$ref": "#/components/schemas/VoiceSettings"
           }
         },
+        "type": "object"
+      },
+      "PublicKeyInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "alg": {
+            "enum": [
+              "Ed25519"
+            ],
+            "type": "string"
+          },
+          "public_key": {
+            "description": "Unpadded base64url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "alg",
+          "public_key"
+        ],
         "type": "object"
       },
       "PublishPolicyRequest": {
@@ -4729,8 +5518,16 @@
           "email_verified": {
             "type": "boolean"
           },
+          "exclude_from_index": {
+            "description": "Your posts are kept out of search engines and the public Gotalk directory",
+            "type": "boolean"
+          },
           "id": {
             "format": "uuid",
+            "type": "string"
+          },
+          "index_notice": {
+            "description": "Plain-language explanation of exclude_from_index, for display",
             "type": "string"
           },
           "is_instance_admin": {
@@ -4747,6 +5544,8 @@
           "email",
           "email_verified",
           "is_instance_admin",
+          "exclude_from_index",
+          "index_notice",
           "id",
           "username",
           "display_name",
@@ -5705,6 +6504,10 @@
             "maxLength": 2000,
             "type": "string"
           },
+          "indexable": {
+            "description": "false keeps the board (and its sub-boards) out of search engines even when the place is indexed; true is rejected for NSFW boards",
+            "type": "boolean"
+          },
           "is_nsfw": {
             "type": "boolean"
           },
@@ -5808,6 +6611,10 @@
             "description": "Empty string clears the icon",
             "maxLength": 2048,
             "type": "string"
+          },
+          "indexable": {
+            "description": "Allow the place's public boards to appear in search engines and the public Gotalk directory. Only takes effect for public, non-NSFW places on a listed instance; true is rejected for NSFW places",
+            "type": "boolean"
           },
           "is_nsfw": {
             "type": "boolean"
@@ -10056,6 +10863,388 @@
         ]
       }
     },
+    "/index/boards/{boardID}/topics": {
+      "get": {
+        "description": "Indexable topics ordered by updated_at, then ID, so a reader can resume after a gap. Categories have no topics. Unauthenticated, rate limited per IP in the index tier. Responses carry an ETag; send If-None-Match to get 304 when nothing changed. See the index protocol in docs/api-index.md.",
+        "operationId": "list-index-board-topics",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "boardID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "next_cursor from the previous page",
+            "explode": false,
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "description": "next_cursor from the previous page",
+              "maxLength": 256,
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "default": 100,
+              "format": "int32",
+              "maximum": 500,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "RFC 3339; only topics updated at or after this time",
+            "explode": false,
+            "in": "query",
+            "name": "updated_since",
+            "schema": {
+              "description": "RFC 3339; only topics updated at or after this time",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexTopicsPage"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "List an indexable board's topics",
+        "tags": [
+          "Index"
+        ]
+      }
+    },
+    "/index/changes": {
+      "get": {
+        "description": "An ordered stream of references to changed objects (IDs, never content). Events for one object may be coalesced into the latest. A cursor older than the retained history (30 days) answers 410 cursor_expired. Unauthenticated, rate limited per IP in the index tier. Responses carry an ETag; send If-None-Match to get 304 when nothing changed. See the index protocol in docs/api-index.md.",
+        "operationId": "list-index-changes",
+        "parameters": [
+          {
+            "description": "next_cursor from the previous page, or latest for the current end of the feed; omit to start at the oldest retained event",
+            "explode": false,
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "description": "next_cursor from the previous page, or latest for the current end of the feed; omit to start at the oldest retained event",
+              "maxLength": 256,
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "default": 100,
+              "format": "int32",
+              "maximum": 500,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexChangesPage"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Gone"
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Read the index change feed",
+        "tags": [
+          "Index"
+        ]
+      }
+    },
+    "/index/places": {
+      "get": {
+        "description": "Places whose owners opted in to the public index, ordered by ID. Empty when directory listing is off. Unauthenticated, rate limited per IP in the index tier. Responses carry an ETag; send If-None-Match to get 304 when nothing changed. See the index protocol in docs/api-index.md.",
+        "operationId": "list-index-places",
+        "parameters": [
+          {
+            "description": "next_cursor from the previous page",
+            "explode": false,
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "description": "next_cursor from the previous page",
+              "maxLength": 256,
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "default": 100,
+              "format": "int32",
+              "maximum": 500,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexPlacesPage"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "List indexable places with their indexable boards",
+        "tags": [
+          "Index"
+        ]
+      }
+    },
+    "/index/topics/{topicID}": {
+      "get": {
+        "description": "The topic summary plus its indexable posts in post-number order, with Markdown content. Unauthenticated, rate limited per IP in the index tier. Responses carry an ETag; send If-None-Match to get 304 when nothing changed. See the index protocol in docs/api-index.md.",
+        "operationId": "get-index-topic",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topicID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "maxLength": 256,
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "default": 50,
+              "format": "int32",
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexTopicPage"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Get an indexable topic and a page of its posts",
+        "tags": [
+          "Index"
+        ]
+      }
+    },
     "/instance": {
       "get": {
         "operationId": "get-instance",
@@ -10146,6 +11335,93 @@
           }
         ],
         "summary": "Update instance settings (instance admins only)",
+        "tags": [
+          "Instance"
+        ]
+      }
+    },
+    "/instance/audit-log": {
+      "get": {
+        "operationId": "list-instance-audit-log",
+        "parameters": [
+          {
+            "description": "Return entries older than this entry ID",
+            "explode": false,
+            "in": "query",
+            "name": "before",
+            "schema": {
+              "description": "Return entries older than this entry ID",
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "default": 50,
+              "format": "int32",
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InstanceAuditEntry"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List instance-wide audit entries such as directory listing changes, newest first (instance admins only)",
         "tags": [
           "Instance"
         ]
@@ -10402,7 +11678,8 @@
                 "storage",
                 "mail",
                 "voice",
-                "cors"
+                "cors",
+                "directory"
               ],
               "type": "string"
             }
@@ -10456,6 +11733,147 @@
           }
         ],
         "summary": "Forget saved settings for a section so config, environment and defaults apply again (instance admins only)",
+        "tags": [
+          "Instance"
+        ]
+      }
+    },
+    "/instance/directory": {
+      "get": {
+        "description": "Requires a login session; API tokens and bots cannot call it.",
+        "operationId": "get-instance-directory",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectoryStatus"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Show directory listing status, published keys, notices and suggested policy text (instance admins only)",
+        "tags": [
+          "Instance"
+        ]
+      }
+    },
+    "/instance/directory/keys/previous": {
+      "delete": {
+        "description": "Requires a login session; API tokens and bots cannot call it.",
+        "operationId": "revoke-previous-directory-key",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectoryStatus"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Stop publishing the key retired by the last rotation (instance admins only)",
+        "tags": [
+          "Instance"
+        ]
+      }
+    },
+    "/instance/directory/keys/rotate": {
+      "post": {
+        "description": "Requires a login session; API tokens and bots cannot call it.",
+        "operationId": "rotate-directory-key",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectoryStatus"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Replace the generated ping signing key; the old key stays published until revoked (instance admins only)",
         "tags": [
           "Instance"
         ]

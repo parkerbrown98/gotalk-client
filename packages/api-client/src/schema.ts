@@ -629,6 +629,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/index/boards/{boardID}/topics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List an indexable board's topics
+         * @description Indexable topics ordered by updated_at, then ID, so a reader can resume after a gap. Categories have no topics. Unauthenticated, rate limited per IP in the index tier. Responses carry an ETag; send If-None-Match to get 304 when nothing changed. See the index protocol in docs/api-index.md.
+         */
+        get: operations["list-index-board-topics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/index/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read the index change feed
+         * @description An ordered stream of references to changed objects (IDs, never content). Events for one object may be coalesced into the latest. A cursor older than the retained history (30 days) answers 410 cursor_expired. Unauthenticated, rate limited per IP in the index tier. Responses carry an ETag; send If-None-Match to get 304 when nothing changed. See the index protocol in docs/api-index.md.
+         */
+        get: operations["list-index-changes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/index/places": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List indexable places with their indexable boards
+         * @description Places whose owners opted in to the public index, ordered by ID. Empty when directory listing is off. Unauthenticated, rate limited per IP in the index tier. Responses carry an ETag; send If-None-Match to get 304 when nothing changed. See the index protocol in docs/api-index.md.
+         */
+        get: operations["list-index-places"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/index/topics/{topicID}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an indexable topic and a page of its posts
+         * @description The topic summary plus its indexable posts in post-number order, with Markdown content. Unauthenticated, rate limited per IP in the index tier. Responses carry an ETag; send If-None-Match to get 304 when nothing changed. See the index protocol in docs/api-index.md.
+         */
+        get: operations["get-index-topic"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/instance": {
         parameters: {
             query?: never;
@@ -645,6 +725,23 @@ export interface paths {
         head?: never;
         /** Update instance settings (instance admins only) */
         patch: operations["update-instance"];
+        trace?: never;
+    };
+    "/instance/audit-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List instance-wide audit entries such as directory listing changes, newest first (instance admins only) */
+        get: operations["list-instance-audit-log"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/instance/checks": {
@@ -723,6 +820,66 @@ export interface paths {
          * @description Requires a login session; API tokens and bots cannot call it.
          */
         delete: operations["reset-instance-config"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/instance/directory": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Show directory listing status, published keys, notices and suggested policy text (instance admins only)
+         * @description Requires a login session; API tokens and bots cannot call it.
+         */
+        get: operations["get-instance-directory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/instance/directory/keys/previous": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Stop publishing the key retired by the last rotation (instance admins only)
+         * @description Requires a login session; API tokens and bots cannot call it.
+         */
+        delete: operations["revoke-previous-directory-key"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/instance/directory/keys/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Replace the generated ping signing key; the old key stays published until revoked (instance admins only)
+         * @description Requires a login session; API tokens and bots cannot call it.
+         */
+        post: operations["rotate-directory-key"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -2454,6 +2611,12 @@ export interface components {
             description: string;
             /** Format: uuid */
             id: string;
+            /** @description Plain-language explanation of the board's search indexing, for display */
+            index_notice: string;
+            /** @description The board may appear in search engines when its place is indexed (default true) */
+            indexable: boolean;
+            /** @description The board is in the public index right now */
+            indexed: boolean;
             is_nsfw: boolean;
             /** @description Readable by signed-out visitors and included in instance-wide search */
             is_public: boolean;
@@ -2626,6 +2789,25 @@ export interface components {
             /** @description Secret fields that hold a value */
             secrets_set: string[] | null;
             settings: components["schemas"]["CORSSettings"];
+            /**
+             * @description default: built-in defaults; config: set by the config file or environment (read-only here); settings: saved through the wizard or this API
+             * @enum {string}
+             */
+            source: "default" | "config" | "settings";
+            /** Format: date-time */
+            updated_at?: string;
+            /** Format: uuid */
+            updated_by?: string;
+        };
+        ConfigSectionDirectorySettings: {
+            /** @description Setting this key in the config file or environment makes the section read-only */
+            config_key: string;
+            editable: boolean;
+            /** @description Why the section's provider could not be opened */
+            error?: string;
+            /** @description Secret fields that hold a value */
+            secrets_set: string[] | null;
+            settings: components["schemas"]["DirectorySettings"];
             /**
              * @description default: built-in defaults; config: set by the config file or environment (read-only here); settings: saved through the wizard or this API
              * @enum {string}
@@ -2903,6 +3085,62 @@ export interface components {
             /** Format: int64 */
             value: number;
         };
+        DirectorySettings: {
+            /** @description Shared with the index for abuse reports and crawl problems only */
+            contact_email?: string;
+            /** @description Advertise the instance in /.well-known/gotalk-instance and serve the index endpoints */
+            listed: boolean;
+            /** @description Stop pinging the index after changes; it then picks them up on its next scheduled read (within minutes) */
+            pings_disabled?: boolean;
+            /** @description Index that receives pings (default https://gotalk.sh) */
+            platform_url?: string;
+            /** @description Ed25519 seed (32 bytes, unpadded base64url) for signing pings; write-only, leave empty to keep the current value. Without one, the instance generates and stores a key */
+            signing_key?: string;
+        };
+        DirectoryStatus: {
+            /** @description Change listing with PATCH /instance/config (section directory) unless it is set in the config file or environment */
+            editable: boolean;
+            /** @description Base URL of this instance's index endpoints */
+            index_url: string;
+            /**
+             * @description Where the ping signing key comes from; none while listing is off
+             * @enum {string}
+             */
+            key_source: "none" | "generated" | "configured";
+            /** Format: date-time */
+            last_ping_at: string | null;
+            /** @description The policy clause that licenses excerpts to the index is pending legal review */
+            license_pending: boolean;
+            listed: boolean;
+            /** @description Plain-language explanation to show next to the listing switch */
+            notice: string;
+            operator_guide_url: string;
+            pings: boolean;
+            /** Format: int64 */
+            places_indexed: number;
+            /** @description The index's public status for this instance (status, counts, last crawl) */
+            platform_status_url: string;
+            platform_url: string;
+            /** @description Suggested policy sections (terms, privacy, guidelines) for a listed instance, in Markdown */
+            policy_text: {
+                [key: string]: string;
+            };
+            /** @description Retired key still published after a rotation, until revoked */
+            previous_key: string | null;
+            /** @description Keys published in the well-known document; the signing key first */
+            public_keys: components["schemas"]["PublicKeyInfo"][] | null;
+            /** @enum {string} */
+            source: "default" | "config" | "settings";
+        };
+        DirectorySummary: {
+            /** @description The instance is listed in the public Gotalk directory */
+            listed: boolean;
+            /**
+             * Format: int64
+             * @description Places currently in the public index
+             */
+            places_indexed: number;
+        };
         Draft: {
             /** Format: date-time */
             created_at: string;
@@ -3155,11 +3393,138 @@ export interface components {
             slug: string;
             voting_enabled: boolean;
         };
+        IndexAuthor: {
+            display_name: string;
+            id: string;
+            username: string;
+        };
+        IndexBoard: {
+            description: string;
+            id: string;
+            /** @enum {string} */
+            kind: "category" | "board";
+            name: string;
+            /** @description Parent board or category; null at the top level */
+            parent_id: string | null;
+            /** Format: int32 */
+            position: number;
+            slug: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        IndexChangesPage: {
+            events: components["schemas"]["IndexEvent"][] | null;
+            has_more: boolean;
+            next_cursor: string;
+        };
+        IndexEvent: {
+            /** Format: date-time */
+            at: string;
+            board_id?: string;
+            place_id?: string;
+            /** Format: int64 */
+            seq: number;
+            topic_id?: string;
+            /** @enum {string} */
+            type: "place.upsert" | "place.delete" | "board.upsert" | "board.delete" | "topic.upsert" | "topic.delete" | "user.exclude" | "user.include";
+            user_id?: string;
+        };
+        IndexPlace: {
+            /** @description Indexable boards and the categories that group them, in display order */
+            boards: components["schemas"]["IndexBoard"][] | null;
+            description: string;
+            icon_url: string | null;
+            id: string;
+            locale: string;
+            /** Format: int32 */
+            member_count: number;
+            name: string;
+            slug: string;
+            tags: string[] | null;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        IndexPlacesPage: {
+            items: components["schemas"]["IndexPlace"][] | null;
+            next_cursor: string | null;
+        };
+        IndexPost: {
+            author: components["schemas"]["IndexAuthor"];
+            /** @description Markdown source */
+            content: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            edited_at: string | null;
+            id: string;
+            is_solution: boolean;
+            /**
+             * Format: int32
+             * @description Stable; posts left out of the index leave gaps
+             */
+            number: number;
+            parent_id: string | null;
+        };
+        IndexTopicPage: {
+            archived: boolean;
+            author: components["schemas"]["IndexAuthor"];
+            board_id: string;
+            /** Format: date-time */
+            created_at: string;
+            id: string;
+            locked: boolean;
+            next_cursor: string | null;
+            pinned: boolean;
+            place_id: string;
+            posts: components["schemas"]["IndexPost"][] | null;
+            /**
+             * Format: int32
+             * @description Indexable replies
+             */
+            reply_count: number;
+            slug: string;
+            solved: boolean;
+            tags: string[] | null;
+            title: string;
+            /**
+             * Format: date-time
+             * @description Last change visible to the index (edits, replies, removals, moves)
+             */
+            updated_at: string;
+        };
+        IndexTopicSummary: {
+            archived: boolean;
+            author: components["schemas"]["IndexAuthor"];
+            /** Format: date-time */
+            created_at: string;
+            id: string;
+            locked: boolean;
+            pinned: boolean;
+            /**
+             * Format: int32
+             * @description Indexable replies
+             */
+            reply_count: number;
+            slug: string;
+            solved: boolean;
+            tags: string[] | null;
+            title: string;
+            /**
+             * Format: date-time
+             * @description Last change visible to the index (edits, replies, removals, moves)
+             */
+            updated_at: string;
+        };
+        IndexTopicsPage: {
+            items: components["schemas"]["IndexTopicSummary"][] | null;
+            next_cursor: string | null;
+        };
         Instance: {
             api: components["schemas"]["APIInfo"];
             /** @description Features that are unavailable or failing, e.g. email or storage */
             degraded_features: string[] | null;
             description: string;
+            directory: components["schemas"]["DirectorySummary"];
             features: components["schemas"]["Features"];
             feed: components["schemas"]["FeedInfo"];
             icon_url: string | null;
@@ -3180,8 +3545,25 @@ export interface components {
             url: string;
             webhooks: components["schemas"]["WebhookInfo"];
         };
+        InstanceAuditEntry: {
+            action: string;
+            /** Format: uuid */
+            actor_id: string | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: uuid */
+            id: string;
+            metadata: {
+                [key: string]: unknown;
+            };
+            /** Format: uuid */
+            target_id: string | null;
+            target_type: string;
+        };
         InstanceConfig: {
             cors: components["schemas"]["ConfigSectionCORSSettings"];
+            /** @description Listing in the public Gotalk directory; see GET /instance/directory for keys and status */
+            directory: components["schemas"]["ConfigSectionDirectorySettings"];
             /** @description Available storage and mail drivers */
             drivers: components["schemas"]["ConfigDrivers"];
             mail: components["schemas"]["ConfigSectionMailSettings"];
@@ -3595,6 +3977,12 @@ export interface components {
             icon_url: string | null;
             /** Format: uuid */
             id: string;
+            /** @description Plain-language explanation of the place's search indexing, for display to owners and members */
+            index_notice: string;
+            /** @description The place's owners allow its public boards in search engines and the public Gotalk directory */
+            indexable: boolean;
+            /** @description The place is in the public index right now (indexable, public, not NSFW, and the instance is listed) */
+            indexed: boolean;
             is_nsfw: boolean;
             locale: string;
             /** Format: int32 */
@@ -3709,13 +4097,22 @@ export interface components {
             avatar_url?: string;
             bio?: string;
             display_name?: string;
+            /** @description Keep your posts out of search engines and the public Gotalk directory; removal takes effect within an hour */
+            exclude_from_index?: boolean;
             pronouns?: string;
         };
         ProviderSettings: {
             cors?: components["schemas"]["CORSSettings"];
+            directory?: components["schemas"]["DirectorySettings"];
             mail?: components["schemas"]["MailSettings"];
             storage?: components["schemas"]["StorageSettings"];
             voice?: components["schemas"]["VoiceSettings"];
+        };
+        PublicKeyInfo: {
+            /** @enum {string} */
+            alg: "Ed25519";
+            /** @description Unpadded base64url */
+            public_key: string;
         };
         PublishPolicyRequest: {
             /** @description Markdown */
@@ -3889,8 +4286,12 @@ export interface components {
             /** @description Empty for bots */
             email: string;
             email_verified: boolean;
+            /** @description Your posts are kept out of search engines and the public Gotalk directory */
+            exclude_from_index: boolean;
             /** Format: uuid */
             id: string;
+            /** @description Plain-language explanation of exclude_from_index, for display */
+            index_notice: string;
             is_instance_admin: boolean;
             pronouns: string;
             username: string;
@@ -4221,6 +4622,8 @@ export interface components {
         };
         UpdateBoardRequest: {
             description?: string;
+            /** @description false keeps the board (and its sub-boards) out of search engines even when the place is indexed; true is rejected for NSFW boards */
+            indexable?: boolean;
             is_nsfw?: boolean;
             name?: string;
             /** @description Move under another board or category; empty string moves to the top level */
@@ -4258,6 +4661,8 @@ export interface components {
             description?: string;
             /** @description Empty string clears the icon */
             icon_url?: string;
+            /** @description Allow the place's public boards to appear in search engines and the public Gotalk directory. Only takes effect for public, non-NSFW places on a listed instance; true is rejected for NSFW places */
+            indexable?: boolean;
             is_nsfw?: boolean;
             locale?: string;
             name?: string;
@@ -6889,6 +7294,260 @@ export interface operations {
             };
         };
     };
+    "list-index-board-topics": {
+        parameters: {
+            query?: {
+                /** @description next_cursor from the previous page */
+                cursor?: string;
+                limit?: number;
+                /** @description RFC 3339; only topics updated at or after this time */
+                updated_since?: string;
+            };
+            header?: never;
+            path: {
+                boardID: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndexTopicsPage"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-index-changes": {
+        parameters: {
+            query?: {
+                /** @description next_cursor from the previous page, or latest for the current end of the feed; omit to start at the oldest retained event */
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndexChangesPage"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Gone */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-index-places": {
+        parameters: {
+            query?: {
+                /** @description next_cursor from the previous page */
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndexPlacesPage"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-index-topic": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                topicID: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndexTopicPage"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "get-instance": {
         parameters: {
             query?: never;
@@ -6938,6 +7597,57 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Instance"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-instance-audit-log": {
+        parameters: {
+            query?: {
+                /** @description Return entries older than this entry ID */
+                before?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InstanceAuditEntry"][] | null;
                 };
             };
             /** @description Unauthorized */
@@ -7155,7 +7865,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                section: "storage" | "mail" | "voice" | "cors";
+                section: "storage" | "mail" | "voice" | "cors" | "directory";
             };
             cookie?: never;
         };
@@ -7181,6 +7891,120 @@ export interface operations {
             };
             /** @description Unprocessable Entity */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-instance-directory": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DirectoryStatus"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "revoke-previous-directory-key": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DirectoryStatus"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "rotate-directory-key": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DirectoryStatus"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
