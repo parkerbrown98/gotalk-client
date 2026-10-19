@@ -1,4 +1,5 @@
 use keyring::Entry;
+use std::sync::Mutex;
 
 const SERVICE: &str = "sh.gotalk.desktop";
 const KEY_PREFIX: &str = "gotalk.session.";
@@ -33,6 +34,32 @@ fn secret_delete(key: String) -> Result<(), String> {
     }
 }
 
+/// gotalk:// links (invites, places and topics) waiting for the web app. A link can arrive before the page
+/// has loaded, so they queue here; the page drains the queue on start and whenever `deep-link` fires.
+#[derive(Default)]
+struct DeepLinks(Mutex<Vec<String>>);
+
+#[tauri::command]
+fn deep_links_take(links: tauri::State<'_, DeepLinks>) -> Vec<String> {
+    std::mem::take(&mut *links.0.lock().unwrap_or_else(|e| e.into_inner()))
+}
+
+#[cfg(desktop)]
+fn queue_deep_links<R: tauri::Runtime>(app: &tauri::AppHandle<R>, urls: Vec<String>) {
+    use tauri::{Emitter, Manager};
+    let urls: Vec<String> = urls.into_iter().filter(|u| u.to_ascii_lowercase().starts_with("gotalk:")).collect();
+    if urls.is_empty() {
+        return;
+    }
+    app.state::<DeepLinks>().0.lock().unwrap_or_else(|e| e.into_inner()).extend(urls);
+    let _ = app.emit("deep-link", ());
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.unminimize();
+        let _ = window.show();
+        let _ = window.set_focus();
+    }
+}
+
 /// The webview's default user agent with `Gotalk/<version> (<os>)` appended, so the server can tell the
 /// desktop app apart from a browser (packages/core `describeUserAgent`). Tauri can only replace the user
 /// agent, so this rebuilds the default: WebKit's is frozen on macOS and Linux, and WebView2's follows its
@@ -61,15 +88,41 @@ fn user_agent(version: &str) -> Option<String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let builder = tauri::Builder::default();
+    let builder = tauri::Builder::default().manage(DeepLinks::default());
+    // Single instance goes first: on Windows and Linux a gotalk:// link starts a second process, which hands
+    // the link to the running app (through the deep-link plugin) and exits.
     #[cfg(desktop)]
     let builder = builder
+        .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
+            use tauri::Manager;
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.unminimize();
+                let _ = window.show();
+                let _ = window.set_focus();
+            }
+        }))
+        .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_opener::init());
     builder
-        .invoke_handler(tauri::generate_handler![secret_get, secret_set, secret_delete])
+        .invoke_handler(tauri::generate_handler![secret_get, secret_set, secret_delete, deep_links_take])
         .setup(|app| {
+            #[cfg(desktop)]
+            {
+                use tauri_plugin_deep_link::DeepLinkExt;
+                // Installers register gotalk:// on Windows and Linux; this also covers dev builds and AppImages
+                // started without an integration tool. macOS reads the scheme from the bundle's Info.plist.
+                #[cfg(any(windows, target_os = "linux"))]
+                let _ = app.deep_link().register_all();
+                if let Ok(Some(urls)) = app.deep_link().get_current() {
+                    queue_deep_links(app.handle(), urls.iter().map(|u| u.to_string()).collect());
+                }
+                let handle = app.handle().clone();
+                app.deep_link().on_open_url(move |event| {
+                    queue_deep_links(&handle, event.urls().iter().map(|u| u.to_string()).collect());
+                });
+            }
             // The main window is created here (it has `create: false`) so its frame can differ per OS.
             let config = app
                 .config()
