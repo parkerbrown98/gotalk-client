@@ -30,7 +30,7 @@ it via `/.well-known/gotalk-instance` and `GET /api/v1/instance`. See
 | [packages/tokens](../packages/tokens) | Design tokens from [DESIGN.md](../DESIGN.md): colors, spacing, radii, Inter type scale and breakpoints. Exports a typed dark theme and `dist/tokens.css` with `--gt-*` CSS variables for non-React surfaces, including server-rendered pages |
 | [packages/ui](../packages/ui) | `ThemeProvider`, `useTheme` and React Native primitives: `Text`, `Button`, `TextField`, `Card`, `Stack`, `Screen`, `Badge` |
 | [packages/api-client](../packages/api-client) | Typed REST client generated from the server's OpenAPI document with `openapi-typescript` and `openapi-fetch` |
-| [packages/core](../packages/core) | Framework-agnostic instance discovery, API compatibility checks, saved-instance store, auth, Markdown, chat and feed helpers, instance-aware links and the public directory's rules |
+| [packages/core](../packages/core) | Framework-agnostic instance discovery, API compatibility checks, saved-instance store, auth, Markdown, chat and feed helpers, instance-aware links, the public directory's rules, and the push gateway client, payloads and RFC 8291 decryption |
 | [packages/gateway](../packages/gateway) | Framework-agnostic WebSocket client: identify, heartbeats, reconnects, close codes and catch-up after a gap |
 | [apps/app](../apps/app) | Expo Router app for mobile and web |
 | [apps/desktop](../apps/desktop) | Tauri shell |

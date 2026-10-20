@@ -987,11 +987,91 @@ and was disabled for a private place. A forum was excluded and included again, a
 search. The member notice was dismissed and stayed hidden. Not exercised: iOS, Android and the Tauri shell
 (`cargo check` only), and switching between two saved signed-in instances.
 
+## Push notifications ✅
+
+The client side of the gateway plan's Phase 7: push from any instance through its push gateway, on iOS, Android and
+the web, with the backend's Phase 6 push API. Mockup: [Push notifications](./mockups/23-notifications.html). Guide:
+[Push notifications](push-notifications.md).
+
+Delivered:
+
+- **Contract sync:** `pnpm api:sync` (142 paths): `push` on `GET /instance`, `GET`, `POST` and `DELETE
+  /users/@me/push-subscriptions`, `GET`/`PUT /users/@me/push-preferences`, and the administrators' `/instance/push`
+  endpoints.
+- **`@gotalk/core`:**
+  - `push.ts`: the gateway client (discovery, `POST`/`PUT`/`DELETE /v1/devices`, problem documents); picking the
+    gateway app; parsing payloads and the FCM and APNs envelopes; the shown text with the instance's name; Android
+    channels per category; `/notification` deep-link paths and destinations; `planPushSync` for registering,
+    updating, refreshing and unregistering; and the category and preference helpers.
+  - `push-crypto.ts`: P-256 key generation and RFC 8291 `aes128gcm` decryption with `@noble` (no WebCrypto on Hermes).
+- **Registration** ([`lib/push.ts`](../apps/app/src/lib/push.ts)):
+  - turning push on per device and instance asks for permission from the tap, registers the token or browser
+    endpoint with the gateway for the instance's origin, and adds the subscription with this device's keys to the
+    instance (encrypted mode when offered);
+  - refresh after 7 days, token changes, new browsers subscriptions, a changed gateway URL or VAPID key, and a check
+    once per launch that the instance still has the subscription;
+  - removal on sign-out (while the session is still valid), on remote sign-out, on account deletion and when an
+    instance is removed;
+  - one sync at a time per instance, with errors worded for settings.
+- **iOS:** a Notification Service Extension (Swift, CryptoKit) built by `@bacons/apple-targets`. It reads the keys
+  from the App Group keychain group that `expo-secure-store` writes. It decrypts, sets the title, the instance as
+  subtitle, the body, thread, badge and tap target, and fetches `id_only` notifications. `GT_NEW_NOTIFICATION` ships
+  in `Localizable.strings`. The App Group entitlement and the EAS extension credentials are in the config.
+- **Android:**
+  - channels per category;
+  - a background task (`expo-task-manager`) that decrypts FCM data messages in every app state, fetches `id_only`
+    ones with the stored session, and posts them (a repeated notification ID replaces the earlier one);
+  - `google-services.json` from `GOOGLE_SERVICES_JSON` or a local file through `app.config.js`.
+- **Web:**
+  - a service worker (`public/push-sw.js`) that shows each push with the instance's name, groups by thread,
+    replaces duplicates, sets the badge, and opens or focuses the app on a click;
+  - a web app manifest for iOS Home Screen installs;
+  - permission prompts only from a tap;
+  - explanations for blocked permission, Safari on iPhone outside a Home Screen app, Brave, the desktop app and a
+    second gateway.
+- **Deep links:** `/notification?instance=…` switches instance, marks the notification read, and opens the
+  conversation or channel at the message, the topic or the place (the inbox otherwise). It goes to sign in or to
+  adding the instance when needed.
+- **Held back while open:** a push for the instance on screen with a live realtime connection is not shown, on every
+  platform. Pushes for other instances still show.
+- **Settings > Notifications:** this device's switch with its state, the account's categories (saved right away),
+  and the devices that get notifications with Remove. Hidden for servers without push.
+- **Tests:**
+  - `push-crypto.test.ts` and `push.test.ts` in `@gotalk/core` (25): RFC 8291 Appendix A in both directions,
+    padding, wrong keys and malformed bodies, payloads and envelopes, display text, channels, routes, the gateway
+    client against a fake fetch, app selection, `planPushSync` and preferences;
+  - the extension's Swift crypto and payload code, compiled against `swift-crypto` in a Linux container, decrypts
+    the same vector, reads the stored record and builds the same route as core.
+
+Verified against a local server and gateway (development mode, own VAPID key):
+
+- `expo prebuild` on Linux generates the extension target (embedded, App Group entitlements, iOS 16.4),
+  `aps-environment`, `Localizable.strings` and the EAS `appExtensions`. The Android manifest gets the notification
+  icon and color.
+- In Chrome: turning push on registered a real FCM endpoint with the gateway and the server. A direct message from
+  another account became a notification reading "alice" with "Gotalk · …", and clicking it opened the
+  conversation. A second message while the app was open and live was delivered but not shown.
+- In VS Code's browser, notification permission is blocked, so the switch was disabled and the blocked notice shown.
+  A category change was saved on the server.
+
+Not exercised:
+
+- iOS and Android devices (they need the publisher's Apple Developer and Firebase accounts);
+- Safari, Firefox and Edge;
+- the desktop app, which does not receive pushes.
+
+Known gaps:
+
+- The desktop app has no push.
+- A browser can use only one gateway's VAPID key at a time.
+- The iOS extension's `id_only` fetch works only while the app's last shared access token is valid.
+- Android groups notifications by app rather than per conversation, because `expo-notifications` exposes no group key.
+
 ## Phase 9 — Distribution & polish
 
-- **Push notifications:** a small Gotalk-operated push gateway (APNs/FCM), web push for the web app, and
-  native notifications on desktop. Blocked on backend push subscription endpoints, which are not yet in the
-  backend plan (backend Phase 7 delivered email, not push).
+- **Push notifications:** delivered for iOS, Android and the web (see [Push notifications](#push-notifications-)).
+  Still to do: native desktop notifications, and testing on real devices once the publisher's Apple and Firebase
+  accounts exist.
 - **Release pipeline:**
   - CI runs typecheck, tests, and the web export on every change
   - Tauri build matrix (Windows/macOS/Linux) with signing
@@ -1014,7 +1094,7 @@ search. The member notice was dismissed and stayed hidden. Not exercised: iOS, A
 - **Backend asks raised by the client:**
   - instance branding (accent color, logo variants) in `GET /instance`
   - an optional HttpOnly refresh-token cookie mode for same-site web deployments
-  - push subscription endpoints and the gateway contract
+  - ~~push subscription endpoints and the gateway contract~~ (delivered in backend Phase 6; see Push notifications)
   - application icon upload and a gateway event for changed avatars and display names (attachments for posts
     and chat shipped; adding or removing them when editing is still missing)
   - a change-email endpoint (email confirmation exists, but an address cannot be changed)

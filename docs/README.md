@@ -29,6 +29,7 @@ To host an instance, use the [Gotalk server documentation](https://github.com/pa
 | [Search engines and the public directory](search-and-directory.md) | Place and topic links from the index, listing, place and forum opt-in, members' notices and privacy |
 | [Forums and feeds](forums-and-feeds.md) | Markdown, drafts, forum paging, ranked feeds, optimistic updates and offline read sync |
 | [Real-time and chat](realtime-and-chat.md) | Gateway reconnection, cache updates, channels, threads, offline sends and presence |
+| [Push notifications](push-notifications.md) | Turning push on, gateway registration, device keys, the iOS extension, Android channels, the web service worker and deep links |
 | [Desktop](desktop.md) | Tauri window chrome, splash, clipboard, context menus, CSP and debugging |
 
 ## Build and contribute

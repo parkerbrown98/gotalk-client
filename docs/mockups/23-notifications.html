@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Notifications · Gotalk mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../packages/tokens/dist/tokens.css">
+<link rel="stylesheet" href="mockups.css">
+<style>
+  .settings-nav { width: 248px; flex: none; background: var(--gt-color-surface); border-right: 1px solid var(--gt-color-hairline); padding: 16px 8px; display: flex; flex-direction: column; gap: 2px; }
+  .settings-body { flex: 1; min-width: 0; padding: 32px 40px; display: flex; flex-direction: column; gap: 24px; overflow: hidden; }
+  .settings-body .inner { width: 640px; display: flex; flex-direction: column; gap: 24px; }
+  .stack { display: flex; flex-direction: column; gap: 12px; }
+  .device { display: flex; align-items: center; gap: 16px; padding: 16px; }
+  .device + .device { border-top: 1px solid var(--gt-color-hairline); }
+  .device .icon { width: 36px; height: 36px; border-radius: var(--gt-radius-md); background: var(--gt-color-surface-card); display: grid; place-items: center; }
+  .device .icon svg { width: 18px; height: 18px; }
+  .device .col { flex: 1; }
+  .lock { background: linear-gradient(160deg, #1d2430, #0e0f11); }
+  .push { margin: 8px 0; padding: 12px 14px; border-radius: 18px; background: rgba(255,255,255,.12); display: flex; gap: 10px; }
+  .push .app { width: 28px; height: 28px; border-radius: 7px; background: #ff6161; flex: none; }
+  .push .col { flex: 1; display: flex; flex-direction: column; gap: 1px; font-size: 13px; }
+  .push .top { display: flex; justify-content: space-between; color: var(--gt-color-mute); font-size: 12px; }
+  .shade .push { border-radius: 14px; background: var(--gt-color-surface-elevated); }
+  .web-toast { width: 360px; padding: 12px; border-radius: 8px; background: var(--gt-color-surface-elevated); border: 1px solid var(--gt-color-hairline-strong); display: flex; gap: 10px; font-size: 13px; }
+</style>
+</head>
+<body>
+<main class="board">
+  <header class="board-head">
+    <nav><a href="index.html">Mockups</a> / Notifications</nav>
+    <h1 class="t-display-lg">Push notifications</h1>
+    <p>Settings &gt; Notifications, for the active instance. Turning push on is a choice per device and instance: it asks for permission once (from a tap, as browsers require) and registers this device with the instance's push gateway. The categories belong to the account and apply to all its devices. The list shows the devices that get notifications, with this one marked. Every push names its instance, and tapping one opens the conversation, channel message, topic or place it is about.</p>
+  </header>
+
+  <section class="group">
+    <h2>Web and desktop</h2>
+    <div class="frames">
+
+      <figure class="frame"><div class="win short"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.sh/settings/notifications</div></div><div class="viewport">
+        <nav class="settings-nav"><div class="section-label">Account</div><a class="nav-row"><svg><use href="#user"/></svg>Profile</a><a class="nav-row"><svg><use href="#lock"/></svg>Password</a><a class="nav-row"><svg><use href="#laptop"/></svg>Devices</a><a class="nav-row active"><svg><use href="#bell"/></svg>Notifications</a><a class="nav-row"><svg><use href="#globe"/></svg>Privacy</a><a class="nav-row"><svg><use href="#trash"/></svg>Delete account</a></nav>
+        <div class="settings-body"><div class="inner">
+          <div class="stack"><span class="t-heading-xl">Notifications</span><span class="t-body-sm mute">Push notifications from Woodworkers.</span></div>
+          <div class="stack">
+            <span class="t-heading-sm">This device</span>
+            <label class="check"><span class="box on"><svg><use href="#check"/></svg></span><span>Push notifications on this device<span class="note" style="display:block">On. Notifications from Woodworkers arrive while this browser is running, even with Gotalk closed.</span></span></label>
+          </div>
+          <div class="stack">
+            <span class="t-heading-sm">What to notify you about</span>
+            <span class="t-caption-md mute">For all your devices on Woodworkers. Muted places, channels and conversations never notify you, and nothing is sent while you are set to Do not disturb.</span>
+            <label class="check"><span class="box on"><svg><use href="#check"/></svg></span><span>Direct messages<span class="note" style="display:block">Messages sent to you directly.</span></span></label>
+            <label class="check"><span class="box on"><svg><use href="#check"/></svg></span><span>Mentions<span class="note" style="display:block">Someone mentions you in a channel, topic or reply.</span></span></label>
+            <label class="check"><span class="box on"><svg><use href="#check"/></svg></span><span>Replies<span class="note" style="display:block">Replies to your posts and in topics you watch.</span></span></label>
+            <label class="check"><span class="box"></span><span>Reactions<span class="note" style="display:block">Reactions to your posts and messages.</span></span></label>
+          </div>
+          <div class="stack">
+            <span class="t-heading-sm">Devices that get notifications</span>
+            <div class="card flush">
+              <div class="device"><span class="icon"><svg><use href="#globe"/></svg></span><span class="col"><span class="t-body-sm-strong">Chrome on Windows</span><br><span class="t-caption-md mute">Last notified 3 minutes ago</span></span><span class="badge">This device</span></div>
+              <div class="device"><span class="icon"><svg><use href="#phone"/></svg></span><span class="col"><span class="t-body-sm-strong">Pixel 9</span><br><span class="t-caption-md mute">Not notified yet</span></span><button class="btn btn-outline small">Remove</button></div>
+            </div>
+          </div>
+        </div></div></div></div>
+        <figcaption>Push on in a browser. Category changes save right away. Further categories (new topics, solutions, moderation) follow below the fold.</figcaption></figure>
+
+      <figure class="frame"><div class="win narrow"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.gotalk.sh/settings/notifications</div></div><div class="viewport">
+        <div class="settings-body"><div class="inner" style="width:600px">
+          <div class="stack"><span class="t-heading-xl">Notifications</span></div>
+          <div class="stack">
+            <span class="t-heading-sm">This device</span>
+            <label class="check" style="opacity:.5"><span class="box"></span><span>Push notifications on this device<span class="note" style="display:block">Get notified about mentions, replies and messages on Woodworkers, even when Gotalk is closed.</span></span></label>
+            <div class="notice warning"><svg><use href="#alert"/></svg><span><b>Notifications are blocked</b><br>Notifications are blocked for this site. Allow them in your browser's site settings (the icon beside the address), then turn this on again.</span></div>
+          </div>
+          <div class="stack">
+            <span class="t-heading-sm">Other states</span>
+            <div class="notice info"><svg><use href="#info"/></svg><span>This server's push notifications aren't ready yet: the push gateway hasn't verified it. Try again later.</span></div>
+            <div class="notice info"><svg><use href="#info"/></svg><span>The desktop app doesn't receive push notifications yet. Use the web app in a browser, or the phone apps.</span></div>
+            <div class="notice info"><svg><use href="#info"/></svg><span>Brave blocks push notifications by default. Turn on "Use Google services for push messaging" in brave://settings/privacy, then try again.</span></div>
+            <div class="notice danger"><svg><use href="#alert"/></svg><span>Another server in this browser uses a different push gateway, and a browser can only use one. Turn its notifications off first, or use the phone apps.</span></div>
+          </div>
+        </div></div></div></div>
+        <figcaption>Blocked in the browser (the switch is disabled and says how to fix it), and the other reasons push can't be turned on.</figcaption></figure>
+
+      <figure class="frame"><div class="web-toast"><span class="push" style="margin:0;padding:0;background:none"><span class="app"></span></span><span class="col" style="display:flex;flex-direction:column;gap:2px"><span class="t-body-sm-strong">Alice mentioned you in #general</span><span class="mute">Woodworkers · Ready, @bob? The doors open at nine.</span><span class="t-caption-sm mute">app.gotalk.sh</span></span></div>
+        <figcaption>A browser notification: the instance's name leads the body. Clicking focuses an open tab, or opens one, at the message.</figcaption></figure>
+
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Phones</h2>
+    <div class="frames">
+
+      <figure class="frame"><div class="phone"><div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div><div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Notifications</span><span class="side"></span></div><div class="body">
+        <span class="t-heading-sm">This device</span>
+        <label class="check"><span class="box"></span><span>Push notifications on this device<span class="note" style="display:block">Get notified about mentions, replies and messages on Woodworkers, even when Gotalk is closed.</span></span></label>
+        <span class="t-heading-sm">What to notify you about</span>
+        <span class="t-caption-md mute">For all your devices on Woodworkers.</span>
+        <label class="check"><span class="box on"><svg><use href="#check"/></svg></span><span>Direct messages</span></label>
+        <label class="check"><span class="box on"><svg><use href="#check"/></svg></span><span>Mentions</span></label>
+        <label class="check"><span class="box on"><svg><use href="#check"/></svg></span><span>Replies</span></label>
+      </div><div class="home-bar"></div></div><figcaption>Off. Ticking it shows the system prompt (Android creates its channels first, which Android 13 needs).</figcaption></figure>
+
+      <figure class="frame"><div class="phone"><div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div><div class="appbar"><span class="side on-dark"><svg class="i"><use href="#chevronLeft"/></svg></span><span class="t-body-sm-strong">Notifications</span><span class="side"></span></div><div class="body">
+        <span class="t-heading-sm">This device</span>
+        <label class="check" style="opacity:.5"><span class="box"></span><span>Push notifications on this device</span></label>
+        <div class="notice warning"><svg><use href="#alert"/></svg><span><b>Notifications are blocked</b><br>Notifications are off for Gotalk. Turn them on in Settings &gt; Notifications &gt; Gotalk, then come back.<br><button class="btn btn-outline small" style="margin-top:8px">Open settings</button></span></div>
+        <div class="notice info"><svg><use href="#info"/></svg><span>On iPhone and iPad, add Gotalk to your Home Screen first: tap Share, then Add to Home Screen, and open it from there.</span></div>
+      </div><div class="home-bar"></div></div><figcaption>Blocked on iOS, with a way to the system settings. Below it, what Safari on iPhone shows before the web app is installed.</figcaption></figure>
+
+      <figure class="frame"><div class="phone lock"><div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div><div class="body">
+        <div style="text-align:center;font-size:64px;font-weight:300;color:var(--gt-color-on-dark);margin-top:32px">9:41</div>
+        <div class="push"><span class="app"></span><span class="col"><span class="top"><span>GOTALK</span><span>now</span></span><span class="t-body-sm-strong">Alice mentioned you in #general</span><span class="t-body-sm-strong">Woodworkers</span><span>Ready, @bob? The doors open at nine.</span></span></div>
+        <div class="push"><span class="app"></span><span class="col"><span class="top"><span>GOTALK</span><span>2m ago</span></span><span class="t-body-sm-strong">New notification</span><span class="t-body-sm-strong">Rust Help</span></span></div>
+      </div><div class="home-bar"></div></div><figcaption>iOS: the Notification Service Extension decrypts each push and sets the title, the instance as the subtitle, thread and badge. When it can't, the generic text stays, still with the instance.</figcaption></figure>
+
+      <figure class="frame"><div class="phone shade"><div class="status"><span>9:41</span><span class="t-caption-sm">5G</span></div><div class="body">
+        <div class="push"><span class="app"></span><span class="col"><span class="top"><span>Gotalk · Woodworkers · now</span></span><span class="t-body-sm-strong">Bob replied to you in Router jigs</span><span>Clamp it first, then measure twice.</span></span></div>
+        <div class="push"><span class="app"></span><span class="col"><span class="top"><span>Gotalk · Woodworkers · 5m</span></span><span class="t-body-sm-strong">Alice reacted 👍 to your post</span></span></div>
+        <span class="t-caption-md mute">Each category is its own channel (Direct messages, Mentions, Replies, New topics, Reactions, Solutions, Moderation, Other), so Android's settings can silence reactions and keep mentions.</span>
+      </div><div class="home-bar"></div></div><figcaption>Android: the instance shows beside the app name.</figcaption></figure>
+
+    </div>
+  </section>
+</main>
+<script src="icons.js"></script>
+</body>
+</html>
