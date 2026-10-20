@@ -41,3 +41,6 @@ example
 # generated native folders
 /ios
 /android
+
+# The publisher's Firebase config for Android push (see app.config.js); EAS builds use GOOGLE_SERVICES_JSON
+google-services.json

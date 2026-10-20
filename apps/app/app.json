@@ -18,6 +18,11 @@
         ],
         "ITSAppUsesNonExemptEncryption": false
       },
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.sh.gotalk.app"
+        ]
+      },
       "bitcode": false
     },
     "android": {
@@ -77,8 +82,25 @@
           "cameraPermission": "Gotalk uses the camera when you turn it on in a voice channel.",
           "microphonePermission": "Gotalk uses the microphone so others can hear you in voice channels."
         }
-      ]
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/android-icon-monochrome.png",
+          "color": "#ff6161"
+        }
+      ],
+      "@bacons/apple-targets"
     ],
+    "locales": {
+      "en": {
+        "ios": {
+          "Localizable.strings": {
+            "GT_NEW_NOTIFICATION": "New notification"
+          }
+        }
+      }
+    },
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
