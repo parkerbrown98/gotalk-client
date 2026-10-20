@@ -906,6 +906,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/instance/push": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Show the push gateway registration, its status and published key (instance admins only)
+         * @description Requires a login session; API tokens and bots cannot call it.
+         */
+        get: operations["get-instance-push"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/instance/push/keys/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Replace the generated gateway signing key; the gateway revokes the old one once it verifies the new one (instance admins only)
+         * @description Requires a login session; API tokens and bots cannot call it.
+         */
+        post: operations["rotate-push-key"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/instance/push/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register with the push gateway or have it verify the instance again now (instance admins only)
+         * @description Requires a login session; API tokens and bots cannot call it.
+         */
+        post: operations["verify-instance-push"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/invites/{code}": {
         parameters: {
             query?: never;
@@ -2244,6 +2304,62 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/@me/push-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Show which notifications are pushed, quiet hours and do-not-disturb */
+        get: operations["get-push-preferences"];
+        /** Replace which notifications are pushed, quiet hours and do-not-disturb */
+        put: operations["set-push-preferences"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/push-subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the devices that receive this account's push notifications */
+        get: operations["list-push-subscriptions"];
+        put?: never;
+        /**
+         * Register a device's push gateway subscription for this account and session; registering the same subscription again replaces its keys
+         * @description Requires a login session; API tokens and bots cannot call it.
+         */
+        post: operations["add-push-subscription"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/@me/push-subscriptions/{subscriptionID}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Stop pushes to a device; the gateway subscription is deleted too when no other account here uses it */
+        delete: operations["delete-push-subscription"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/@me/sessions": {
         parameters: {
             query?: never;
@@ -2837,6 +2953,25 @@ export interface components {
             /** Format: uuid */
             updated_by?: string;
         };
+        ConfigSectionPushSettings: {
+            /** @description Setting this key in the config file or environment makes the section read-only */
+            config_key: string;
+            editable: boolean;
+            /** @description Why the section's provider could not be opened */
+            error?: string;
+            /** @description Secret fields that hold a value */
+            secrets_set: string[] | null;
+            settings: components["schemas"]["PushSettings"];
+            /**
+             * @description default: built-in defaults; config: set by the config file or environment (read-only here); settings: saved through the wizard or this API
+             * @enum {string}
+             */
+            source: "default" | "config" | "settings";
+            /** Format: date-time */
+            updated_at?: string;
+            /** Format: uuid */
+            updated_by?: string;
+        };
         ConfigSectionStorageSettings: {
             /** @description Setting this key in the config file or environment makes the section read-only */
             config_key: string;
@@ -3255,6 +3390,8 @@ export interface components {
             password_reset: boolean;
             /** @description Versioned policy documents and consent records */
             policies: boolean;
+            /** @description Clients can register devices for push notifications (see push) */
+            push: boolean;
             /** @enum {string} */
             search: "none" | "postgres" | "meilisearch";
             /** @description Topics can be voted up and down (places can turn it off) */
@@ -3531,6 +3668,7 @@ export interface components {
             limits: components["schemas"]["Limits"];
             name: string;
             policies: components["schemas"]["Policies"];
+            push: components["schemas"]["PushInfo"];
             rate_limits: components["schemas"]["TierInfo"][] | null;
             /** @enum {string} */
             registration_mode: "open" | "invite_only" | "closed";
@@ -3567,6 +3705,8 @@ export interface components {
             /** @description Available storage and mail drivers */
             drivers: components["schemas"]["ConfigDrivers"];
             mail: components["schemas"]["ConfigSectionMailSettings"];
+            /** @description Push notifications through a push gateway; see GET /instance/push for the registration status */
+            push: components["schemas"]["ConfigSectionPushSettings"];
             storage: components["schemas"]["ConfigSectionStorageSettings"];
             voice: components["schemas"]["ConfigSectionVoiceSettings"];
         };
@@ -4105,6 +4245,7 @@ export interface components {
             cors?: components["schemas"]["CORSSettings"];
             directory?: components["schemas"]["DirectorySettings"];
             mail?: components["schemas"]["MailSettings"];
+            push?: components["schemas"]["PushSettings"];
             storage?: components["schemas"]["StorageSettings"];
             voice?: components["schemas"]["VoiceSettings"];
         };
@@ -4128,6 +4269,139 @@ export interface components {
             summary?: string;
             /** @description Defaults to the policy's usual name */
             title?: string;
+        };
+        PushAdminStatus: {
+            /** @description Notification categories people can turn pushes off for */
+            categories: string[] | null;
+            /** Format: date-time */
+            checked_at: string | null;
+            /** @description Why the status is not active, from the gateway where it said */
+            detail: string;
+            /** @description Change push with PATCH /instance/config (section push) unless it is set in the config file or environment */
+            editable: boolean;
+            enabled: boolean;
+            gateway_name?: string;
+            gateway_url: string;
+            /** @description The gateway's ID for this instance */
+            instance_id: string | null;
+            key_id: string | null;
+            /** @enum {string} */
+            key_source: "none" | "generated" | "configured";
+            /** @description The origin the instance registers as (server.public_url) */
+            origin: string;
+            /** @description Published in /.well-known/gotalk-instance as push.keys */
+            public_key: string;
+            settings: components["schemas"]["ConfigSectionPushSettings"];
+            /** @enum {string} */
+            source: "default" | "config" | "settings";
+            /**
+             * @description active once the gateway verified the instance; pushes wait in the queue otherwise
+             * @enum {string}
+             */
+            status: "unregistered" | "pending" | "active" | "suspended" | "blocked" | "error";
+            /**
+             * Format: int64
+             * @description Devices registered on this instance
+             */
+            subscriptions: number;
+            /** Format: date-time */
+            verified_at: string | null;
+            web_apps: components["schemas"]["PushWebApp"][] | null;
+        };
+        PushInfo: {
+            /** @description The gateway verified the instance, so devices can register and receive pushes */
+            available: boolean;
+            /** @description Categories in PUT /users/@me/push-preferences */
+            categories: string[] | null;
+            /** @description The operator turned push notifications on */
+            enabled: boolean;
+            /** @description Register devices with this gateway only; fetch its /.well-known/gotalk-gateway for apps and limits */
+            gateway_url: string;
+            /** @description Payload modes devices may choose */
+            modes: string[] | null;
+            /** @description Apps browsers can subscribe for, with the VAPID key for pushManager.subscribe */
+            web_apps: components["schemas"]["PushWebApp"][] | null;
+        };
+        PushKeys: {
+            /** @description 16-byte auth secret, base64url */
+            auth: string;
+            /** @description Uncompressed P-256 public key (65 bytes), base64url */
+            p256dh: string;
+        };
+        PushPreferences: {
+            /** @description Whether each category is pushed: mentions, replies, direct_messages, reactions, new_topics, solutions, moderation. Missing categories are on */
+            categories: {
+                [key: string]: boolean;
+            };
+            /**
+             * Format: date-time
+             * @description Hold back every push until then (do not disturb); null when not paused
+             */
+            paused_until?: string | null;
+            /** @description Hold back pushes daily in this window; omitted when there are none (leave it out to turn quiet hours off) */
+            quiet_hours?: components["schemas"]["QuietHoursSetting"];
+        };
+        PushSettings: {
+            /** @description Given to the gateway for abuse and key notices; defaults to the oldest administrator's address */
+            contact_email?: string;
+            /** @description Register with the push gateway and send notifications to phones and browsers */
+            enabled: boolean;
+            /** @description Push gateway base URL (default https://push.gotalk.sh, the official gateway the official apps use) */
+            gateway_url?: string;
+            /** @description Ed25519 seed (32 bytes, unpadded base64url) for signing gateway requests; write-only, leave empty to keep the current value. Without one, the instance generates and stores a key */
+            signing_key?: string;
+        };
+        PushSubscription: {
+            app_id: string;
+            /** Format: date-time */
+            created_at: string;
+            /** @description Added by the session making this request */
+            current: boolean;
+            device_name: string;
+            gateway_url: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            last_push_at: string | null;
+            /** @enum {string} */
+            mode: "encrypted" | "id_only";
+            /** @enum {string} */
+            platform: "ios" | "android" | "web";
+            subscription_id: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        PushSubscriptionRequest: {
+            /** @description The gateway app the device registered for, such as gotalk */
+            app_id: string;
+            /** @description Shown in the caller's device list, e.g. Pixel 9 or Firefox on Linux */
+            device_name?: string;
+            /** @description The gateway the device registered with; must be this instance's push.gateway_url when given */
+            gateway_url?: string;
+            keys: components["schemas"]["PushKeys"];
+            /**
+             * @description encrypted pushes carry the notification encrypted to keys; id_only pushes carry only its ID for the device to fetch (not for web)
+             * @default encrypted
+             * @enum {string}
+             */
+            mode: "encrypted" | "id_only";
+            /** @enum {string} */
+            platform: "ios" | "android" | "web";
+            /** @description The subscription_id the gateway returned from POST /v1/devices */
+            subscription_id: string;
+        };
+        PushWebApp: {
+            app_id: string;
+            /** @description The applicationServerKey for pushManager.subscribe, base64url */
+            vapid_public_key: string;
+        };
+        QuietHoursSetting: {
+            /** @description HH:MM; earlier than start to run past midnight */
+            end: string;
+            /** @description HH:MM */
+            start: string;
+            /** @description IANA time zone, e.g. Europe/Berlin (default UTC) */
+            timezone?: string;
         };
         RateLimitStatus: {
             /** Format: int64 */
@@ -7865,7 +8139,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                section: "storage" | "mail" | "voice" | "cors" | "directory";
+                section: "storage" | "mail" | "voice" | "cors" | "directory" | "push";
             };
             cookie?: never;
         };
@@ -8099,6 +8373,120 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Instance"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-instance-push": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushAdminStatus"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "rotate-push-key": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushAdminStatus"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "verify-instance-push": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushAdminStatus"];
                 };
             };
             /** @description Unauthorized */
@@ -13626,6 +14014,231 @@ export interface operations {
             };
             /** @description Unauthorized */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-push-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushPreferences"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "set-push-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushPreferences"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushPreferences"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-push-subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushSubscription"][] | null;
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "add-push-subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushSubscription"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-push-subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subscriptionID: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
