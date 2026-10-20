@@ -15,6 +15,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo } from 'react';
 
 import { DesktopContextMenu } from '@/components/context-menu';
+import { PushHost } from '@/components/push-host';
 import { DesktopFrame } from '@/components/title-bar';
 import { shouldRetry } from '@/lib/api';
 import { authManager, useAuthHydrated } from '@/lib/auth';
@@ -78,6 +79,7 @@ function Navigation() {
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
         <Stack.Screen name="invite/[code]" options={{ headerShown: false }} />
         <Stack.Screen name="topics/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="notification" options={{ headerShown: false, animation: 'none' }} />
         <Stack.Screen name="explore" options={{ headerShown: false }} />
       </Stack>
     </NavigationThemeProvider>
@@ -113,6 +115,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <RealtimeHost />
         <FeedSyncHost />
+        <PushHost />
         <DesktopFrame>
           <Navigation />
         </DesktopFrame>
