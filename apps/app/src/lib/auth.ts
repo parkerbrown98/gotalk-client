@@ -90,7 +90,24 @@ export function prepareSignOut(instanceId: string): void {
   for (const l of beforeSignOut) l(instanceId);
 }
 
+const signOutTasks = new Set<(instanceId: string) => Promise<void>>();
+
+/**
+ * Work that needs the session one last time before this device ends it, such as removing this device's push
+ * subscription. Each task gets a few seconds; signing out never waits longer or fails because of one.
+ */
+export function onSignOutTask(task: (instanceId: string) => Promise<void>): () => void {
+  signOutTasks.add(task);
+  return () => signOutTasks.delete(task);
+}
+
+async function runSignOutTasks(instanceId: string): Promise<void> {
+  const timeout = new Promise<void>((resolve) => setTimeout(resolve, 4000));
+  await Promise.race([Promise.allSettled([...signOutTasks].map((t) => t(instanceId))), timeout]);
+}
+
 export async function signOut(target: { id: string; apiBaseUrl: string }): Promise<void> {
+  await runSignOutTasks(target.id);
   prepareSignOut(target.id);
   await authManager.signOut(target);
 }
