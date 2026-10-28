@@ -1,0 +1,76 @@
+# Throwaway stack for capturing store screenshots. Separate project name, ports, volumes and image tag from the
+# everyday `gotalk` stack, so nothing here touches it.
+name: gotalk-shots
+
+services:
+  gotalk:
+    image: gotalk-server:shots
+    ports:
+      - "18080:8080"
+    environment:
+      GOTALK_DATABASE_URL: "host=postgres port=5432 user=gotalk dbname=gotalk sslmode=disable"
+      PGPASSWORD: gotalk
+      GOTALK_REDIS_URL: redis://redis:6379/0
+      GOTALK_SERVER_PUBLIC_URL: http://localhost:18080
+      GOTALK_LOG_FORMAT: text
+      GOTALK_RATELIMIT_ENABLED: "false"
+      GOTALK_SETUP_INSTANCE_NAME: Gotalk
+      GOTALK_SETUP_ADMIN_USERNAME: operator
+      GOTALK_SETUP_ADMIN_EMAIL: operator@example.com
+      GOTALK_SETUP_ADMIN_PASSWORD: shots-operator-pass
+      GOTALK_VOICE_LIVEKIT_URL: ws://localhost:17880
+      GOTALK_VOICE_LIVEKIT_API_URL: http://livekit:17880
+      GOTALK_VOICE_LIVEKIT_API_KEY: gotalk
+      GOTALK_VOICE_LIVEKIT_API_SECRET: gotalk-local-voice-secret-change-me
+    volumes:
+      - data:/data
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: gotalk
+      POSTGRES_DB: gotalk
+      POSTGRES_PASSWORD: gotalk
+    volumes:
+      - pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gotalk -d gotalk"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+  livekit:
+    image: livekit/livekit-server:v1.13
+    command: ["--node-ip", "127.0.0.1"]
+    ports:
+      - "17880:17880"
+      - "17881:17881"
+      - "17882:17882/udp"
+    environment:
+      LIVEKIT_CONFIG: |
+        port: 17880
+        rtc:
+          tcp_port: 17881
+          udp_port: 17882
+        keys:
+          gotalk: gotalk-local-voice-secret-change-me
+        webhook:
+          api_key: gotalk
+          urls:
+            - http://gotalk:8080/api/v1/voice/webhook
+
+volumes:
+  data:
+  pg:
