@@ -122,11 +122,39 @@ function featureHtml(width, height, rawPath) {
 
 // --- Targets ---------------------------------------------------------------------------------------------------------
 const targets = [
+  { dir: 'ios/iphone-6.3-inch', width: 1179, height: 2556, kind: 'iphone', raw: 'iphone', order: PHONE_ORDER },
   { dir: 'ios/iphone-6.9-inch', width: 1320, height: 2868, kind: 'iphone', raw: 'iphone', order: PHONE_ORDER },
   { dir: 'ios/iphone-6.5-inch', width: 1284, height: 2778, kind: 'iphone', raw: 'iphone', order: PHONE_ORDER },
   { dir: 'ios/ipad-13-inch', width: 2064, height: 2752, kind: 'ipad', raw: 'ipad', order: IPAD_ORDER },
   { dir: 'android/phone', width: 1080, height: 1920, kind: 'android', raw: 'android', order: PHONE_ORDER },
 ];
+
+// --- App Store header and search results images ----------------------------------------------------------------------------
+// One idea: what Gotalk is, with two real screens. The 16:9 universal image is cropped to 21:9 for the header and to 3:2 for
+// search, so its text and phones stay inside the central region that both crops keep (x 410-4834, y 351-2599).
+const HERO = [
+  { file: 'app-store-header-3840x1646.png', w: 3840, h: 1646, u: 64, glow: '30%', text: { x: 240, w: 1700 },
+    phones: [{ raw: 'home', x: 2150, y: 170, h: 1650 }, { raw: 'chat', x: 2960, y: 330, h: 1650 }] },
+  { file: 'search-results-3840x2560.png', w: 3840, h: 2560, u: 70, glow: '30%', text: { x: 170, w: 1450 },
+    phones: [{ raw: 'home', x: 1750, y: 420, h: 2000 }, { raw: 'chat', x: 2750, y: 700, h: 2000 }] },
+  { file: 'header-and-search-5244x2950.png', w: 5244, h: 2950, u: 84, glow: '35%', text: { x: 743, w: 1500 },
+    phones: [{ raw: 'home', x: 2443, y: 425, h: 2100 }, { raw: 'chat', x: 3512, y: 485, h: 2100 }] },
+];
+
+function heroHtml({ w, h, u, glow, text, phones }) {
+  const devices = phones.map((p) => {
+    const { html, nh } = frameHtml('iphone', path.join(rawDir, 'iphone', `${p.raw}.png`));
+    return `<div style="position:absolute;left:${p.x}px;top:${p.y}px;transform:scale(${p.h / nh});transform-origin:0 0;">${html.replace('position:absolute;transform-origin:0 0;', 'position:relative;')}</div>`;
+  }).join('');
+  return `<!doctype html><meta charset="utf-8">${FONT}<body style="margin:0;width:${w}px;height:${h}px;overflow:hidden;position:relative;${backdrop(glow)}font-family:Inter,system-ui;-webkit-font-smoothing:antialiased;">
+    <div style="position:absolute;left:${text.x}px;top:0;bottom:0;width:${text.w}px;display:flex;flex-direction:column;justify-content:center;gap:${Math.round(u * 0.6)}px;">
+      <div style="display:flex;align-items:center;gap:${Math.round(u * 0.8)}px;"><img src="${iconUrl}" width="${Math.round(u * 3.2)}" height="${Math.round(u * 3.2)}" alt=""><span style="font-size:${Math.round(u * 2.6)}px;font-weight:600;letter-spacing:-0.02em;color:#fff;">Gotalk</span></div>
+      <div style="font-size:${Math.round(u * 1.5)}px;line-height:1.2;font-weight:500;letter-spacing:-0.01em;color:#f4f4f6;text-wrap:balance;">Forum-first communities with chat and voice.</div>
+      <div style="font-size:${Math.round(u * 0.95)}px;color:#a8a9ab;">Open source and self-hostable.</div>
+    </div>
+    ${devices}
+  </body>`;
+}
 
 for (const d of ['ios', 'android']) fs.rmSync(path.join(outDir, d), { recursive: true, force: true });
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'gotalk-compose-'));
@@ -151,6 +179,7 @@ try {
       await shoot(storeHtml(t, t.kind, slug, rawPath), path.join(outDir, t.dir, `${String(i + 1).padStart(2, '0')}-${FILE[slug]}.png`), t.width, t.height);
     }
   }
+  for (const c of HERO) await shoot(heroHtml(c), path.join(outDir, 'ios', 'app-store-header', c.file), c.w, c.h);
   await shoot(featureHtml(1024, 500, path.join(rawDir, 'android', 'home.png')), path.join(outDir, 'android', 'feature-graphic.png'), 1024, 500);
 } finally {
   await browser.close();

@@ -10,13 +10,19 @@ device frame with a headline on the brand backdrop. They are not drawn from the 
 
 | Folder | Size | Store slot |
 |---|---|---|
+| `ios/iphone-6.3-inch` | 1179 × 2556 | App Store, iPhone 6.1" / 6.3" slot (7 images) |
 | `ios/iphone-6.9-inch` | 1320 × 2868 | App Store, iPhone 6.9" (7 images) |
 | `ios/iphone-6.5-inch` | 1284 × 2778 | App Store, iPhone 6.5" (7 images) |
 | `ios/ipad-13-inch` | 2064 × 2752 | App Store, iPad 13" (6 images; the app sets `supportsTablet`) |
+| `ios/app-store-header/app-store-header-3840x1646.png` | 3840 × 1646 | App Store product page header (21:9) |
+| `ios/app-store-header/search-results-3840x2560.png` | 3840 × 2560 | App Store search results image (3:2) |
+| `ios/app-store-header/header-and-search-5244x2950.png` | 5244 × 2950 | One 16:9 image Apple crops for both placements |
 | `android/phone` | 1080 × 1920 | Google Play, phone (7 images) |
 | `android/feature-graphic.png` | 1024 × 500 | Google Play feature graphic |
 
-All files are opaque PNGs, which both stores require. Google Play tablet (7"/10") screenshots are optional and not
+All files are opaque PNGs, which both stores require. The header and search results images are for iOS 27 and later
+and are optional; they show the app's one-line pitch and two real screens. In the 16:9 image the text and phones stay
+inside the central region that both of Apple's crops keep. Google Play tablet (7"/10") screenshots are optional and not
 produced.
 
 Notes on what the images show:
