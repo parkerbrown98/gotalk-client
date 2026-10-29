@@ -154,7 +154,7 @@ function CreateTokenDialog({
       <Text variant="headingMd" accessibilityRole="header">
         Create token
       </Text>
-      <TextField label="Name" value={name} onChangeText={setName} autoCapitalize="sentences" maxLength={100} placeholder="What uses it, e.g. Backup script" autoFocus />
+      <TextField label="Name" value={name} onChangeText={setName} autoCapitalize="sentences" maxLength={100} placeholder="What uses it, e.g. Backup script" autoFocus={Platform.OS === 'web'} />
       <Stack gap="sm">
         <Text variant="bodySmStrong" tone="onDark">
           Access

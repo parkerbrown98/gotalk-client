@@ -1,5 +1,5 @@
 import { Children, type ReactNode } from 'react';
-import { Image, Modal, Pressable, View, useWindowDimensions, type ViewStyle } from 'react-native';
+import { Image, Modal, Pressable, ScrollView, View, useWindowDimensions, type ViewStyle } from 'react-native';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import Animated, { useReducedMotion } from 'react-native-reanimated';
 
@@ -298,6 +298,8 @@ export function Dialog({ visible, onClose, onDismiss, children }: DialogProps) {
                     borderColor: c.hairlineStrong,
                     borderWidth: 1,
                     gap: theme.space.lg,
+                    // Shrinks to what the keyboard leaves, so the content scrolls instead of running under it.
+                    flexShrink: 1,
                   },
                   wide
                     ? { width: 480, maxWidth: '92%', borderRadius: theme.radii.xl, padding: theme.space.xl, ...(reduced ? null : dialogIn) }
@@ -312,7 +314,9 @@ export function Dialog({ visible, onClose, onDismiss, children }: DialogProps) {
                 ]}
               >
                 {wide ? null : <View style={{ alignSelf: 'center', width: 36, height: 4, borderRadius: 2, backgroundColor: c.stone, marginTop: -12 }} />}
-                {children}
+                <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ gap: theme.space.lg }} alwaysBounceVertical={false} keyboardShouldPersistTaps="handled">
+                  {children}
+                </ScrollView>
               </Animated.View>
             </ElevationContext.Provider>
           </>

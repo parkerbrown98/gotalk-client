@@ -1,7 +1,7 @@
 import { Avatar, Button, Checkbox, Dialog, ListCard, ListRow, Notice, Stack, Text, TextField } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, Platform } from 'react-native';
 
 import { SecretReveal } from '@/components/secret-reveal';
 import { SettingsPage } from '@/components/settings-page';
@@ -93,7 +93,7 @@ function CreateApplicationDialog({
       <Text variant="headingMd" accessibilityRole="header">
         New application
       </Text>
-      <TextField label="Name" value={name} onChangeText={setName} maxLength={100} autoFocus />
+      <TextField label="Name" value={name} onChangeText={setName} maxLength={100} autoFocus={Platform.OS === 'web'} />
       <TextField label="Bot username" value={username} onChangeText={setUsername} autoCapitalize="none" autoCorrect={false} hint="3-32 letters, numbers, dots, dashes or underscores." />
       <TextField label="Description" value={description} onChangeText={setDescription} multiline maxLength={1000} />
       <TextField label="Icon URL" value={icon} onChangeText={setIcon} autoCapitalize="none" autoCorrect={false} />
