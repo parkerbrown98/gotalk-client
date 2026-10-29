@@ -245,7 +245,8 @@ export function TextField({ label, error, hint, invalid, trailing, style, onFocu
         onBlur?.(e);
       }}
       style={[
-        typeStyle(theme, 'bodyMd'),
+        // 14px like the labels and buttons around it. The web keeps 16px: iOS Safari zooms into smaller inputs.
+        typeStyle(theme, Platform.OS === 'web' ? 'bodyMd' : 'bodySm'),
         {
           minHeight: theme.sizes.controlHeight,
           paddingHorizontal: theme.space.md,
