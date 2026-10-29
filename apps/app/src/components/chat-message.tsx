@@ -1,5 +1,5 @@
 import { attachmentSummary, clockTime, messagePreview, previewText, type Message } from '@gotalk/core';
-import { Avatar, hoverTransition, Icon, Text, typeStyle, useTheme, type PressState } from '@gotalk/ui';
+import { Avatar, hoverTransition, Icon, inputTypeStyle, Text, useTheme, type PressState } from '@gotalk/ui';
 import { createContext, memo, useContext, useRef, useState, type ReactNode } from 'react';
 import { Platform, Pressable, TextInput, View, type TextStyle } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -155,7 +155,7 @@ function EditBox({ message, scope }: { message: Message; scope: ChatScope }) {
           }
         }}
         style={[
-          typeStyle(theme, scope.wide ? 'bodyMd' : 'bodySm'),
+          inputTypeStyle(theme),
           {
             color: c.onDark,
             paddingHorizontal: 12,
