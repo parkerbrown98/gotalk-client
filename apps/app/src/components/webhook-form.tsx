@@ -1,7 +1,7 @@
 import { webhookEventInfo } from '@gotalk/core';
 import { Button, Checkbox, Dialog, Notice, Stack, Text, TextField, useTheme } from '@gotalk/ui';
 import { useState } from 'react';
-import { ScrollView, View, useWindowDimensions } from 'react-native';
+import { Platform, ScrollView, View, useWindowDimensions } from 'react-native';
 
 import { failureMessage } from '@/lib/failure';
 
@@ -58,7 +58,7 @@ export function WebhookDialog(props: {
   const { height } = useWindowDimensions();
   return (
     <Dialog visible={props.visible} onClose={props.onClose}>
-      <ScrollView style={{ maxHeight: height * 0.8 }} contentContainerStyle={{ gap: 16 }} keyboardShouldPersistTaps="handled">
+      <ScrollView style={{ maxHeight: height * 0.8 }} contentContainerStyle={{ gap: 16 }} keyboardShouldPersistTaps="handled" keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}>
         {openings > 0 ? <WebhookForm key={openings} {...props} /> : null}
       </ScrollView>
     </Dialog>

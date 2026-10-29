@@ -2,7 +2,7 @@ import { BAN_DURATIONS, REPORT_REASONS, TIMEOUT_DURATIONS, canManageRole, isTime
 import { Avatar, Badge, Button, Checkbox, Dialog, ListCard, ListRow, Notice, PillTabs, RadioOptions, Stack, Text, TextField, useModalDismissal, useTheme } from '@gotalk/ui';
 import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
-import { ActivityIndicator, ScrollView, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, View, useWindowDimensions } from 'react-native';
 
 import { RoleDot } from '@/components/roles';
 import { useSession } from '@/lib/auth';
@@ -153,7 +153,7 @@ export function MemberModerationDialog({ slug, userId, visible, onClose }: { slu
   const { dismissWithAction, onDismiss } = useModalDismissal(onClose);
   return (
     <Dialog visible={visible} onClose={onClose} onDismiss={onDismiss}>
-      <ScrollView style={{ maxHeight: height * 0.8 }} contentContainerStyle={{ gap: 16 }} keyboardShouldPersistTaps="handled">
+      <ScrollView style={{ maxHeight: height * 0.8 }} contentContainerStyle={{ gap: 16 }} keyboardShouldPersistTaps="handled" keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}>
         {openings > 0 && userId ? <MemberModeration key={`${openings}-${userId}`} slug={slug} userId={userId} onClose={onClose} dismissWithAction={dismissWithAction} /> : null}
       </ScrollView>
     </Dialog>

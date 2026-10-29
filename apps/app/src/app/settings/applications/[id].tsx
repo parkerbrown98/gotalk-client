@@ -329,7 +329,7 @@ function CommandDialog({ editing, taken, onClose, onSave, onRemove }: { editing:
   if (editing && editing !== shown) setShown(editing);
   return (
     <Dialog visible={!!editing} onClose={onClose}>
-      <ScrollView style={{ maxHeight: height * 0.8 }} contentContainerStyle={{ gap: 16 }} keyboardShouldPersistTaps="handled">
+      <ScrollView style={{ maxHeight: height * 0.8 }} contentContainerStyle={{ gap: 16 }} keyboardShouldPersistTaps="handled" keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}>
         {openings > 0 && shown ? <CommandForm key={openings} initial={shown.command} isNew={shown.index < 0} taken={taken} onClose={onClose} onSave={onSave} onRemove={onRemove} /> : null}
       </ScrollView>
     </Dialog>

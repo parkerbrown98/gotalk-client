@@ -1,5 +1,5 @@
 import { Children, type ReactNode } from 'react';
-import { Image, Modal, Pressable, ScrollView, View, useWindowDimensions, type ViewStyle } from 'react-native';
+import { Image, Keyboard, Modal, Pressable, ScrollView, View, useWindowDimensions, type ViewStyle } from 'react-native';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import Animated, { useReducedMotion } from 'react-native-reanimated';
 
@@ -285,7 +285,13 @@ export function Dialog({ visible, onClose, onDismiss, children }: DialogProps) {
         {visible ? (
           <>
             <Animated.View entering={fadeEntering} exiting={fadeExiting} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)' }}>
-              <Pressable accessibilityLabel="Close" accessibilityRole="button" onPress={onClose} style={{ flex: 1 }} />
+              <Pressable
+                accessibilityLabel="Close"
+                accessibilityRole="button"
+                // With the keyboard up, the first tap outside puts it away and the next closes the drawer.
+                onPress={() => (Keyboard.isVisible() ? Keyboard.dismiss() : onClose())}
+                style={{ flex: 1 }}
+              />
             </Animated.View>
             <ElevationContext.Provider value>
               <Animated.View
@@ -314,7 +320,7 @@ export function Dialog({ visible, onClose, onDismiss, children }: DialogProps) {
                 ]}
               >
                 {wide ? null : <View style={{ alignSelf: 'center', width: 36, height: 4, borderRadius: 2, backgroundColor: c.stone, marginTop: -12 }} />}
-                <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ gap: theme.space.lg }} alwaysBounceVertical={false} keyboardShouldPersistTaps="handled">
+                <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ gap: theme.space.lg }} alwaysBounceVertical={false} keyboardShouldPersistTaps="handled" keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}>
                   {children}
                 </ScrollView>
               </Animated.View>

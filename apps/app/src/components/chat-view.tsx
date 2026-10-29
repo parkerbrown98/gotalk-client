@@ -397,6 +397,7 @@ export function ChatView({ channel, slug, wide, placeholder, intro, starter, onO
             ListHeaderComponent={query.isFetchingNextPage ? <ActivityIndicator style={{ margin: 12 }} /> : null}
             ListFooterComponent={<View style={{ height: 8 }} />}
             keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
           />
         )}
         {problem ? (
