@@ -260,6 +260,9 @@ export function TextField({ label, error, hint, invalid, trailing, style, onFocu
           paddingRight: trailing ? 64 : theme.space.md,
         },
         multiline ? { minHeight: 84, textAlignVertical: 'top' } : null,
+        // Native single-line inputs center their text in the field's own height; a line height (and padding on top
+        // of it) pushes the text off-center on iOS.
+        !multiline && Platform.OS !== 'web' ? { lineHeight: undefined, paddingVertical: 0, textAlignVertical: 'center' } : null,
         Platform.OS === 'web' ? ({ outlineWidth: 0, outlineStyle: 'none' } as unknown as TextStyle) : null,
         hoverTransition as TextStyle,
         style,
