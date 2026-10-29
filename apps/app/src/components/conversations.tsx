@@ -1,6 +1,6 @@
 import { conversationTitle, messagePreview, shortTime } from '@gotalk/core';
 import { unwrap, type Schemas } from '@gotalk/api-client';
-import { Avatar, Button, Dialog, hoverTransition, Icon, NavRow, Notice, Text, TextField, typeStyle, useTheme, type PressState } from '@gotalk/ui';
+import { Avatar, Button, Dialog, hoverTransition, Icon, inputTypeStyle, NavRow, Notice, Text, TextField, useTheme, type PressState } from '@gotalk/ui';
 import { useQueries } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -210,7 +210,7 @@ function NewConversationBody({ onClose, addTo }: { onClose: () => void; addTo?: 
             onChangeText={setQ}
             placeholder={picked.length ? '' : 'Name or username'}
             placeholderTextColor={c.ash}
-            style={[typeStyle(theme, 'bodyMd'), { flex: 1, minWidth: 80, color: c.onDark, paddingVertical: 2 } as TextStyle, Platform.OS === 'web' ? ({ outlineWidth: 0, outlineStyle: 'none' } as unknown as TextStyle) : null]}
+            style={[inputTypeStyle(theme), { flex: 1, minWidth: 80, color: c.onDark, paddingVertical: 2 } as TextStyle, Platform.OS === 'web' ? ({ outlineWidth: 0, outlineStyle: 'none' } as unknown as TextStyle) : null]}
           />
         </View>
         <Text variant="captionMd" tone="muted">

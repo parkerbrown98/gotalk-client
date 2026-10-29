@@ -1,5 +1,5 @@
 import { applyFormat, completeMention, findMentionQuery, memberRoleColor, LIMITS, type Format, type Selection } from '@gotalk/core';
-import { Avatar, hoverTransition, Icon, Text, typeStyle, useTheme, type IconName, type PressState } from '@gotalk/ui';
+import { Avatar, hoverTransition, Icon, inputTypeStyle, Text, useTheme, type IconName, type PressState } from '@gotalk/ui';
 import { useRef, useState } from 'react';
 import { Platform, Pressable, TextInput, View, type NativeSyntheticEvent, type TextInputKeyPressEventData, type TextStyle } from 'react-native';
 
@@ -151,7 +151,7 @@ export function Composer({ value, onChange, slug, placeholder, minHeight = 120, 
             placeholder={placeholder}
             placeholderTextColor={c.ash}
             style={[
-              typeStyle(theme, 'bodyMd'),
+              inputTypeStyle(theme),
               { minHeight, paddingHorizontal: theme.space.lg, paddingVertical: theme.space.md, color: c.onDark, textAlignVertical: 'top' } as TextStyle,
               Platform.OS === 'web' ? ({ outlineWidth: 0, outlineStyle: 'none', resize: 'vertical' } as unknown as TextStyle) : null,
             ]}
