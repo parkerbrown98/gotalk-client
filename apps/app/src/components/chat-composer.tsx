@@ -1,5 +1,5 @@
 import { commandQuery, completeMention, findMentionQuery, memberRoleColor, MESSAGE_LIMIT, parseCommand, validateMessage, type ChannelCommand, type Message, type ParsedCommand, type Selection } from '@gotalk/core';
-import { Avatar, hoverTransition, Icon, Text, typeStyle, useTheme, type PressState } from '@gotalk/ui';
+import { Avatar, hoverTransition, Icon, inputTypeStyle, Text, useTheme, type PressState } from '@gotalk/ui';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, TextInput, View, type NativeSyntheticEvent, type TextInputKeyPressEventData, type TextStyle } from 'react-native';
 
@@ -249,7 +249,7 @@ export function ChatComposer({ channel, slug, placeholder, wide, replyTo, onClea
               placeholder={placeholder}
               placeholderTextColor={c.ash}
               style={[
-                typeStyle(theme, 'bodyMd'),
+                inputTypeStyle(theme),
                 { flex: 1, color: c.onDark, height: Math.max(24, height), maxHeight: 160, paddingVertical: 4, textAlignVertical: 'top' } as TextStyle,
                 Platform.OS === 'web' ? ({ outlineWidth: 0, outlineStyle: 'none', resize: 'none' } as unknown as TextStyle) : null,
               ]}

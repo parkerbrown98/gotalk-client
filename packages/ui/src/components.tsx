@@ -39,6 +39,11 @@ export function typeStyle(theme: Theme, variant: TypographyVariant): TextStyle {
   };
 }
 
+/** Text typed into an input: 14px like the labels and buttons around it. The web keeps 16px, since iOS Safari zooms into smaller inputs. */
+export function inputTypeStyle(theme: Theme): TextStyle {
+  return typeStyle(theme, Platform.OS === 'web' ? 'bodyMd' : 'bodySm');
+}
+
 export type TextVariant = TypographyVariant;
 export type TextTone = 'default' | 'muted' | 'faint' | 'onDark' | 'inverse' | 'danger' | 'success' | 'warning' | 'info';
 
@@ -245,8 +250,7 @@ export function TextField({ label, error, hint, invalid, trailing, style, onFocu
         onBlur?.(e);
       }}
       style={[
-        // 14px like the labels and buttons around it. The web keeps 16px: iOS Safari zooms into smaller inputs.
-        typeStyle(theme, Platform.OS === 'web' ? 'bodyMd' : 'bodySm'),
+        inputTypeStyle(theme),
         {
           minHeight: theme.sizes.controlHeight,
           paddingHorizontal: theme.space.md,

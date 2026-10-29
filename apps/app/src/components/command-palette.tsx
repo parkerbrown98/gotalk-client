@@ -7,7 +7,7 @@ import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
 import { useRouteSlug } from '@/components/shell';
 import { useActiveInstance } from '@/lib/instances';
 import { useBoards, useChannels, useMyPlaces } from '@/lib/places';
-import { typeStyle } from '@gotalk/ui';
+import { inputTypeStyle } from '@gotalk/ui';
 
 const backdropEntering = FadeIn.duration(140);
 
@@ -114,7 +114,7 @@ export function CommandPalette({ visible, onClose }: { visible: boolean; onClose
                 else if (key === 'Escape') onClose();
               }}
               onSubmitEditing={() => run(entries[chosen])}
-              style={[typeStyle(theme, 'bodyMd'), { flex: 1, color: c.onDark }, Platform.OS === 'web' ? ({ outlineStyle: 'none' } as never) : null]}
+              style={[inputTypeStyle(theme), { flex: 1, color: c.onDark }, Platform.OS === 'web' ? ({ outlineStyle: 'none' } as never) : null]}
             />
           </View>
           <View style={{ padding: 8, gap: 2 }}>

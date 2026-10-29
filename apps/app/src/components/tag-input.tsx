@@ -1,5 +1,5 @@
 import { isValidTag, LIMITS, normalizeTag } from '@gotalk/core';
-import { Badge, hoverTransition, Icon, Text, typeStyle, useTheme, type PressState } from '@gotalk/ui';
+import { Badge, hoverTransition, Icon, inputTypeStyle, Text, useTheme, type PressState } from '@gotalk/ui';
 import { useState } from 'react';
 import { Platform, Pressable, TextInput, View, type TextStyle } from 'react-native';
 
@@ -65,7 +65,7 @@ export function TagInput({ slug, value, onChange }: TagInputProps) {
             blurOnSubmit={false}
             placeholder={value.length === 0 ? 'Add up to 5 tags' : ''}
             placeholderTextColor={c.ash}
-            style={[typeStyle(theme, 'bodySm'), { flex: 1, minWidth: 96, paddingVertical: 4, color: c.onDark }, Platform.OS === 'web' ? ({ outlineWidth: 0, outlineStyle: 'none' } as unknown as TextStyle) : null]}
+            style={[inputTypeStyle(theme), { flex: 1, minWidth: 96, paddingVertical: 4, color: c.onDark }, Platform.OS === 'web' ? ({ outlineWidth: 0, outlineStyle: 'none' } as unknown as TextStyle) : null]}
           />
         ) : null}
       </View>
