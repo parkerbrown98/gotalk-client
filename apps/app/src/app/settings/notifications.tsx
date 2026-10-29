@@ -89,15 +89,17 @@ export default function NotificationSettings() {
     }
   }
 
-  const status = registered
-    ? Platform.OS === 'web'
-      ? `On. Notifications from ${name} arrive while this browser is running, even with Gotalk closed.`
-      : `On. Notifications from ${name} arrive even when Gotalk is closed.`
-    : enabled
-      ? busy || changing
-        ? 'Turning on…'
-        : `On, waiting until ${name} is ready to send notifications.`
-      : `Get notified about mentions, replies and messages on ${name}, even when Gotalk is closed.`;
+  // Turning on says so from the first tap: the text would otherwise flip back and forth while the permission and registration settle.
+  const turningOn = !enabled ? changing : !registered && (busy || changing);
+  const status = turningOn
+    ? 'Turning on…'
+    : registered
+      ? Platform.OS === 'web'
+        ? `On. Notifications from ${name} arrive while this browser is running, even with Gotalk closed.`
+        : `On. Notifications from ${name} arrive even when Gotalk is closed.`
+      : enabled
+        ? `On, waiting until ${name} is ready to send notifications.`
+        : `Get notified about mentions, replies and messages on ${name}, even when Gotalk is closed.`;
 
   const categories = pushCategoryChoices(push?.categories, preferences.data);
   const devices = [...(subscriptions.data ?? [])].sort((a, b) => Number(b.current) - Number(a.current) || Date.parse(b.created_at) - Date.parse(a.created_at));
@@ -109,7 +111,8 @@ export default function NotificationSettings() {
         <Text variant="headingSm">This device</Text>
         <Checkbox
           checked={enabled}
-          disabled={changing || (!enabled && !canTurnOn)}
+          // `toggle` ignores taps while a change is in flight; dimming the row for it made the text flash.
+          disabled={!enabled && !canTurnOn}
           onChange={(on) => void toggle(on)}
           accessibilityLabel="Push notifications on this device"
           description={status}
