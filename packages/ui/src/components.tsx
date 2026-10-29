@@ -187,7 +187,9 @@ export function Button({ title, variant = 'primary', size = 'md', loading, disab
         // Hover lifts the fill (web and desktop); pressing also shrinks the button a touch so it reads as physical.
         <Animated.View
           style={{
-            flexGrow: 1,
+            // Fill the width of the Pressable. `flexGrow` here grows along its column and claims all the height
+            // of any container that stretches the button.
+            alignSelf: 'stretch',
             minHeight: size === 'sm' ? 28 : theme.sizes.controlHeight,
             paddingHorizontal: size === 'sm' ? 10 : variant === 'outline' ? 14 : theme.space.lg,
             paddingVertical: size === 'sm' ? 2 : variant === 'outline' ? 6 : theme.space.sm,
